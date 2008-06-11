@@ -1,0 +1,260 @@
+
+#--------------------------
+# /etc/prompt - sets bash prompt
+# 	
+# 	To use it run  
+# 		. /etc/prompt
+#
+# 	should be called after keychain (it uses keychain env vars (SSH_..) to detect if host is remote)
+#
+#
+# Sample "line-shot"
+# 
+#	Default user on default host in home dir
+#		~>	
+#
+#	As before but Last command has return code 13,  system bell is sounded
+#		13 ~>
+#
+#	User "lvv" on host "big"  in "/tmp" dir, color of BIG set to specific color if set in config
+#	Hostname is alwais shown if host is remote. 
+#		lvv@BIG /tmp >
+#
+#	User "root"  (almost all prompt set to magenta color)
+# 		root /tmp> 
+#  
+#
+#  Features/Advantages
+#
+#		Any terminal.
+# 			All color prompt scripts that I've seen use hard coded terminal escape
+# 			sequences for vt102/vt220. That is, they  will not work on any other
+# 			terminal.  My prompt  will work on on any terminfo terminal
+#
+# 		Shell Title
+# 			Function set_shell_title() set xterm title, gnome-terminal tabs and gnu-screen labels. 
+# 			by default it current dir.   It is also possible to use it for other info.
+# 			I use it to display remote hostname or file names I am currently editing. 
+# 			(FIXME write how to do this)
+# 			(FIXME make screen shots)
+#
+#  Leonid@Volnitsky.com / 2007
+#
+################
+#
+#  TOFIX: after "su -" hostname is not displayed
+#
+# TO CHECK: 
+# # GNU awk and sed have regex issues in a multibyte environment.  If any locale
+# # variables are set, then override by setting LC_ALL
+# lvars=`locale 2>/dev/null | egrep -v '="?(|POSIX|C)"?$' 2>/dev/null`
+# if [ -n "$lvars$LANG$LC_ALL" ]; then
+#     LC_ALL=C
+#         export LC_ALL
+#         fi
+
+# TODO
+#   display git brach  http://unboundimagination.com/Current-Git-Branch-in-Bash-Prompt
+#---
+# parse_git_branch() {
+#   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+# }
+# PS1="\w\$(parse_git_branch) $ "
+##################################################################### lvv Prompt
+
+	# echo "*** /etc/prompt  on A,  TERM=$TERM"
+	unset PROMPT_COMMAND
+
+	#######  work aroud for MC bug
+	if [ -z "$TERM" -o "$TERM" = "dumb" -o -n "$MC_SID" ]; then
+		unset PROMPT_COMMAND
+		PS1='\w> '
+		return 0
+	fi
+
+	# if label non empty, append 1 space
+	label=${1:+$1 }
+
+	default_user=lvv 		# default user is not displayed
+	#default_host="tosha" 	# default host is not displayed
+	default_domain="lvvnet"	# default domain is not deplayed, remote host is alwais shown
+
+	export who_where
+
+
+set_shell_title() { 
+
+	xterm_title() { echo  -n "]2;${@}" ; }
+
+	screen_title() { 
+		# FIXME: run this only if screen is in xterm (how to test for this?)
+		xterm_title  "sCRn  $label$plain_who_where $@" 
+
+		# FIXME $STY not enherited though "su -"
+		[ "$STY" ] && screen -S $STY -X title "$@"
+	}
+
+	case $TERM in
+
+		screen*)                                                    
+			screen_title "$@"
+			;;
+
+		xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )       
+			# is there a capability which we can to test 
+			# for "set term title-bat" and its escapes?
+			#echo -n "]2;$label$plain_who_where $1"
+			xterm_title  "$label$plain_who_where $@"
+			;;
+
+		*)                                                     
+			;;
+	esac
+}
+
+export -f set_shell_title
+
+###################################################### ID (user name)
+	id=`id -un`
+	id=${id#$default_user}
+
+###################################################### TTY
+	tty=`tty`
+	tty=`echo $tty | sed "s:/dev/pts/:p:; s:/dev/tty::" `		# RH tty devs	
+	tty=`echo $tty | sed "s:/dev/vc/:vc:" `				# gentoo tty devs
+
+	if [[ "$TERM" = "screen" ]] ;  then
+
+		#	[ "$WINDOW" = "" ] && WINDOW="?"
+		#	
+		#		# if under screen then make tty name look like s1-p2
+		#		# tty="${WINDOW:+s}$WINDOW${WINDOW:+-}$tty"
+		#	tty="${WINDOW:+s}$WINDOW"  # replace tty name with screen number
+		tty="$WINDOW"  # replace tty name with screen number
+	fi
+
+	# we don't need tty name under X11
+	case $TERM in
+		xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )  unset tty ;;
+		*)		                                                              ;;
+	esac
+
+	########################################################## ANSI 
+	# FIXME: color config should be at the top
+	#
+	#   black?    0	8			  
+	#	red       1 9
+	#	green     2 10
+	#	yellow    3 11
+	#	blue      4 12
+	#	magenta   5 13
+	#	cyan      6 14
+	#	white     7 15
+	#
+	#	terminfo setaf/setab - sets ansi foreground/background
+	#	terminfo sgr0 - resets all atributes
+	#	terminfo colors - number of colors
+
+	### if term support colors,  then use color prompt, else bold
+
+	colors_reset='\['`tput sgr0`'\]'
+
+	#"bell='\['`tput bel`'\]'
+	bell=`tput bel`
+	# Workaround for UTF readline(?) bug. Dissable bell when UTF
+	locale |grep -qi UTF && bell=''	
+
+	if [ "`tput colors`" -ge 8 ];  then				#  Colors
+		dir_color='\['`tput setaf 6; tput bold`'\]'
+		rc_color='\['`tput setaf  1;`$bell'\]'
+		root_id_color='\['`tput setaf 5`'\]'
+	else											#  B/W
+		dir_color='\['`tput bold`'\]'
+		rc_color='\['`tput bold;`$bell'\]'
+	fi
+
+
+
+	########################################################### HOST
+	### we don't display home host/domain  $SSH_* set by SSHD or keychain
+
+	# is sshd our perent?
+	if 	[[ "$SSH_AUTH_SOCK" ]] || 
+		for ((pid=$$; $pid != 1 ; pid=`ppid_of $pid`)); do ps h -o command -p $pid; done | grep -q sshd
+	then 
+		host=${HOSTNAME}
+		#host=`hostname --short`
+		#host=`echo ${host%$default_host} | tr a-z A-Z`
+		host=`echo ${host} | tr a-z A-Z`
+		# don't use bright, margenta(5), 
+		case $host in
+			TOSHA)	host_color='\['`tput setaf 3`'\]' ;;
+			TASHA)	host_color='\['`tput setaf 6`'\]' ;;
+			AL)		host_color='\['`tput setaf 2`'\]' ;;
+			SH)		host_color='\['`tput setaf 4`'\]' ;;
+			LVV)	host_color='\['`tput setaf 4`'\]' ;;
+			AHP)	host_color='\['`tput setaf 7`'\]' ;;
+		esac
+	else
+		host=""
+	fi 
+
+	# we already should have short host name, but just in case
+	host=${host%.localdoman}
+	host=${host%.$default_domain}
+
+
+########################################################### WHO_WHERE 
+# who_ware. Is constant.  Looks like
+# 	[user@]host[-tty]
+
+color_who_where="${id:+$id@}$host_color$host${tty:+ $tty}"
+plain_who_where="${id:+$id@}$host"
+
+# remove trailing "@" if any
+color_who_where="${color_who_where%@}"
+plain_who_where="${plain_who_where%@}"
+
+# add traling " "
+color_who_where="$color_who_where "
+plain_who_where="$plain_who_where "
+
+# if  $who_where==" "  then  who_where=""
+color_who_where="${color_who_where## }"
+plain_who_where="${plain_who_where## }"
+
+
+# if root then highlight who_where
+if	[ "$id" == "root" ]  ; then 
+	color_who_where="$root_id_color$color_who_where$colors_reset"
+fi
+
+
+############################################################### PROMPT_COMMAND
+
+PROMPT_COMMAND='
+
+	rc="$?"
+
+	if [[ "$rc" = "0" ]]; then 
+		rc=""
+	else
+		#rc="$rc_color$rc$colors_reset$bell "
+		rc="$rc_color$rc$colors_reset "
+	fi
+
+	set_shell_title "$PWD/" 
+
+	# truncate $PWD to $max
+		max=35
+		front=7
+		head=${PWD:0:$front}"..."
+
+	#PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
+	PS1="$label$rc'$color_who_where$dir_color'\w> '$colors_reset'"
+
+'
+#echo \"$color_who_where\"
+unset rc id tty bell default_user default_host
+unset rc_colors dir_color root_id_color 
+# vim: set syntax=sh:
