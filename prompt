@@ -60,6 +60,8 @@
 #   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 # }
 # PS1="\w\$(parse_git_branch) $ "
+#---
+#git symbolic-ref HEAD
 ##################################################################### lvv Prompt
 
 	# echo "*** /etc/prompt  on A,  TERM=$TERM"
@@ -250,9 +252,16 @@ PROMPT_COMMAND='
 		front=7
 		head=${PWD:0:$front}"..."
 
-	#PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
-	PS1="$label$rc'$color_who_where$dir_color'\w> '$colors_reset'"
+    # LOCAL 
+        # GIT 
+        if [[ -d .git  ||  -d ../.git  || -d ../../.git ]];   then 
+            local=`git branch -a  |sed -n "s/^* //p"`                                                                                                    
+            local=${local+($local)}
+        fi 
 
+	#PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
+	PS1="$label$rc'$color_who_where$dir_color'\w$local> '$colors_reset'"
+    unset local
 '
 #echo \"$color_who_where\"
 unset rc id tty bell default_user default_host
