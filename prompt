@@ -254,10 +254,33 @@ PROMPT_COMMAND='
 
     # LOCAL 
         # GIT 
-        if [[ -d .git  ||  -d ../.git  || -d ../../.git ]];   then 
-            local=`git branch -a  |sed -n "s/^* //p"`                                                                                                    
-            local=${local+($local)}
-        fi 
+            if [[ -d .git  ||  -d ../.git  || -d ../../.git ]];   then
+
+                ### branch 
+                branch=`git branch -a  |sed -n "s/^* //p"`                                                                                                    
+
+                ### state
+                # clean(blue)       nothing to commit (working directory clean)
+                # modified(red)     # Changed but not updated:
+                # added(green)      # Changes to be committed:
+                # untracked(yellow) # Untracked files:
+                
+                status_msg=`git status` 
+                state=`
+                    git status |
+                        sed -n -e "
+                            s/nothing to commit (working directory clean)/clean/p
+                            s/^# Untracked files:/untracked/p
+                            s/^# Changed but not updated:/modified/p
+                            s/^# Changes to be committed:/added/p
+                        "
+                `
+
+                ### compose local label
+                local=${branch+($branch $state)}
+
+            fi 
+    #########################
 
 	#PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
 	PS1="$label$rc'$color_who_where$dir_color'\w$local> '$colors_reset'"
