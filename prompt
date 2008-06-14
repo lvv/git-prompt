@@ -229,25 +229,20 @@ PROMPT_COMMAND='
         # GIT 
             if [[ -d .git  ||  -d ../.git  || -d ../../.git ]];   then
 
-                ### branch 
-                branch=`git branch -a  |sed -n "s/^* //p"`                                                                                                    
-
-                ### state
+                ### status
                 # clean(blue)       nothing to commit (working directory clean)
                 # modified(red)     # Changed but not updated:
                 # added(green)      # Changes to be committed:
                 # untracked(yellow) # Untracked files:
                 
-                status_msg=`git status` 
-                status=`
-                    git status |
-                        sed -n -e "
-                            s/nothing to commit (working directory clean)/clean/p
-                            s/^# Untracked files:/untracked/p
-                            s/^# Changed but not updated:/modified/p
-                            s/^# Changes to be committed:/added/p
-                        " |
-                        head -1
+                eval `git status |
+                        sed -n "
+                            s/^# On branch /branch=/p
+                            s/^nothing to commit (working directory clean)/status=clean/p
+                            s/^# Untracked files:/status=untracked/p
+                            s/^# Changed but not updated:/status=modified/p
+                            s/^# Changes to be committed:/status=added/p
+                        " 
                 `
 
                 ### compose local label
