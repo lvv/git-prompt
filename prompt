@@ -159,22 +159,44 @@ export -f set_shell_title
 
 	### if term support colors,  then use color prompt, else bold
 
-	colors_reset='\['`tput sgr0`'\]'
+              black='\['`tput setaf 0`'\]'
+                red='\['`tput setaf 1`'\]'
+              green='\['`tput setaf 2`'\]'
+             yellow='\['`tput setaf 3`'\]'
+               blue='\['`tput setaf 4`'\]'
+            magenta='\['`tput setaf 5`'\]'
+               cyan='\['`tput setaf 6`'\]'
+              white='\['`tput setaf 7`'\]'
 
-	#"bell='\['`tput bel`'\]'
-	bell=`tput bel`
+              BLACK='\['`tput setaf 0; tput bold`'\]'
+                RED='\['`tput setaf 1; tput bold`'\]'
+              GREEN='\['`tput setaf 2; tput bold`'\]'
+             YELLOW='\['`tput setaf 3; tput bold`'\]'
+               BLUE='\['`tput setaf 4; tput bold`'\]'
+            MAGENTA='\['`tput setaf 5; tput bold`'\]'
+               CYAN='\['`tput setaf 6; tput bold`'\]'  # why 14 dosn't work?
+              WHITE='\['`tput setaf 7; tput bold`'\]'
+
+            bw_bold='\['`tput bold`'\]'
+               bell=`tput bel`
+
+       colors_reset='\['`tput sgr0`'\]'
+
 	# Workaround for UTF readline(?) bug. Dissable bell when UTF
 	locale |grep -qi UTF && bell=''	
 
 	if [ "`tput colors`" -ge 8 ];  then				#  Colors
-		dir_color='\['`tput setaf 6; tput bold`'\]'
-		rc_color='\['`tput setaf  1;`$bell'\]'
-		root_id_color='\['`tput setaf 5`'\]'
+		dir_color='CYAN'
+		rc_color='red'
+		root_id_color='magenta'
 	else											#  B/W
-		dir_color='\['`tput bold`'\]'
-		rc_color='\['`tput bold;`$bell'\]'
+		dir_color='bw_bold'
+		rc_color='bw_bold'
 	fi
 
+    eval dir_color="\$$dir_color"
+    eval rc_color="\$$rc_color"
+    eval root_id_color="\$$root_id_color"
 
 
 	########################################################### HOST
@@ -188,18 +210,18 @@ export -f set_shell_title
 		#host=`hostname --short`
 		#host=`echo ${host%$default_host} | tr a-z A-Z`
 		host=`echo ${host} | tr a-z A-Z`
-		# don't use bright, margenta(5), 
 		case $host in
-			TOSHA)	host_color='\['`tput setaf 3`'\]' ;;
-			TASHA)	host_color='\['`tput setaf 6`'\]' ;;
-			AL)		host_color='\['`tput setaf 2`'\]' ;;
-			SH)		host_color='\['`tput setaf 4`'\]' ;;
-			LVV)	host_color='\['`tput setaf 4`'\]' ;;
-			AHP)	host_color='\['`tput setaf 7`'\]' ;;
+			TOSHA)	host_color='yellow'    ;;
+			TASHA)	host_color='cyan'      ;;
+			AL)		host_color='geen'      ;;
+			SH|LVV) host_color='blue'      ;;
+			AHP)	host_color='white'     ;;
 		esac
 	else
 		host=""
 	fi 
+
+    eval host_color="\$$host_color"
 
 	# we already should have short host name, but just in case
 	host=${host%.localdoman}
