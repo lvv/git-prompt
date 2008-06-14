@@ -124,14 +124,14 @@ export -f set_shell_title
 
 	### if term support colors,  then use color prompt, else bold
 
-              black='\['`tput setaf 0`'\]'
-                red='\['`tput setaf 1`'\]'
-              green='\['`tput setaf 2`'\]'
-             yellow='\['`tput setaf 3`'\]'
-               blue='\['`tput setaf 4`'\]'
-            magenta='\['`tput setaf 5`'\]'
-               cyan='\['`tput setaf 6`'\]'
-              white='\['`tput setaf 7`'\]'
+              black='\['`tput sgr0; tput setaf 0`'\]'
+                red='\['`tput sgr0; tput setaf 1`'\]'
+              green='\['`tput sgr0; tput setaf 2`'\]'
+             yellow='\['`tput sgr0; tput setaf 3`'\]'
+               blue='\['`tput sgr0; tput setaf 4`'\]'
+            magenta='\['`tput sgr0; tput setaf 5`'\]'
+               cyan='\['`tput sgr0; tput setaf 6`'\]'
+              white='\['`tput sgr0; tput setaf 7`'\]'
 
               BLACK='\['`tput setaf 0; tput bold`'\]'
                 RED='\['`tput setaf 1; tput bold`'\]'
