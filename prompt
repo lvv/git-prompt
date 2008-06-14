@@ -1,16 +1,33 @@
+##################################################################### CONFIG
+	default_user=lvv 		# default user is not displayed
+	#default_host="tosha" 	# default host is not displayed
+	default_domain="lvvnet"	# default domain is not deplayed, remote host is alwais shown
 
-#  TOFIX: after "su -" hostname is not displayed
-#
-# TO CHECK: 
-# # GNU awk and sed have regex issues in a multibyte environment.  If any locale
-# # variables are set, then override by setting LC_ALL
-# lvars=`locale 2>/dev/null | egrep -v '="?(|POSIX|C)"?$' 2>/dev/null`
-# if [ -n "$lvars$LANG$LC_ALL" ]; then
-#     LC_ALL=C
-#         export LC_ALL
-#         fi
+    # dir, rc, root color 
+	if [ "`tput colors`" -ge 8 ];  then				#  Colors
+		dir_color='CYAN'
+		rc_color='red'
+		root_id_color='magenta'
+	else											#  B/W
+		dir_color='bw_bold'
+		rc_color='bw_bold'
+	fi
 
-##################################################################### lvv Prompt
+                                                    # where is user color?
+
+    # host color
+    TOSHA_host_color='yellow'
+    TASHA_host_color='cyan'
+       AL_host_color='geen'
+       SH_host_color='blue'
+      LVV_host_color='blue'
+      AHP_host_color='white'
+
+##################################################################### 
+    LC_ALL=C
+	# if label non empty, append 1 space
+	label=${1:+$1 }
+
 
 	# echo "*** /etc/prompt  on A,  TERM=$TERM"
 	unset PROMPT_COMMAND
@@ -21,13 +38,6 @@
 		PS1='\w> '
 		return 0
 	fi
-
-	# if label non empty, append 1 space
-	label=${1:+$1 }
-
-	default_user=lvv 		# default user is not displayed
-	#default_host="tosha" 	# default host is not displayed
-	default_domain="lvvnet"	# default domain is not deplayed, remote host is alwais shown
 
 	export who_where
 
@@ -133,14 +143,6 @@ export -f set_shell_title
 	# Workaround for UTF readline(?) bug. Dissable bell when UTF
 	locale |grep -qi UTF && bell=''	
 
-	if [ "`tput colors`" -ge 8 ];  then				#  Colors
-		dir_color='CYAN'
-		rc_color='red'
-		root_id_color='magenta'
-	else											#  B/W
-		dir_color='bw_bold'
-		rc_color='bw_bold'
-	fi
 
     eval dir_color="\$$dir_color"
     eval rc_color="\$$rc_color"
@@ -158,13 +160,7 @@ export -f set_shell_title
 		#host=`hostname --short`
 		#host=`echo ${host%$default_host} | tr a-z A-Z`
 		host=`echo ${host} | tr a-z A-Z`
-		case $host in
-			TOSHA)	host_color='yellow'    ;;
-			TASHA)	host_color='cyan'      ;;
-			AL)		host_color='geen'      ;;
-			SH|LVV) host_color='blue'      ;;
-			AHP)	host_color='white'     ;;
-		esac
+        eval host_color=\$${host}_host_color
 	else
 		host=""
 	fi 
