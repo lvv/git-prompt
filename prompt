@@ -23,6 +23,13 @@
       LVV_host_color='blue'
       AHP_host_color='white'
 
+    # git color
+    git_clean=blue       # clean(blue)                                                   nothing to commit (working directory clean)
+    git_modified=red     # modified(red)                                                 # Changed but not updated:
+    git_added=green      # added(green)                                                  # Changes to be committed:
+    git_untracked=yellow # untracked(yellow)                                             # Untracked files:
+
+
 ##################################################################### 
     LC_ALL=C
 	# if label non empty, append 1 space
@@ -232,7 +239,7 @@ PROMPT_COMMAND='
                 # untracked(yellow) # Untracked files:
                 
                 status_msg=`git status` 
-                state=`
+                status=`
                     git status |
                         sed -n -e "
                             s/nothing to commit (working directory clean)/clean/p
@@ -243,13 +250,15 @@ PROMPT_COMMAND='
                 `
 
                 ### compose local label
-                local=${branch+($branch $state)}
+                eval git_color="\${git_$status}"
+                eval esc_string="\$$git_color"
+                local="${branch+$esc_string ($branch) }"
 
             fi 
     #########################
 
 	#PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
-	PS1="$label$rc'$color_who_where$dir_color'\w$local> '$colors_reset'"
+	PS1="$label$rc'$color_who_where$dir_color'\w$local$dir_color> '$colors_reset'"
     unset local
 '
 #echo \"$color_who_where\"
