@@ -1,47 +1,4 @@
 
-#--------------------------
-# /etc/prompt - sets bash prompt
-# 	
-# 	To use it run  
-# 		. /etc/prompt
-#
-# 	should be called after keychain (it uses keychain env vars (SSH_..) to detect if host is remote)
-#
-#
-# Sample "line-shot"
-# 
-#	Default user on default host in home dir
-#		~>	
-#
-#	As before but Last command has return code 13,  system bell is sounded
-#		13 ~>
-#
-#	User "lvv" on host "big"  in "/tmp" dir, color of BIG set to specific color if set in config
-#	Hostname is alwais shown if host is remote. 
-#		lvv@BIG /tmp >
-#
-#	User "root"  (almost all prompt set to magenta color)
-# 		root /tmp> 
-#  
-#
-#  Features/Advantages
-#
-#		Any terminal.
-# 			All color prompt scripts that I've seen use hard coded terminal escape
-# 			sequences for vt102/vt220. That is, they  will not work on any other
-# 			terminal.  My prompt  will work on on any terminfo terminal
-#
-# 		Shell Title
-# 			Function set_shell_title() set xterm title, gnome-terminal tabs and gnu-screen labels. 
-# 			by default it current dir.   It is also possible to use it for other info.
-# 			I use it to display remote hostname or file names I am currently editing. 
-# 			(FIXME write how to do this)
-# 			(FIXME make screen shots)
-#
-#  Leonid@Volnitsky.com / 2007
-#
-################
-#
 #  TOFIX: after "su -" hostname is not displayed
 #
 # TO CHECK: 
@@ -53,15 +10,6 @@
 #         export LC_ALL
 #         fi
 
-# TODO
-#   display git brach  http://unboundimagination.com/Current-Git-Branch-in-Bash-Prompt
-#---
-# parse_git_branch() {
-#   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
-# }
-# PS1="\w\$(parse_git_branch) $ "
-#---
-#git symbolic-ref HEAD
 ##################################################################### lvv Prompt
 
 	# echo "*** /etc/prompt  on A,  TERM=$TERM"
