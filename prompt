@@ -1,6 +1,6 @@
 ##################################################################### CONFIG
 	default_user=lvv 		# default user is not displayed
-	#default_host="tosha" 	# default host is not displayed
+	default_host="ahp"      # default host is not displayed
 	default_domain="lvvnet"	# default domain is not deplayed, remote host is alwais shown
 
     # dir, rc, root color 
@@ -246,7 +246,8 @@ PROMPT_COMMAND='
                             s/^# Untracked files:/untracked/p
                             s/^# Changed but not updated:/modified/p
                             s/^# Changes to be committed:/added/p
-                        "
+                        " |
+                        head -1
                 `
 
                 ### compose local label
@@ -264,4 +265,5 @@ PROMPT_COMMAND='
 #echo \"$color_who_where\"
 unset rc id tty bell default_user default_host
 unset rc_colors dir_color root_id_color 
+
 # vim: set syntax=sh:
