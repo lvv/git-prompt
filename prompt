@@ -27,7 +27,7 @@
     git_clean=blue       # clean(blue)                                                   nothing to commit (working directory clean)
     git_modified=red     # modified(red)                                                 # Changed but not updated:
     git_added=green      # added(green)                                                  # Changes to be committed:
-    git_untracked=yellow # untracked(yellow)                                             # Untracked files:
+    git_untracked=BLUE  # untracked(yellow)                                             # Untracked files:
 
 
 ##################################################################### 
