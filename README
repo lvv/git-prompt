@@ -1,0 +1,2 @@
+bug: default host  not works (eval leaves "$" if $host is empty)
+big: extranious "$" is displayed (again) at just init-ed repo
