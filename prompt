@@ -248,13 +248,15 @@ PROMPT_COMMAND='
                 ### compose local label
                 eval git_color="\${git_$status}"
                 eval esc_string="\$$git_color"
-                local="${branch+$esc_string ($branch) }"
+                head_local="${branch+$esc_string ($branch)}"
 
             fi 
     #########################
+    
+    head_local="${head_local+$head_local\n}"
 
 	#PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
-	PS1="$label$rc'$color_who_where$dir_color'\w$local$dir_color> '$colors_reset'"
+	PS1="$head_local$colors_reset$label$rc'$color_who_where$dir_color'\w$tail_local$dir_color> '$colors_reset'"
     unset local
 '
 #echo \"$color_who_where\"
