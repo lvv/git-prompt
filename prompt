@@ -29,6 +29,57 @@
     git_added=green        # # Changes to be committed:
     git_untracked=BLUE     # # Untracked files:
 
+#####################################################################  post config
+
+	######################################## terminfo colors
+	#
+	#   black?    0	8			  
+	#	red       1 9
+	#	green     2 10
+	#	yellow    3 11
+	#	blue      4 12
+	#	magenta   5 13
+	#	cyan      6 14
+	#	white     7 15
+	#
+	#	terminfo setaf/setab - sets ansi foreground/background
+	#	terminfo sgr0 - resets all atributes
+	#	terminfo colors - number of colors
+
+	### if term support colors,  then use color prompt, else bold
+
+              black='\['`tput sgr0; tput setaf 0`'\]'
+                red='\['`tput sgr0; tput setaf 1`'\]'
+              green='\['`tput sgr0; tput setaf 2`'\]'
+             yellow='\['`tput sgr0; tput setaf 3`'\]'
+               blue='\['`tput sgr0; tput setaf 4`'\]'
+            magenta='\['`tput sgr0; tput setaf 5`'\]'
+               cyan='\['`tput sgr0; tput setaf 6`'\]'
+              white='\['`tput sgr0; tput setaf 7`'\]'
+
+              BLACK='\['`tput setaf 0; tput bold`'\]'
+                RED='\['`tput setaf 1; tput bold`'\]'
+              GREEN='\['`tput setaf 2; tput bold`'\]'
+             YELLOW='\['`tput setaf 3; tput bold`'\]'
+               BLUE='\['`tput setaf 4; tput bold`'\]'
+            MAGENTA='\['`tput setaf 5; tput bold`'\]'
+               CYAN='\['`tput setaf 6; tput bold`'\]'  # why 14 dosn't work?
+              WHITE='\['`tput setaf 7; tput bold`'\]'
+
+            bw_bold='\['`tput bold`'\]'
+               bell=`tput bel`
+
+       colors_reset='\['`tput sgr0`'\]'
+
+	# Workaround for UTF readline(?) bug. Dissable bell when UTF
+	locale |grep -qi UTF && bell=''	
+
+
+    # replace symbolic colors names to raw treminfo strings
+    eval git_modified="\$$git_modified"
+    eval git_untracked="\$$git_untracked"
+    eval git_clean="\$$git_clean"
+    eval git_added="\$$git_added"
 
 ##################################################################### 
     LC_ALL=C
@@ -105,50 +156,6 @@ export -f set_shell_title
 		xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )  unset tty ;;
 		*)		                                                              ;;
 	esac
-
-	########################################################## ANSI 
-	# FIXME: color config should be at the top
-	#
-	#   black?    0	8			  
-	#	red       1 9
-	#	green     2 10
-	#	yellow    3 11
-	#	blue      4 12
-	#	magenta   5 13
-	#	cyan      6 14
-	#	white     7 15
-	#
-	#	terminfo setaf/setab - sets ansi foreground/background
-	#	terminfo sgr0 - resets all atributes
-	#	terminfo colors - number of colors
-
-	### if term support colors,  then use color prompt, else bold
-
-              black='\['`tput sgr0; tput setaf 0`'\]'
-                red='\['`tput sgr0; tput setaf 1`'\]'
-              green='\['`tput sgr0; tput setaf 2`'\]'
-             yellow='\['`tput sgr0; tput setaf 3`'\]'
-               blue='\['`tput sgr0; tput setaf 4`'\]'
-            magenta='\['`tput sgr0; tput setaf 5`'\]'
-               cyan='\['`tput sgr0; tput setaf 6`'\]'
-              white='\['`tput sgr0; tput setaf 7`'\]'
-
-              BLACK='\['`tput setaf 0; tput bold`'\]'
-                RED='\['`tput setaf 1; tput bold`'\]'
-              GREEN='\['`tput setaf 2; tput bold`'\]'
-             YELLOW='\['`tput setaf 3; tput bold`'\]'
-               BLUE='\['`tput setaf 4; tput bold`'\]'
-            MAGENTA='\['`tput setaf 5; tput bold`'\]'
-               CYAN='\['`tput setaf 6; tput bold`'\]'  # why 14 dosn't work?
-              WHITE='\['`tput setaf 7; tput bold`'\]'
-
-            bw_bold='\['`tput bold`'\]'
-               bell=`tput bel`
-
-       colors_reset='\['`tput sgr0`'\]'
-
-	# Workaround for UTF readline(?) bug. Dissable bell when UTF
-	locale |grep -qi UTF && bell=''	
 
 
     eval dir_color="\$$dir_color"
@@ -238,26 +245,55 @@ PROMPT_COMMAND='
                 eval `git status |
                         sed -n "
                             s/^# On branch /branch=/p
-                            s/^nothing to commit (working directory clean)/status=clean/p
-                            s/^# Untracked files:/status=untracked/p
-                            s/^# Changed but not updated:/status=modified/p
-                            s/^# Changes to be committed:/status=added/p
+
+                            s/^nothing to commit (working directory clean)/clean=clean/p
+
+                            /^# Untracked files:/,/^[^#]/{
+                                s/^#	/git_untracked_files+=\" \"/p   
+                                s/^# Untracked files:/untracked=untracked/p
+                            }
+
+                            /^# Changed but not updated:/,/^# [A-Z]/ {
+                                s/^# Changed but not updated:/modified=modified/p
+                                s/#	modified:   /git_modified_files+=\" \"/p
+                            }
+
+                            /^# Changes to be committed:/,/^# [A-Z]/ {
+                                s/^# Changes to be committed:/added=added/p
+                                s/#	modified:   /git_added_files+=\" \"/p
+                            }
                         " 
                 `
+                # sort statuses, choose primary (for branch color)
+                status=$clean
+                status=${status:-$modified}
+                status=${status:-$added}
+                status=${status:-$untracked}
+                                        # at least one should be set
+                                        : ${status?prompt internal error: git status}
+                eval git_color="\${git_$status}"
 
                 ### compose local label
-                eval git_color="\${git_$status}"
-                eval esc_string="\$$git_color"
-                head_local="${branch+$esc_string ($branch)}"
+                [[ $clean == "clean" ]] || sep=":"
+                tail_local="$branch$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
 
+                ### fringes
+                head_local="${head_local+$git_color $head_local\n}"
+                tail_local="${tail_local+$git_color ($tail_local)}${dir_color}"
+
+                unset  branch status git_color clean added modified untracked sep
+                unset  git_modified_files
+                unset  git_untracked_files 
+                unset  git_added_files 
             fi 
     #########################
     
-    head_local="${head_local+$head_local\n}"
 
-	#PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
-	PS1="$head_local$colors_reset$label$rc'$color_who_where$dir_color'\w$tail_local$dir_color> '$colors_reset'"
-    unset local
+	# PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
+    
+	PS1="$head_local$colors_reset$label$rc'$color_who_where$dir_color'\w$tail_local'$dir_color' > '$colors_reset'"
+
+    unset head_local tail_local
 '
 #echo \"$color_who_where\"
 unset rc id tty bell default_user default_host
