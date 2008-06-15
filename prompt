@@ -265,18 +265,56 @@ PROMPT_COMMAND='
                             }
                         " 
                 `
-                # sort statuses, choose primary (for branch color)
+
+                ### sort statuses, choose primary (for branch color)
                 status=$clean
                 status=${status:-$modified}
                 status=${status:-$added}
                 status=${status:-$untracked}
                                         # at least one should be set
                                         : ${status?prompt internal error: git status}
-                eval git_color="\${git_$status}"
+                                        
 
+                ### OP 
+                unset op
+                
+                if [[ -d "$git_dir/.dotest" ]] ;  then
+
+                    if [[ -f "$git_dir/.dotest/rebasing" ]] ;  then
+                        op="rebase"
+
+                    elif [[ -f "$git_dir/.dotest/applying" ]] ; then
+                        op="am"
+
+                    else
+                        op="am/rebase"
+
+                    fi
+
+                elif  [[ -f "$git_dir/.dotest-merge/interactive" ]] ;  then
+                    op="rebase -i"
+                    # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
+
+                elif  [[ -d "$git_dir/.dotest-merge" ]] ;  then
+                    op="rebase -m"
+                    # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
+                    
+                elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
+                    op="merge"
+                    # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
+                    
+                else
+                    [[  -f "$git_dir/BISECT_LOG"  ]]   &&  op="bisect"
+                    # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)" || \
+                    #    branch="$(git describe --exact-match HEAD 2>/dev/null)" || \
+                    #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
+                fi
+
+             
                 ### compose local label
+                eval git_color="\${git_$status}"
                 [[ $clean == "clean" ]] || sep=":"
-                tail_local="$branch$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
+                tail_local="$branch${op+/$op}$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
 
                 ### fringes
                 head_local="${head_local+$git_color $head_local\n}"
