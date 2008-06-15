@@ -267,6 +267,7 @@ PROMPT_COMMAND='
                             /^# Changes to be committed:/,/^# [A-Z]/ {
                                 s/^# Changes to be committed:/added=added/p
                                 s/#	modified:   /git_added_files+=\" \"/p
+                                s/#	new file: /git_added_files+=\" \"/p
                             }
                         " 
                 `
@@ -315,12 +316,13 @@ PROMPT_COMMAND='
                 status=${status:-$untracked}
                                         # at least one should be set
                                         : ${status?prompt internal error: git status}
-                eval git_color=\${git_$status}
+                eval git_color="\${git_$status}"
                 git_color=${git_color:-$WHITE}
 
                 ### head
                 head=`git-name-rev --name-only HEAD 2>/dev/null`
                 head_rev=`git-rev-parse HEAD 2>/dev/null`
+                head_rev=${head_rev/HEAD/}
                 head_rev=${head_rev:0:6}
 
                 ### compose local label
