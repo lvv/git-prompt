@@ -4,30 +4,32 @@
 	default_domain="lvvnet"	# default domain is not deplayed, remote host is alwais shown
 
     # dir, rc, root color 
-	if [ "`tput colors`" -ge 8 ];  then				#  Colors
+	if [ "`tput colors`" -ge 8 ];  then				#  if terminal supports colors
 		dir_color='CYAN'
 		rc_color='red'
 		root_id_color='magenta'
-	else											#  B/W
+	else											#  only B/W
 		dir_color='bw_bold'
 		rc_color='bw_bold'
 	fi
 
                                                     # where is user color?
 
-    # host color
+    # per host color
     TOSHA_host_color='yellow'
     TASHA_host_color='cyan'
-       AL_host_color='geen'
+       AL_host_color='green'
        SH_host_color='blue'
       LVV_host_color='blue'
       AHP_host_color='white'
 
-    # git color     
+    # git state colors
     git_clean=blue         # nothing to commit (working directory clean)
     git_modified=red       # # Changed but not updated:
     git_added=green        # # Changes to be committed:
+    git_mixed=yellow       # 
     git_untracked=BLUE     # # Untracked files:
+    git_op=MAGENTA         
 
 #####################################################################  post config
 
@@ -80,6 +82,8 @@
     eval git_untracked="\$$git_untracked"
     eval git_clean="\$$git_clean"
     eval git_added="\$$git_added"
+    eval git_op="\$$git_op"
+    eval git_mixed="\$$git_mixed"
 
 ##################################################################### 
     LC_ALL=C
@@ -266,13 +270,6 @@ PROMPT_COMMAND='
                         " 
                 `
 
-                ### sort statuses, choose primary (for branch color)
-                status=$clean
-                status=${status:-$modified}
-                status=${status:-$added}
-                status=${status:-$untracked}
-                                        # at least one should be set
-                                        : ${status?prompt internal error: git status}
                                         
 
                 ### OP 
@@ -311,8 +308,17 @@ PROMPT_COMMAND='
                 fi
 
              
-                ### compose local label
+                ### sort statuses, choose primary (for branch color)
+                status=${op+op}
+                status=${status:-$clean}
+                status=${status:-$modified}
+                status=${status:-$added}
+                status=${status:-$untracked}
+                                        # at least one should be set
+                                        : ${status?prompt internal error: git status}
                 eval git_color="\${git_$status}"
+
+                ### compose local label
                 [[ $clean == "clean" ]] || sep=":"
                 tail_local="$branch${op+/$op}$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
 
