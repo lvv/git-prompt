@@ -234,7 +234,7 @@ PROMPT_COMMAND='
 
     # LOCAL 
         # GIT 
-            if [[ -d .git  ||  -d ../.git  || -d ../../.git ]];   then
+            if [[ -n $DIT_DIR && -d $GIT_DIR  || -d .git  ||  -d ../.git  || -d ../../.git ]];   then
 
                 ### status
                 # clean(blue)       nothing to commit (working directory clean)
