@@ -170,20 +170,21 @@ export -f set_shell_title
 	########################################################### HOST
 	### we don't display home host/domain  $SSH_* set by SSHD or keychain
 
-	# is sshd our perent?
-	if 	[[ "$SSH_AUTH_SOCK" ]] || 
-		for ((pid=$$; $pid != 1 ; pid=`ppid_of $pid`)); do ps h -o command -p $pid; done | grep -q sshd
-	then 
+    # I give up.  How to find out if session is local or remote? Working with "su -", ssh-agent, and so on ? 
+	## is sshd our perent?
+	# if 	{ for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd }
+	#then 
 		host=${HOSTNAME}
 		#host=`hostname --short`
-		#host=`echo ${host%$default_host} | tr a-z A-Z`
-		host=`echo ${host} | tr a-z A-Z`
-        eval host_color=\$${host}_host_color
-	else
-		host=""
-	fi 
+		host=`echo ${host%$default_host} | tr a-z A-Z`
+		#host=`echo ${host} | tr a-z A-Z`
+        host_color=${host}_host_color
+        host_color=${!host_color}
+	#else
+	#	host=""
+	#fi 
 
-    eval host_color="\$$host_color"
+    host_color=${!host_color}
 
 	# we already should have short host name, but just in case
 	host=${host%.localdoman}
