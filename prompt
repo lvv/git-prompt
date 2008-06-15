@@ -332,8 +332,7 @@ PROMPT_COMMAND='
                 file_list+="${git_modified_files+$git_modified$git_modified_files }"
                 file_list+="${git_untracked_files+$git_untracked$git_untracked_files }"
                 [[ $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
-
-                tail_local="(${head/master/m} $white$head_rev${op+ / $op}$git_color)${file_list}"
+                tail_local="(${head/master/m} $white$head_rev$git_color${op+ / $op}$git_color${file_list}$git_color)"
 
                 ### fringes (added depended on location)
                 head_local="${head_local+$git_color $head_local\n}"
