@@ -276,8 +276,6 @@ PROMPT_COMMAND='
                         " 
                 `
 
-                                        
-
                 ### OP 
                 unset op
                 
@@ -325,16 +323,17 @@ PROMPT_COMMAND='
                 eval git_color="\${git_$status}"
 
                 ### head
-                set `git-name-rev HEAD`
-                head="$2"
+                head=`git-name-rev --name-only HEAD`
+                head_rev=`git-rev-parse HEAD`
+                head_rev=${head_rev:0:6}
 
                 ### compose local label
                 [[ $clean == "clean" ]] || sep=":"
-                tail_local="$head${op+/$op}$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
+                tail_local="($head $white$head_rev${op+ / $op}$git_color)$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
 
-                ### fringes
+                ### fringes (added depended on location)
                 head_local="${head_local+$git_color $head_local\n}"
-                tail_local="${tail_local+$git_color ($tail_local)}${dir_color}"
+                tail_local="${tail_local+$git_color $tail_local}${dir_color}"
 
                 unset  branch status git_color clean added modified untracked sep
                 unset  git_modified_files
