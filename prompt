@@ -78,12 +78,12 @@
 
 
     # replace symbolic colors names to raw treminfo strings
-    eval git_modified="\$$git_modified"
-    eval git_untracked="\$$git_untracked"
-    eval git_clean="\$$git_clean"
-    eval git_added="\$$git_added"
-    eval git_op="\$$git_op"
-    eval git_mixed="\$$git_mixed"
+    git_modified=${!git_modified}
+    git_untracked=${!git_untracked}
+    git_clean=${!git_clean}
+    git_added=${!git_added}
+    git_op=${!git_op}
+    git_mixed=${!git_mixed}
 
 ##################################################################### 
     LC_ALL=C
@@ -162,28 +162,29 @@ export -f set_shell_title
 	esac
 
 
-    eval dir_color="\$$dir_color"
-    eval rc_color="\$$rc_color"
-    eval root_id_color="\$$root_id_color"
+    dir_color=${!dir_color}
+    rc_color=${!rc_color}
+    root_id_color=${!root_id_color}
 
 
 	########################################################### HOST
 	### we don't display home host/domain  $SSH_* set by SSHD or keychain
 
-	# is sshd our perent?
-	if 	[[ "$SSH_AUTH_SOCK" ]] || 
-		for ((pid=$$; $pid != 1 ; pid=`ppid_of $pid`)); do ps h -o command -p $pid; done | grep -q sshd
-	then 
+    # I give up.  How to find out if session is local or remote? Working with "su -", ssh-agent, and so on ? 
+	## is sshd our perent?
+	# if 	{ for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd }
+	#then 
 		host=${HOSTNAME}
 		#host=`hostname --short`
-		#host=`echo ${host%$default_host} | tr a-z A-Z`
-		host=`echo ${host} | tr a-z A-Z`
-        eval host_color=\$${host}_host_color
-	else
-		host=""
-	fi 
+		host=`echo ${host%$default_host} | tr a-z A-Z`
+		#host=`echo ${host} | tr a-z A-Z`
+        host_color=${host}_host_color
+        host_color=${!host_color}
+	#else
+	#	host=""
+	#fi 
 
-    eval host_color="\$$host_color"
+    host_color=${!host_color}
 
 	# we already should have short host name, but just in case
 	host=${host%.localdoman}
@@ -247,12 +248,6 @@ PROMPT_COMMAND='
             git_dir=`git-rev-parse --git-dir 2> /dev/null`
             if [[ $git_dir ]];   then
 
-                ### status
-                # clean(blue)       nothing to commit (working directory clean)
-                # modified(red)     # Changed but not updated:
-                # added(green)      # Changes to be committed:
-                # untracked(yellow) # Untracked files:
-                
                 eval `git status |
                         sed -n "
                             s/^# On branch /branch=/p
@@ -272,6 +267,7 @@ PROMPT_COMMAND='
                             /^# Changes to be committed:/,/^# [A-Z]/ {
                                 s/^# Changes to be committed:/added=added/p
                                 s/#	modified:   /git_added_files+=\" \"/p
+                                s/#	new file: /git_added_files+=\" \"/p
                             }
                         " 
                 `
@@ -321,21 +317,29 @@ PROMPT_COMMAND='
                                         # at least one should be set
                                         : ${status?prompt internal error: git status}
                 eval git_color="\${git_$status}"
+                git_color=${git_color:-$WHITE}
 
                 ### head
-                head=`git-name-rev --name-only HEAD`
-                head_rev=`git-rev-parse HEAD`
+                head=`git-name-rev --name-only HEAD 2>/dev/null`
+                head_rev=`git-rev-parse HEAD 2>/dev/null`
+                head_rev=${head_rev/HEAD/}
                 head_rev=${head_rev:0:6}
 
                 ### compose local label
-                [[ $clean == "clean" ]] || sep=":"
-                tail_local="($head $white$head_rev${op+ / $op}$git_color)$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
+                
+                unset file_list
+                file_list+="${git_added_files+$git_added$git_added_files }"
+                file_list+="${git_modified_files+$git_modified$git_modified_files }"
+                file_list+="${git_untracked_files+$git_untracked$git_untracked_files }"
+                [[ $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
+
+                tail_local="(${head/master/m} $white$head_rev${op+ / $op}$git_color${file_list})"
 
                 ### fringes (added depended on location)
                 head_local="${head_local+$git_color $head_local\n}"
                 tail_local="${tail_local+$git_color $tail_local}${dir_color}"
 
-                unset  branch status git_color clean added modified untracked sep
+                unset  branch status git_color clean added modified untracked sep file_list
                 unset  git_modified_files
                 unset  git_untracked_files 
                 unset  git_added_files 
@@ -345,7 +349,7 @@ PROMPT_COMMAND='
 
 	# PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
     
-	PS1="$head_local$colors_reset$label$rc'$color_who_where$dir_color'\w$tail_local'$dir_color' > '$colors_reset'"
+	PS1="$head_local$colors_reset$label$rc'$color_who_where$dir_color'\w$tail_local'$dir_color'> '$colors_reset'"
 
     unset head_local tail_local
 '
