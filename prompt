@@ -234,7 +234,8 @@ PROMPT_COMMAND='
 
     # LOCAL 
         # GIT 
-            if [[ -n $DIT_DIR && -d $GIT_DIR  || -d .git  ||  -d ../.git  || -d ../../.git ]];   then
+            git_dir=`git-rev-parse --git-dir 2> /dev/null`
+            if [[ $git_dir ]];   then
 
                 ### status
                 # clean(blue)       nothing to commit (working directory clean)
