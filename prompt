@@ -236,7 +236,13 @@ PROMPT_COMMAND='
 		front=7
 		head=${PWD:0:$front}"..."
 
-    # LOCAL 
+    # LOCALS
+        # SVN 
+        # ...
+       
+        # make
+        # ...
+        
         # GIT 
             git_dir=`git-rev-parse --git-dir 2> /dev/null`
             if [[ $git_dir ]];   then
@@ -318,9 +324,13 @@ PROMPT_COMMAND='
                                         : ${status?prompt internal error: git status}
                 eval git_color="\${git_$status}"
 
+                ### head
+                set `git-name-rev HEAD`
+                head="$2"
+
                 ### compose local label
                 [[ $clean == "clean" ]] || sep=":"
-                tail_local="$branch${op+/$op}$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
+                tail_local="$head${op+/$op}$sep$git_added$git_added_files$git_modified$git_modified_files$git_untracked$git_untracked_files$git_color"
 
                 ### fringes
                 head_local="${head_local+$git_color $head_local\n}"
