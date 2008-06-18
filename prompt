@@ -251,7 +251,7 @@ PROMPT_COMMAND='
             git_dir=`git-rev-parse --git-dir 2> /dev/null`
             if [[ $git_dir ]];   then
 
-                eval `git status |
+                eval `git status 2>/dev/null |
                         sed -n "
                             s/^# On branch /branch=/p
 
