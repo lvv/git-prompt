@@ -27,3 +27,6 @@ git merge test
 git-cat-file -p test:file > file
 git add file 
 git commit -q -m "merged"
+cat file
+git checkout HEAD^
+cat file
