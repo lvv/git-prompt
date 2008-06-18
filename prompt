@@ -89,7 +89,6 @@
     git_detached=${!git_detached}
 
 ##################################################################### 
-    LC_ALL=C
 	# if label non empty, append 1 space
 	label=${1:+$1 }
 
