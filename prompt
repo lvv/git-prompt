@@ -257,8 +257,8 @@ PROMPT_COMMAND='
                             s/^nothing to commit (working directory clean)/clean=clean/p
 
                             /^# Untracked files:/,/^[^#]/{
-                                s/^#	/git_untracked_files+=\" \"/p   
                                 s/^# Untracked files:/untracked=untracked/p
+                                s/^#	/git_untracked_files+=\" \"/p   
                             }
 
                             /^# Changed but not updated:/,/^# [A-Z]/ {
@@ -270,7 +270,7 @@ PROMPT_COMMAND='
                             /^# Changes to be committed:/,/^# [A-Z]/ {
                                 s/^# Changes to be committed:/added=added/p
                                 s/^#	modified:   /git_added_files+=\" \"/p
-                                s/^#	new file:   /git_added_files+=\" \"/p
+                                s/^#	new file: /git_added_files+=\" \"/p
                             }
                         " 
                 `
