@@ -2,13 +2,8 @@
 test -d demo && rm -rf demo/
 test -d ../demo && cd .. && rm -rf demo/ 
 clear
-################################################################
-#  prompt part related to git is inside ().  "M" stands for master.
-#  Intersting files are shown and colored according to git state.
-#  Red - modified,  green - added to index, blue - untracked, 
-#  magenta - operation in progress (merge, rebase, ...)
-#################################################################
-mkdir demo; cd demo
+mkdir demo
+cd demo
 git init
 echo "1st line" > file
 git add file
