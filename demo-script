@@ -1,0 +1,38 @@
+# git
+. /t/prompt/prompt
+rm -rf tiny.git/
+mkdir  tiny.git
+cd     tiny.git
+git init
+echo v1 > a-file
+git add a-file
+touch  an-untracked
+rm     an-untracked
+git commit -m v1 a-file
+
+
+..
+. /t/prompt/prompt 
+clear
+rm -rf tiny.git/
+mkdir  tiny.git
+cd     tiny.git
+git init
+echo v1 > file
+git add file
+touch  untracked-file
+rm     untracked-file
+git commit -m v1 file
+git checkout -b test
+echo 'added 2nd line in test' >> file 
+git add file 
+git commit -m v2test
+git checkout master
+cat file 
+echo 'now added 2nd line in master' >> file 
+git add file
+echo 'added 3nd line in master' >> file 
+git add file
+git commit -m v2
+git merge test
+
