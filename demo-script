@@ -1,0 +1,34 @@
+. /t/prompt/prompt 
+test -d demo && rm -rf demo/
+test -d ../demo && cd .. && rm -rf demo/ 
+clear
+mkdir demo
+cd demo
+git init
+### all git info is inside ().   "M" - indicate master
+echo "1st line" > file
+###   intersting files are shown and colored according to git state
+###   red - modified,  green - added to index, blue - untracked, 
+git add file
+touch  untracked-file
+rm     untracked-file
+git commit -m "1st line"  file
+git checkout -b test
+echo 'added 2nd line in test' >> file 
+git add file 
+echo "2nd file" > file2
+git add file2
+echo 'added 3nd line in file, still in test' >> file 
+git add file
+git commit -m "2nd and 3rd lines"
+git checkout master
+cat file 
+echo 'now added 2nd line in master' >> file 
+git add file
+git commit -m v2
+git merge test
+###  magenta - operation in progress (merge, rebase, ...)
+git-cat-file -p test:file > file
+git add file 
+git commit -m merged
+
