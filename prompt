@@ -250,7 +250,7 @@ PROMPT_COMMAND='
             git_dir=`git-rev-parse --git-dir 2> /dev/null`
             if [[ $git_dir ]];   then
 
-                eval `git status |
+                eval `git status 2>/dev/null |
                         sed -n "
                             s/^# On branch /branch=/p
 
@@ -263,7 +263,8 @@ PROMPT_COMMAND='
 
                             /^# Changed but not updated:/,/^# [A-Z]/ {
                                 s/^# Changed but not updated:/modified=modified/p
-                                s/#	modified:   /git_modified_files+=\" \"/p
+                                s/^#	modified:   /git_modified_files+=\" \"/p
+                                s/^#	unmerged:   /git_modified_files+=\" \"/p
                             }
 
                             /^# Changes to be committed:/,/^# [A-Z]/ {
