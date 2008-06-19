@@ -314,7 +314,6 @@ PROMPT_COMMAND='
                 
                 ### branch
 
-                #head_tail=`echo $head | sed 's/[^^~]*//'`        # we cut head to leave only ^~, and reattach to branch name 
                 branch=${branch/master/M}
 
                 grep -q "^ref:" $git_dir/HEAD  2>/dev/null  ||  detached=detached
@@ -335,7 +334,7 @@ PROMPT_COMMAND='
                                         # at least one should be set
                                         : ${status?prompt internal error: git status}
                 eval git_color="\${git_$status}"
-                git_color=${git_color:-$WHITE}
+                git_color=${git_color:-$WHITE}    # default 
 
                 ### compose local label
                 
