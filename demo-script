@@ -7,8 +7,8 @@ cd demo
 git init
 echo "1st line" > FOO
 git add FOO
-touch  untracked-FOO
-rm     untracked-FOO
+touch  untracked.o
+rm     untracked.o
 git commit -q -m "1st line"  FOO
 git checkout -b test
 echo "added 2nd line in test" >> FOO 
