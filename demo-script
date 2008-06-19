@@ -24,7 +24,7 @@ echo "now added 2nd line in master" >> FOO
 git add FOO
 git commit -q -m "2nd line"
 git merge test
-git-cat-FOO -p test:FOO > FOO
+git-cat-file -p test:FOO > FOO
 git add FOO 
 git commit -q -m "merged"
 cat FOO
