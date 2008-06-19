@@ -5,28 +5,28 @@ clear
 mkdir demo
 cd demo
 git init
-echo "1st line" > file
-git add file
-touch  untracked-file
-rm     untracked-file
-git commit -q -m "1st line"  file
+echo "1st line" > FOO
+git add FOO
+touch  untracked-FOO
+rm     untracked-FOO
+git commit -q -m "1st line"  FOO
 git checkout -b test
-echo "added 2nd line in test" >> file 
-git add file 
-echo "2nd file" > file2
-git add file2
-echo "added 3nd line in file" >> file 
-git add file
-git commit -q -m "2nd and 3rd lines"
+echo "added 2nd line in test" >> FOO 
+git add FOO 
+echo "2nd FOO" > BAR
+git add BAR
+echo "added 3nd line" >> FOO 
+git add FOO
+git commit -q -m "FOO moded, BAR added"
 git checkout master
-cat file 
-echo "now added 2nd line in master" >> file 
-git add file
+cat FOO 
+echo "now added 2nd line in master" >> FOO 
+git add FOO
 git commit -q -m "2nd line"
 git merge test
-git-cat-file -p test:file > file
-git add file 
+git-cat-FOO -p test:FOO > FOO
+git add FOO 
 git commit -q -m "merged"
-cat file
+cat FOO
 git checkout HEAD^
-cat file
+cat FOO
