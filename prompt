@@ -319,6 +319,14 @@ PROMPT_COMMAND='
                 grep -q "^ref:" $git_dir/HEAD  2>/dev/null  ||  detached=detached
                 [[ -n "$detached" ]]  &&  branch="<detached:`git-name-rev --name-only HEAD 2>/dev/null`>"
 
+                if [[ "$op" == "merge" ]] ;  then     
+                    branch="$op: $branch <~ $(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
+
+                elif   [[ -n "$op" ]];     then
+                    branch="<$op:$branch>"
+
+                fi
+
                 head_rev=`git-rev-parse HEAD 2>/dev/null`
                 head_rev=${head_rev/HEAD/}
                 head_rev=${head_rev:0:6}
@@ -343,7 +351,7 @@ PROMPT_COMMAND='
                 file_list+="${git_modified_files+$git_modified$git_modified_files}"
                 file_list+="${git_untracked_files+$git_untracked$git_untracked_files}"
                 [[ $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
-                tail_local="(${branch} $white$head_rev$git_color${op+ / $op}$git_color${file_list}$git_color)"
+                tail_local="(${branch} $white$head_rev$git_color$git_color${file_list}$git_color)"
 
                 ### fringes (added depended on location)
                 head_local="${head_local+$git_color $head_local\n}"
