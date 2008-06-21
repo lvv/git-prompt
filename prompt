@@ -242,6 +242,43 @@ PROMPT_COMMAND='
     # LOCALS
         # SVN 
         # ...
+
+        if [[ -d .svn ]];   then
+
+            ### get rev
+            eval `
+                svn info |
+                    sed -n "                                                                                                                          
+                        s@^URL[^/]*//@repo_dir=@p
+                        s/^Revision: /rev=/p
+                    "
+            `
+            ### get status
+
+            eval `svn -q status 2>/dev/null |
+                    sed -n "
+                        s/^A       /modified=modified; git_modified_files+=\" \"/p
+                        s/^M       /modified=modified; git_modified_files+=\" \"/p
+                    " 
+            `
+
+                ### sort statuses, choose primary (for branch color)
+                status=${op+op}
+                status=${status:-$detached}
+                status=${status:-$clean}
+                status=${status:-$modified}
+                status=${status:-$added}
+                status=${status:-$untracked}
+                                        # at least one should be set
+                                        : ${status?prompt internal error: git status}
+                eval git_color="\${git_$status}"
+                git_color=${git_color:-$WHITE}    # default 
+
+            ### compose
+            tail_local="($git_status$rev)"
+            tail_local="${tail_local+$git_color $tail_local}${dir_color}"
+        fi
+            
        
         # make
         # ...
