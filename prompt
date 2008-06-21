@@ -271,7 +271,7 @@ PROMPT_COMMAND='
                                 s/^# Changes to be committed:/added=added/p
                                 s/^#	modified:   /git_added_files+=\" \"/p
                                 s/^#	new file: /git_added_files+=\" \"/p
-                                s/^#	renamed:    /git_added_files+=\" \"/p
+                                s/^#	renamed:[^>]*> /git_added_files+=\" \"/p
                             }
                         " 
                 `
