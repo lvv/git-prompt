@@ -221,8 +221,8 @@ fi
 
 ############################################################### PROMPT_COMMAND
 
-PROMPT_COMMAND='
 
+_prompt_command() {
 	rc="$?"
 
 	if [[ "$rc" = "0" ]]; then 
@@ -280,9 +280,6 @@ PROMPT_COMMAND='
         fi
             
        
-        # make
-        # ...
-        
         # GIT 
             git_dir=`git-rev-parse --git-dir 2> /dev/null`
             if [[ $git_dir ]];   then
@@ -402,16 +399,21 @@ PROMPT_COMMAND='
                 unset  git_added_files 
             fi 
     #########################
-    
-
 	# PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
     
-	PS1="$head_local$colors_reset$label$rc'$color_who_where$dir_color'\w$tail_local'$dir_color'> '$colors_reset'"
+	#PS1="$head_local$colors_reset$label$rc'$color_who_where$dir_color'\w$tail_local'$dir_color'> '$colors_reset'"
+	PS1="$head_local$colors_reset$label$rc$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
 
     unset head_local tail_local
-'
+}
+    
+
+PROMPT_COMMAND=_prompt_command
+
 #echo \"$color_who_where\"
-unset rc id tty bell default_user default_host
-unset rc_colors dir_color root_id_color 
+unset rc id tty bell
+
+# unset default_user default_host
+#unset rc_color dir_color root_id_color 
 
 # vim: set syntax=sh:
