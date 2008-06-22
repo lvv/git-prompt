@@ -272,6 +272,7 @@ PROMPT_COMMAND='
                                 s/^#	modified:   /git_added_files+=\" \"/p
                                 s/^#	new file: /git_added_files+=\" \"/p
                                 s/^#	renamed:[^>]*> /git_added_files+=\" \"/p
+                                s/^#	copied:[^>]*> /git_added_files+=\" \"/p
                             }
                         " 
                 `
