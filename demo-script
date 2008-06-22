@@ -1,3 +1,4 @@
+<<<<<<< HEAD:demo-script
 . /t/prompt/prompt 
 test -d demo && rm -rf demo/
 test -d ../demo && cd .. && rm -rf demo/ 
