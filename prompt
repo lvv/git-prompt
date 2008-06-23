@@ -218,6 +218,168 @@ if	[ "$id" == "root" ]  ; then
 	color_who_where="$root_id_color$color_who_where$colors_reset"
 fi
 
+svn_module() {
+
+        if [[ ! -d .svn ]];   then
+            return
+        fi 
+
+        ### get rev
+        eval `
+            svn info |
+                sed -n "                                                                                                                          
+                    s@^URL[^/]*//@repo_dir=@p
+                    s/^Revision: /rev=/p
+                "
+        `
+        ### get status
+
+        eval `svn -q status 2>/dev/null |
+                sed -n "
+                    s/^A       /modified=modified; git_modified_files+=\" \"/p
+                    s/^M       /modified=modified; git_modified_files+=\" \"/p
+                " 
+        `
+
+            ### sort statuses, choose primary (for branch color)
+            status=${op+op}
+            status=${status:-$detached}
+            status=${status:-$clean}
+            status=${status:-$modified}
+            status=${status:-$added}
+            status=${status:-$untracked}
+                                    # at least one should be set
+                                    : ${status?prompt internal error: git status}
+            eval git_color="\${git_$status}"
+            git_color=${git_color:-$WHITE}    # default 
+
+        ### compose
+        tail_local="($git_status$rev)"
+        tail_local="${tail_local+$git_color $tail_local}${dir_color}"
+}
+        
+   
+git_module() {
+
+        git_dir=`git-rev-parse --git-dir 2> /dev/null`
+
+        [[ $git_dir ]]  ||  return 
+
+        eval `
+                git status 2>/dev/null |
+                    sed -n "
+                        s/^# On branch /branch=/p
+
+                        s/^nothing to commit (working directory clean)/clean=clean/p
+
+                        /^# Untracked files:/,/^[^#]/{
+                            s/^# Untracked files:/untracked=untracked/p
+                            s/^#	/git_untracked_files+=\" \"/p   
+                        }
+
+                        /^# Changed but not updated:/,/^# [A-Z]/ {
+                            s/^# Changed but not updated:/modified=modified/p
+                            s/^#	modified:   /git_modified_files+=\" \"/p
+                            s/^#	unmerged:   /git_modified_files+=\" \"/p
+                        }
+
+                        /^# Changes to be committed:/,/^# [A-Z]/ {
+                            s/^# Changes to be committed:/added=added/p
+                            s/^#	modified:   /git_added_files+=\" \"/p
+                            s/^#	new file: /git_added_files+=\" \"/p
+                            s/^#	renamed:[^>]*> /git_added_files+=\" \"/p
+                            s/^#	copied:[^>]*> /git_added_files+=\" \"/p
+                        }
+                    " 
+        `
+
+        ### OP 
+        unset op
+        
+        if [[ -d "$git_dir/.dotest" ]] ;  then
+
+            if [[ -f "$git_dir/.dotest/rebasing" ]] ;  then
+                op="rebase"
+
+            elif [[ -f "$git_dir/.dotest/applying" ]] ; then
+                op="am"
+
+            else
+                op="am/rebase"
+
+            fi
+
+        elif  [[ -f "$git_dir/.dotest-merge/interactive" ]] ;  then
+            op="rebase -i"
+            # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
+
+        elif  [[ -d "$git_dir/.dotest-merge" ]] ;  then
+            op="rebase -m"
+            # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
+            
+        elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
+            op="merge"
+            # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
+            
+        else
+            [[  -f "$git_dir/BISECT_LOG"  ]]   &&  op="bisect"
+            # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)" || \
+            #    branch="$(git describe --exact-match HEAD 2>/dev/null)" || \
+            #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
+        fi
+
+        
+        ### branch
+
+        branch=${branch/master/M}
+
+        grep -q "^ref:" $git_dir/HEAD  2>/dev/null  ||  detached=detached
+        [[ -n "$detached" ]]  &&  branch="<detached:`git-name-rev --name-only HEAD 2>/dev/null`>"
+
+        if [[ "$op" == "merge" ]] ;  then     
+            branch="$op: $branch <~ $(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
+
+        elif   [[ -n "$op" ]];     then
+            branch="<$op:$branch>"
+
+        fi
+
+        head_rev=`git-rev-parse HEAD 2>/dev/null`
+        head_rev=${head_rev/HEAD/}
+        head_rev=${head_rev:0:6}
+
+     
+        ### sort statuses, choose primary (for branch color)
+        status=${op+op}
+        status=${status:-$detached}
+        status=${status:-$clean}
+        status=${status:-$modified}
+        status=${status:-$added}
+        status=${status:-$untracked}
+                                # at least one should be set
+                                : ${status?prompt internal error: git status}
+        eval git_color="\${git_$status}"
+        git_color=${git_color:-$WHITE}    # default 
+
+        ### compose local label
+        
+        unset file_list
+        file_list+="${git_added_files+$git_added$git_added_files}"
+        file_list+="${git_modified_files+$git_modified$git_modified_files}"
+        file_list+="${git_untracked_files+$git_untracked$git_untracked_files}"
+        [[ $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
+        tail_local="(${branch} $white$head_rev$git_color$git_color${file_list}$git_color)"
+
+        ### fringes (added depended on location)
+        head_local="${head_local+$git_color $head_local\n}"
+        tail_local="${tail_local+$git_color $tail_local}${dir_color}"
+
+        unset  branch status git_color sep file_list
+        unset  clean added modified untracked detached
+        unset  git_modified_files
+        unset  git_untracked_files 
+        unset  git_added_files 
+}
 
 ############################################################### PROMPT_COMMAND
 
@@ -243,161 +405,8 @@ _prompt_command() {
         # SVN 
         # ...
 
-        if [[ -d .svn ]];   then
-
-            ### get rev
-            eval `
-                svn info |
-                    sed -n "                                                                                                                          
-                        s@^URL[^/]*//@repo_dir=@p
-                        s/^Revision: /rev=/p
-                    "
-            `
-            ### get status
-
-            eval `svn -q status 2>/dev/null |
-                    sed -n "
-                        s/^A       /modified=modified; git_modified_files+=\" \"/p
-                        s/^M       /modified=modified; git_modified_files+=\" \"/p
-                    " 
-            `
-
-                ### sort statuses, choose primary (for branch color)
-                status=${op+op}
-                status=${status:-$detached}
-                status=${status:-$clean}
-                status=${status:-$modified}
-                status=${status:-$added}
-                status=${status:-$untracked}
-                                        # at least one should be set
-                                        : ${status?prompt internal error: git status}
-                eval git_color="\${git_$status}"
-                git_color=${git_color:-$WHITE}    # default 
-
-            ### compose
-            tail_local="($git_status$rev)"
-            tail_local="${tail_local+$git_color $tail_local}${dir_color}"
-        fi
-            
-       
-        # GIT 
-            git_dir=`git-rev-parse --git-dir 2> /dev/null`
-            if [[ $git_dir ]];   then
-
-                eval `git status 2>/dev/null |
-                        sed -n "
-                            s/^# On branch /branch=/p
-
-                            s/^nothing to commit (working directory clean)/clean=clean/p
-
-                            /^# Untracked files:/,/^[^#]/{
-                                s/^# Untracked files:/untracked=untracked/p
-                                s/^#	/git_untracked_files+=\" \"/p   
-                            }
-
-                            /^# Changed but not updated:/,/^# [A-Z]/ {
-                                s/^# Changed but not updated:/modified=modified/p
-                                s/^#	modified:   /git_modified_files+=\" \"/p
-                                s/^#	unmerged:   /git_modified_files+=\" \"/p
-                            }
-
-                            /^# Changes to be committed:/,/^# [A-Z]/ {
-                                s/^# Changes to be committed:/added=added/p
-                                s/^#	modified:   /git_added_files+=\" \"/p
-                                s/^#	new file: /git_added_files+=\" \"/p
-                                s/^#	renamed:[^>]*> /git_added_files+=\" \"/p
-                                s/^#	copied:[^>]*> /git_added_files+=\" \"/p
-                            }
-                        " 
-                `
-
-                ### OP 
-                unset op
-                
-                if [[ -d "$git_dir/.dotest" ]] ;  then
-
-                    if [[ -f "$git_dir/.dotest/rebasing" ]] ;  then
-                        op="rebase"
-
-                    elif [[ -f "$git_dir/.dotest/applying" ]] ; then
-                        op="am"
-
-                    else
-                        op="am/rebase"
-
-                    fi
-
-                elif  [[ -f "$git_dir/.dotest-merge/interactive" ]] ;  then
-                    op="rebase -i"
-                    # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
-
-                elif  [[ -d "$git_dir/.dotest-merge" ]] ;  then
-                    op="rebase -m"
-                    # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
-                    
-                elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
-                    op="merge"
-                    # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
-                    
-                else
-                    [[  -f "$git_dir/BISECT_LOG"  ]]   &&  op="bisect"
-                    # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)" || \
-                    #    branch="$(git describe --exact-match HEAD 2>/dev/null)" || \
-                    #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
-                fi
-
-                
-                ### branch
-
-                branch=${branch/master/M}
-
-                grep -q "^ref:" $git_dir/HEAD  2>/dev/null  ||  detached=detached
-                [[ -n "$detached" ]]  &&  branch="<detached:`git-name-rev --name-only HEAD 2>/dev/null`>"
-
-                if [[ "$op" == "merge" ]] ;  then     
-                    branch="$op: $branch <~ $(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
-
-                elif   [[ -n "$op" ]];     then
-                    branch="<$op:$branch>"
-
-                fi
-
-                head_rev=`git-rev-parse HEAD 2>/dev/null`
-                head_rev=${head_rev/HEAD/}
-                head_rev=${head_rev:0:6}
-
-             
-                ### sort statuses, choose primary (for branch color)
-                status=${op+op}
-                status=${status:-$detached}
-                status=${status:-$clean}
-                status=${status:-$modified}
-                status=${status:-$added}
-                status=${status:-$untracked}
-                                        # at least one should be set
-                                        : ${status?prompt internal error: git status}
-                eval git_color="\${git_$status}"
-                git_color=${git_color:-$WHITE}    # default 
-
-                ### compose local label
-                
-                unset file_list
-                file_list+="${git_added_files+$git_added$git_added_files}"
-                file_list+="${git_modified_files+$git_modified$git_modified_files}"
-                file_list+="${git_untracked_files+$git_untracked$git_untracked_files}"
-                [[ $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
-                tail_local="(${branch} $white$head_rev$git_color$git_color${file_list}$git_color)"
-
-                ### fringes (added depended on location)
-                head_local="${head_local+$git_color $head_local\n}"
-                tail_local="${tail_local+$git_color $tail_local}${dir_color}"
-
-                unset  branch status git_color sep file_list
-                unset  clean added modified untracked detached
-                unset  git_modified_files
-                unset  git_untracked_files 
-                unset  git_added_files 
-            fi 
+    svn_module
+    git_module
     #########################
 	# PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
     
