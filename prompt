@@ -339,8 +339,11 @@ git_module() {
 
         branch=${branch/master/M}
 
-        grep -q "^ref:" $git_dir/HEAD  2>/dev/null  ||  detached=detached
-        [[ -n "$detached" ]]  &&  branch="<detached:`git-name-rev --name-only HEAD 2>/dev/null`>"
+                                            # if rawhex in .git/HEAD, then detached head
+        if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then 
+            detached=detached
+            branch="<detached:`git-name-rev --name-only HEAD 2>/dev/null`>"
+        fi 
 
         if [[ "$op" == "merge" ]] ;  then     
             branch="$op: $branch <~ $(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
@@ -379,7 +382,6 @@ git_module() {
         ### fringes (added depended on location)
         head_local="${head_local+$git_color $head_local\n}"
         tail_local="${tail_local+$git_color $tail_local}${dir_color}"
-
 }
 
 ############################################################### PROMPT_COMMAND
