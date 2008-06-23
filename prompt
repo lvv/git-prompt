@@ -265,6 +265,12 @@ git_module() {
 
         [[ $git_dir ]]  ||  return 
 
+        local  branch status git_color file_list
+        local  clean added modified untracked detached
+        local  git_modified_files
+        local  git_untracked_files 
+        local  git_added_files 
+
         eval `
                 git status 2>/dev/null |
                     sed -n "
@@ -374,11 +380,6 @@ git_module() {
         head_local="${head_local+$git_color $head_local\n}"
         tail_local="${tail_local+$git_color $tail_local}${dir_color}"
 
-        unset  branch status git_color sep file_list
-        unset  clean added modified untracked detached
-        unset  git_modified_files
-        unset  git_untracked_files 
-        unset  git_added_files 
 }
 
 ############################################################### PROMPT_COMMAND
