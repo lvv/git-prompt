@@ -376,7 +376,8 @@ git_module() {
         file_list+="${git_added_files+$git_added$git_added_files}"
         file_list+="${git_modified_files+$git_modified$git_modified_files}"
         file_list+="${git_untracked_files+$git_untracked$git_untracked_files}"
-        [[ $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
+        #[[ $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
+        file_list=${file_list+:$file_list}
         tail_local="(${branch} $white$head_rev$git_color$git_color${file_list}$git_color)"
 
         ### fringes (added depended on location)
