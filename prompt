@@ -268,10 +268,8 @@ git_module() {
         local  branch status git_color
         local  clean added modified untracked detached
         
-        local  file_list=""
-        local  git_modified_files=""
-        local  git_untracked_files=""
-        local  git_added_files="" 
+        local   file_list git_modified_files git_untracked_files git_added_files 
+        unset   file_list git_modified_files git_untracked_files git_added_files 
 
         eval `
                 git status 2>/dev/null |
@@ -360,7 +358,7 @@ git_module() {
         head_rev=${head_rev:0:6}
 
      
-        ### sort statuses, choose primary (for branch color)
+        ### status:  choose primary (for branch color)
         status=${op+op}
         status=${status:-$detached}
         status=${status:-$clean}
@@ -377,8 +375,7 @@ git_module() {
         file_list+=${git_added_files+$git_added$git_added_files}
         file_list+=${git_modified_files+$git_modified$git_modified_files}
         file_list+=${git_untracked_files+$git_untracked$git_untracked_files}
-        [[ -n $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
-        #file_list=${file_list+:$file_list}
+        [ -n "$file_list" ] && file_list=":${file_list}"          # after += $file_list is set
         tail_local="(${branch} $white$head_rev$git_color$git_color${file_list}$git_color)"
 
         ### fringes (added depended on location)
@@ -406,12 +403,9 @@ _prompt_command() {
 		front=7
 		head=${PWD:0:$front}"..."
 
-    # LOCALS
-        # SVN 
-        # ...
-
     svn_module
     git_module
+
     #########################
 	# PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
     
