@@ -386,7 +386,7 @@ git_module() {
 ############################################################### PROMPT_COMMAND
 
 
-_prompt_command() {
+prompt_command_function() {
 	rc="$?"
 
 	if [[ "$rc" = "0" ]]; then 
@@ -416,12 +416,8 @@ _prompt_command() {
 }
     
 
-PROMPT_COMMAND=_prompt_command
+PROMPT_COMMAND=prompt_command_function
 
-#echo \"$color_who_where\"
 unset rc id tty bell
-
-# unset default_user default_host
-#unset rc_color dir_color root_id_color 
 
 # vim: set syntax=sh:
