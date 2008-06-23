@@ -265,11 +265,13 @@ git_module() {
 
         [[ $git_dir ]]  ||  return 
 
-        local  branch status git_color file_list
+        local  branch status git_color
         local  clean added modified untracked detached
-        local  git_modified_files
-        local  git_untracked_files 
-        local  git_added_files 
+        
+        local  file_list=""
+        local  git_modified_files=""
+        local  git_untracked_files=""
+        local  git_added_files="" 
 
         eval `
                 git status 2>/dev/null |
@@ -292,7 +294,7 @@ git_module() {
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added/p
                             s/^#	modified:   /git_added_files+=\" \"/p
-                            s/^#	new file: /git_added_files+=\" \"/p
+                            s/^#	new file:   /git_added_files+=\" \"/p
                             s/^#	renamed:[^>]*> /git_added_files+=\" \"/p
                             s/^#	copied:[^>]*> /git_added_files+=\" \"/p
                         }
@@ -372,12 +374,11 @@ git_module() {
 
         ### compose local label
         
-        unset file_list
-        file_list+="${git_added_files+$git_added$git_added_files}"
-        file_list+="${git_modified_files+$git_modified$git_modified_files}"
-        file_list+="${git_untracked_files+$git_untracked$git_untracked_files}"
-        #[[ $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
-        file_list=${file_list+:$file_list}
+        file_list+=${git_added_files+$git_added$git_added_files}
+        file_list+=${git_modified_files+$git_modified$git_modified_files}
+        file_list+=${git_untracked_files+$git_untracked$git_untracked_files}
+        [[ -n $file_list ]] && file_list=":${file_list}"          # ${+  does not works (?)
+        #file_list=${file_list+:$file_list}
         tail_local="(${branch} $white$head_rev$git_color$git_color${file_list}$git_color)"
 
         ### fringes (added depended on location)
