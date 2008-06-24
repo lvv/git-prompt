@@ -23,14 +23,14 @@
       LVV_host_color='blue'
       AHP_host_color='white'
 
-    # git state colors
-    git_clean=blue         # nothing to commit (working directory clean)
-    git_modified=red       # # Changed but not updated:
-    git_added=green        # # Changes to be committed:
-    git_mixed=yellow       # 
-    git_untracked=BLUE     # # Untracked files:
-    git_op=MAGENTA         
-    git_detached=RED
+    # vcs state colors
+    clean_vcs_color=blue      # nothing to commit (working directory clean)
+ modified_vcs_color=red       # Changed but not updated:
+    added_vcs_color=green     # Changes to be committed:
+    mixed_vcs_color=yellow    # 
+untracked_vcs_color=BLUE      # Untracked files:
+       op_vcs_color=MAGENTA
+ detached_vcs_color=RED
 
 
 #####################################################################  post config
@@ -80,13 +80,13 @@
 
 
     # replace symbolic colors names to raw treminfo strings
-    git_modified=${!git_modified}
-    git_untracked=${!git_untracked}
-    git_clean=${!git_clean}
-    git_added=${!git_added}
-    git_op=${!git_op}
-    git_mixed=${!git_mixed}
-    git_detached=${!git_detached}
+     modified_vcs_color=${!modified_vcs_color}
+    untracked_vcs_color=${!untracked_vcs_color}
+        clean_vcs_color=${!clean_vcs_color}
+        added_vcs_color=${!added_vcs_color}
+           op_vcs_color=${!op_vcs_color}
+        mixed_vcs_color=${!mixed_vcs_color}
+     detached_vcs_color=${!detached_vcs_color}
 
 ##################################################################### 
 	# if label non empty, append 1 space
@@ -218,10 +218,10 @@ if	[ "$id" == "root" ]  ; then
 	color_who_where="$root_id_color$color_who_where$colors_reset"
 fi
 
-svn_module() {
+parse_svn_dir() {
 
         if [[ ! -d .svn ]];   then
-            return
+            return 1
         fi 
 
         ### get rev
@@ -236,21 +236,19 @@ svn_module() {
 
         eval `svn -q status 2>/dev/null |
                 sed -n "
-                    s/^A       /modified=modified; git_modified_files+=\" \"/p
-                    s/^M       /modified=modified; git_modified_files+=\" \"/p
+                    s/^A       /modified=modified; modified_files+=\" \"/p
+                    s/^M       /modified=modified; modified_files+=\" \"/p
                 " 
         `
 
             ### sort statuses, choose primary (for branch color)
             status=${op+op}
-            status=${status:-$detached}
             status=${status:-$clean}
             status=${status:-$modified}
-            status=${status:-$added}
             status=${status:-$untracked}
                                     # at least one should be set
                                     : ${status?prompt internal error: git status}
-            eval git_color="\${git_$status}"
+            eval git_color="\${vcs_$status}"
             git_color=${git_color:-$WHITE}    # default 
 
         ### compose
@@ -259,17 +257,16 @@ svn_module() {
 }
         
    
-git_module() {
+parse_git_dir() {
 
         git_dir=`git-rev-parse --git-dir 2> /dev/null`
 
-        [[ $git_dir ]]  ||  return 
+        [[ $git_dir ]]  ||  return  1
 
         local  branch status git_color
         local  clean added modified untracked detached
         
-        local   file_list git_modified_files git_untracked_files git_added_files 
-        unset   file_list git_modified_files git_untracked_files git_added_files 
+        unset   file_list modified_files untracked_files added_files 
 
         eval `
                 git status 2>/dev/null |
@@ -280,21 +277,21 @@ git_module() {
 
                         /^# Untracked files:/,/^[^#]/{
                             s/^# Untracked files:/untracked=untracked/p
-                            s/^#	/git_untracked_files+=\" \"/p   
+                            s/^#	/untracked_files+=\" \"/p   
                         }
 
                         /^# Changed but not updated:/,/^# [A-Z]/ {
                             s/^# Changed but not updated:/modified=modified/p
-                            s/^#	modified:   /git_modified_files+=\" \"/p
-                            s/^#	unmerged:   /git_modified_files+=\" \"/p
+                            s/^#	modified:   /modified_files+=\" \"/p
+                            s/^#	unmerged:   /modified_files+=\" \"/p
                         }
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added/p
-                            s/^#	modified:   /git_added_files+=\" \"/p
-                            s/^#	new file:   /git_added_files+=\" \"/p
-                            s/^#	renamed:[^>]*> /git_added_files+=\" \"/p
-                            s/^#	copied:[^>]*> /git_added_files+=\" \"/p
+                            s/^#	modified:   /added_files+=\" \"/p
+                            s/^#	new file:   /added_files+=\" \"/p
+                            s/^#	renamed:[^>]*> /added_files+=\" \"/p
+                            s/^#	copied:[^>]*> /added_files+=\" \"/p
                         }
                     " 
         `
@@ -378,9 +375,9 @@ git_module() {
 
         ### compose local label
         
-        file_list+=${git_added_files+$git_added$git_added_files}
-        file_list+=${git_modified_files+$git_modified$git_modified_files}
-        file_list+=${git_untracked_files+$git_untracked$git_untracked_files}
+        file_list+=${added_files+$added_vcs_color$added_files}
+        file_list+=${modified_files+$modified_vcs_color$modified_files}
+        file_list+=${untracked_files+$untracked_vcs_color$untracked_files}
         [ -n "$file_list" ] && file_list=":${file_list}"          # after += $file_list is set
         tail_local="(${branch} $white$head_rev$git_color$git_color${file_list}$git_color)"
 
@@ -389,8 +386,8 @@ git_module() {
         tail_local="${tail_local+$git_color $tail_local}${dir_color}"
 }
 
-############################################################### PROMPT_COMMAND
 
+############################################################### PROMPT_COMMAND
 
 prompt_command_function() {
 	rc="$?"
@@ -409,13 +406,11 @@ prompt_command_function() {
 		front=7
 		head=${PWD:0:$front}"..."
 
-    svn_module
-    git_module
+    parse_git_dir ||  parse_svn_dir
 
     #########################
 	# PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
     
-	#PS1="$head_local$colors_reset$label$rc'$color_who_where$dir_color'\w$tail_local'$dir_color'> '$colors_reset'"
 	PS1="$head_local$colors_reset$label$rc$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
 
     unset head_local tail_local
