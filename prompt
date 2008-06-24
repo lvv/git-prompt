@@ -344,7 +344,13 @@ git_module() {
             detached=detached
             branch="<detached:`git-name-rev --name-only HEAD 2>/dev/null`>"
         fi 
+        # 
+        # another method of above:
+        # branch=$(git-symbolic-ref -q HEAD || { echo -n "detached:" ; git-name-rev --name-only HEAD 2>/dev/null; } )
+        # branch=${branch#refs/heads/}
+        #
 
+        ### OP labels
         if [[ "$op" == "merge" ]] ;  then     
             branch="$op: $branch <~ $(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
 
