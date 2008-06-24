@@ -16,12 +16,12 @@
                                                     # where is user color?
 
     # per host color
-    TOSHA_host_color='yellow'
-    TASHA_host_color='cyan'
-       AL_host_color='green'
-       SH_host_color='blue'
-      LVV_host_color='blue'
-      AHP_host_color='white'
+    TOSHA_host_color=yellow
+    TASHA_host_color=cyan
+       AL_host_color=green
+       SH_host_color=blue
+      LVV_host_color=blue
+      AHP_host_color=white
 
     # vcs state colors
     clean_vcs_color=blue      # nothing to commit (working directory clean)
@@ -218,11 +218,16 @@ if	[ "$id" == "root" ]  ; then
 	color_who_where="$root_id_color$color_who_where$colors_reset"
 fi
 
+
 parse_svn_dir() {
 
         if [[ ! -d .svn ]];   then
             return 1
         fi 
+
+        vcs=svn
+
+        unset   file_list modified_files untracked_files added_files 
 
         ### get rev
         eval `
@@ -241,19 +246,7 @@ parse_svn_dir() {
                 " 
         `
 
-            ### sort statuses, choose primary (for branch color)
-            status=${op+op}
-            status=${status:-$clean}
-            status=${status:-$modified}
-            status=${status:-$untracked}
-                                    # at least one should be set
-                                    : ${status?prompt internal error: git status}
-            eval git_color="\${vcs_$status}"
-            git_color=${git_color:-$WHITE}    # default 
-
-        ### compose
-        tail_local="($git_status$rev)"
-        tail_local="${tail_local+$git_color $tail_local}${dir_color}"
+        vcs_info=$rev
 }
         
    
@@ -263,10 +256,7 @@ parse_git_dir() {
 
         [[ $git_dir ]]  ||  return  1
 
-        local  branch status git_color
-        local  clean added modified untracked detached
-        
-        unset   file_list modified_files untracked_files added_files 
+        vcs=git
 
         eval `
                 git status 2>/dev/null |
@@ -356,9 +346,20 @@ parse_git_dir() {
 
         fi
 
-        head_rev=`git-rev-parse HEAD 2>/dev/null`
-        head_rev=${head_rev/HEAD/}
-        head_rev=${head_rev:0:6}
+        rawhex=`git-rev-parse HEAD 2>/dev/null`
+        rawhex=${rawhex/HEAD/}
+        rawhex=${rawhex:0:6}
+
+        ### compose local label
+        vcs_info="${branch}$white/$rawhex"
+}
+
+parse_vcs_dir() {
+        unset vcs vcs_info
+        unset   file_list modified_files untracked_files added_files 
+
+        parse_git_dir ||  parse_svn_dir
+        [[ $vcs ]]  || return 
 
      
         ### status:  choose primary (for branch color)
@@ -370,20 +371,21 @@ parse_git_dir() {
         status=${status:-$untracked}
                                 # at least one should be set
                                 : ${status?prompt internal error: git status}
-        eval git_color="\${git_$status}"
-        git_color=${git_color:-$WHITE}    # default 
+        eval vcs_color="\${${status}_vcs_color}"
+        vcs_color=${vcs_color:-$WHITE}    # default 
 
-        ### compose local label
-        
-        file_list+=${added_files+$added_vcs_color$added_files}
-        file_list+=${modified_files+$modified_vcs_color$modified_files}
-        file_list+=${untracked_files+$untracked_vcs_color$untracked_files}
-        [ -n "$file_list" ] && file_list=":${file_list}"          # after += $file_list is set
-        tail_local="(${branch} $white$head_rev$git_color$git_color${file_list}$git_color)"
+        ### file list
+        unset file_list
+        file_list+=${added_files:+$added_vcs_color$added_files}
+        file_list+=${modified_files:+$modified_vcs_color$modified_files}
+        file_list+=${untracked_files:+$untracked_vcs_color$untracked_files}
+        file_list=${file_list:+:$file_list}
+
+        tail_local="($vcs_info$vcs_color${file_list}$vcs_color)"
 
         ### fringes (added depended on location)
-        head_local="${head_local+$git_color $head_local\n}"
-        tail_local="${tail_local+$git_color $tail_local}${dir_color}"
+        head_local="${head_local+$vcs_color $head_local\n}"
+        tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
 }
 
 
@@ -392,7 +394,7 @@ parse_git_dir() {
 prompt_command_function() {
 	rc="$?"
 
-	if [[ "$rc" = "0" ]]; then 
+	if [[ "$rc" == "0" ]]; then 
 		rc=""
 	else
 		#rc="$rc_color$rc$colors_reset$bell "
@@ -406,7 +408,7 @@ prompt_command_function() {
 		front=7
 		head=${PWD:0:$front}"..."
 
-    parse_git_dir ||  parse_svn_dir
+    parse_vcs_dir
 
     #########################
 	# PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
