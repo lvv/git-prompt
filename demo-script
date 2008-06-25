@@ -1,4 +1,4 @@
-<<<<<<< HEAD:demo-script
+set +xv
 . /t/prompt/prompt 
 test -d demo && rm -rf demo/
 test -d ../demo && cd .. && rm -rf demo/ 
@@ -10,11 +10,11 @@ echo "1st line" > FOO
 git add FOO
 touch  untracked.o
 rm     untracked.o
-git commit -q -m "1st line"  FOO
+git commit -q -m "FOO's 1st line" 
 git checkout -b test
 echo "added 2nd line in test" >> FOO 
 git add FOO 
-echo "2nd FOO" > BAR
+echo "1st BAR" > BAR
 git add BAR
 echo "added 3nd line" >> FOO 
 git add FOO
@@ -31,3 +31,4 @@ git commit -q -m "merged"
 cat FOO
 git checkout HEAD^
 cat FOO
+git checkout master

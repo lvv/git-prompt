@@ -24,14 +24,14 @@
       AHP_host_color=white
 
     # vcs state colors
-     init_vcs_color=WHITE     # initial
-    clean_vcs_color=blue      # nothing to commit (working directory clean)
- modified_vcs_color=red       # Changed but not updated:
-    added_vcs_color=green     # Changes to be committed:
-    mixed_vcs_color=yellow    # 
-untracked_vcs_color=BLUE      # Untracked files:
-       op_vcs_color=MAGENTA
- detached_vcs_color=RED
+         init_vcs_color=WHITE     # initial
+        clean_vcs_color=blue      # nothing to commit (working directory clean)
+     modified_vcs_color=red       # Changed but not updated:
+        added_vcs_color=green     # Changes to be committed:
+        mixed_vcs_color=yellow    # 
+    untracked_vcs_color=BLUE      # Untracked files:
+           op_vcs_color=MAGENTA
+     detached_vcs_color=RED
 
 
 #####################################################################  post config
@@ -138,7 +138,7 @@ set_shell_title() {
 	esac
 }
 
-export -f set_shell_title
+    export -f set_shell_title
 
 ###################################################### ID (user name)
 	id=`id -un`
@@ -196,29 +196,29 @@ export -f set_shell_title
 
 
 ########################################################### WHO_WHERE 
-# who_ware. Is constant.  Looks like
-# 	[user@]host[-tty]
+    # who_ware. Is constant.  Looks like
+    # 	[user@]host[-tty]
 
-color_who_where="${id:+$id@}$host_color$host${tty:+ $tty}"
-plain_who_where="${id:+$id@}$host"
+    color_who_where="${id:+$id@}$host_color$host${tty:+ $tty}"
+    plain_who_where="${id:+$id@}$host"
 
-# remove trailing "@" if any
-color_who_where="${color_who_where%@}"
-plain_who_where="${plain_who_where%@}"
+    # remove trailing "@" if any
+    color_who_where="${color_who_where%@}"
+    plain_who_where="${plain_who_where%@}"
 
-# add traling " "
-color_who_where="$color_who_where "
-plain_who_where="$plain_who_where "
+    # add traling " "
+    color_who_where="$color_who_where "
+    plain_who_where="$plain_who_where "
 
-# if  $who_where==" "  then  who_where=""
-color_who_where="${color_who_where## }"
-plain_who_where="${plain_who_where## }"
+    # if  $who_where==" "  then  who_where=""
+    color_who_where="${color_who_where## }"
+    plain_who_where="${plain_who_where## }"
 
 
-# if root then highlight who_where
-if	[ "$id" == "root" ]  ; then 
-	color_who_where="$root_id_color$color_who_where$colors_reset"
-fi
+    # if root then highlight who_where
+    if	[ "$id" == "root" ]  ; then 
+        color_who_where="$root_id_color$color_who_where$colors_reset"
+    fi
 
 
 parse_svn_dir() {
@@ -259,30 +259,26 @@ parse_git_dir() {
         vcs=git
 
         ##########################################################   GIT STATUS
+        unset status modified added clean init added mixed untracked op detached
         eval `
                 git status 2>/dev/null |
                     sed -n "
                         s/^# On branch /branch=/p
-
                         s/^nothing to commit (working directory clean)/clean=clean/p
-
                         s/^# Initial commit/init=init/p
-
                         /^# Untracked files:/,/^[^#]/{
                             s/^# Untracked files:/untracked=untracked/p
                             s/^#	/untracked_files+=\" \"/p   
                         }
-
                         /^# Changed but not updated:/,/^# [A-Z]/ {
                             s/^# Changed but not updated:/modified=modified/p
                             s/^#	modified:   /modified_files+=\" \"/p
                             s/^#	unmerged:   /modified_files+=\" \"/p
                         }
-
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added/p
                             s/^#	modified:   /added_files+=\" \"/p
-                            s/^#	new file:   /added_files+=\" \"/p
+                            s/^#	new file: */added_files+=\" \"/p
                             s/^#	renamed:[^>]*> /added_files+=\" \"/p
                             s/^#	copied:[^>]*> /added_files+=\" \"/p
                         }
@@ -344,21 +340,23 @@ parse_git_dir() {
 
         ### compose vcs_info
 
+        if [[ $init ]];  then 
+            vcs_info=init:M
 
-        if [[ "$detached" ]] ;  then     
-            vcs_info="<detached:`git-name-rev --name-only HEAD 2>/dev/null`$white=$rawhex>"
-
-        elif [[ "$op" == "merge" ]] ;  then     
-            vcs_info="$op: $branch <~ $(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))$white=$rawhex"
-
-        elif   [[ "$op" ]];  then
-            vcs_info="<$op:$branch>"
-
-        elif [[ $init ]];  then 
-            vcs_info=init
 
         else
-            vcs_info="${branch}$white=$rawhex"
+            if [[ "$detached" ]] ;  then     
+                branch="<detached:`git-name-rev --name-only HEAD 2>/dev/null`"
+
+
+            elif   [[ "$op" ]];  then
+                    branch="$op:$branch"
+                    if [[ "$op" == "merge" ]] ;  then     
+                        branch+="<~$(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
+                    fi
+                    branch="<$branch>"
+            fi
+            vcs_info="$branch$white=$rawhex"
 
         fi
 }
@@ -366,9 +364,8 @@ parse_git_dir() {
 parse_vcs_dir() {
 
         unset   file_list modified_files untracked_files added_files 
-
         unset   vcs vcs_info
-        unset   status modified untracked added
+        unset   status modified untracked added init detached
         unset   file_list modified_files untracked_files added_files 
 
         parse_git_dir ||  parse_svn_dir
@@ -434,8 +431,8 @@ prompt_command_function() {
 }
     
 
-PROMPT_COMMAND=prompt_command_function
+    PROMPT_COMMAND=prompt_command_function
 
-unset rc id tty bell
+    unset rc id tty bell
 
 # vim: set syntax=sh:
