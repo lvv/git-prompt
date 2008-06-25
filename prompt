@@ -24,6 +24,7 @@
       AHP_host_color=white
 
     # vcs state colors
+     init_vcs_color=WHITE     # initial
     clean_vcs_color=blue      # nothing to commit (working directory clean)
  modified_vcs_color=red       # Changed but not updated:
     added_vcs_color=green     # Changes to be committed:
@@ -80,6 +81,7 @@ untracked_vcs_color=BLUE      # Untracked files:
 
 
     # replace symbolic colors names to raw treminfo strings
+         init_vcs_color=${!init_vcs_color}
      modified_vcs_color=${!modified_vcs_color}
     untracked_vcs_color=${!untracked_vcs_color}
         clean_vcs_color=${!clean_vcs_color}
@@ -227,8 +229,6 @@ parse_svn_dir() {
 
         vcs=svn
 
-        unset   file_list modified_files untracked_files added_files 
-
         ### get rev
         eval `
             svn info |
@@ -241,12 +241,12 @@ parse_svn_dir() {
 
         eval `svn -q status 2>/dev/null |
                 sed -n "
-                    s/^A       /modified=modified; modified_files+=\" \"/p
-                    s/^M       /modified=modified; modified_files+=\" \"/p
+                    s/^A      /modified=modified; modified_files+=\" \"/p
+                    s/^M      /modified=modified; modified_files+=\" \"/p
                 " 
         `
 
-        vcs_info=$rev
+        vcs_info=svn:$rev
 }
         
    
@@ -264,6 +264,8 @@ parse_git_dir() {
                         s/^# On branch /branch=/p
 
                         s/^nothing to commit (working directory clean)/clean=clean/p
+
+                        s/^# Initial commit/init=init/p
 
                         /^# Untracked files:/,/^[^#]/{
                             s/^# Untracked files:/untracked=untracked/p
@@ -337,25 +339,34 @@ parse_git_dir() {
         # branch=${branch#refs/heads/}
         #
 
-        ### OP labels
-        if [[ "$op" == "merge" ]] ;  then     
-            branch="$op: $branch <~ $(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
-
-        elif   [[ -n "$op" ]];     then
-            branch="<$op:$branch>"
-
-        fi
-
         rawhex=`git-rev-parse HEAD 2>/dev/null`
         rawhex=${rawhex/HEAD/}
         rawhex=${rawhex:0:6}
 
-        ### compose local label
-        vcs_info="${branch}$white/$rawhex"
+
+        ### compose vcs_info
+
+        if [[ "$op" == "merge" ]] ;  then     
+            vcs_info="$op: $branch <~ $(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))$white/$rawhex"
+
+        elif   [[ "$op" ]];  then
+            vcs_info="<$op:$branch>"
+
+        elif [[ $init ]];  then 
+            vcs_info=init
+
+        else
+            vcs_info="${branch}$white/$rawhex"
+
+        fi
 }
 
 parse_vcs_dir() {
-        unset vcs vcs_info
+
+        unset   file_list modified_files untracked_files added_files 
+
+        unset   vcs vcs_info
+        unset   status modified untracked added
         unset   file_list modified_files untracked_files added_files 
 
         parse_git_dir ||  parse_svn_dir
@@ -363,7 +374,9 @@ parse_vcs_dir() {
 
      
         ### status:  choose primary (for branch color)
-        status=${op+op}
+        unset status
+        status=${op:+op}
+        status=${status:-$init}
         status=${status:-$detached}
         status=${status:-$clean}
         status=${status:-$modified}
@@ -372,7 +385,7 @@ parse_vcs_dir() {
                                 # at least one should be set
                                 : ${status?prompt internal error: git status}
         eval vcs_color="\${${status}_vcs_color}"
-        vcs_color=${vcs_color:-$WHITE}    # default 
+                                # no def:  vcs_color=${vcs_color:-$WHITE}    # default 
 
         ### file list
         unset file_list
