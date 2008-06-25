@@ -136,7 +136,7 @@ set_shell_title() {
 		*)                                                     
 			;;
 	esac
-}
+ }
 
     export -f set_shell_title
 
@@ -144,7 +144,7 @@ set_shell_title() {
 	id=`id -un`
 	id=${id#$default_user}
 
-###################################################### TTY
+########################################################### TTY
 	tty=`tty`
 	tty=`echo $tty | sed "s:/dev/pts/:p:; s:/dev/tty::" `		# RH tty devs	
 	tty=`echo $tty | sed "s:/dev/vc/:vc:" `				# gentoo tty devs
@@ -195,7 +195,7 @@ set_shell_title() {
 	host=${host%.$default_domain}
 
 
-########################################################### WHO_WHERE 
+#################################################################### WHO_WHERE 
     # who_ware. Is constant.  Looks like
     # 	[user@]host[-tty]
 
@@ -239,15 +239,18 @@ parse_svn_dir() {
         `
         ### get status
 
+        unset status modified added clean init added mixed untracked op detached
         eval `svn -q status 2>/dev/null |
                 sed -n "
                     s/^A      /modified=modified; modified_files+=\" \"/p
                     s/^M      /modified=modified; modified_files+=\" \"/p
                 " 
         `
+        # TODO untracked files; untracked state; branch detection if standart repo layout
 
-        vcs_info=svn:$rev
-}
+        [[  -z $modified ]]  && [[ -z $untracked ]] && clean=clean
+        vcs_info=svn:r$rev
+ }
         
    
 parse_git_dir() {
@@ -359,7 +362,7 @@ parse_git_dir() {
             vcs_info="$branch$white=$rawhex"
 
         fi
-}
+ }
 
 parse_vcs_dir() {
 
@@ -368,8 +371,7 @@ parse_vcs_dir() {
         unset   status modified untracked added init detached
         unset   file_list modified_files untracked_files added_files 
 
-        parse_git_dir ||  parse_svn_dir
-        [[ $vcs ]]  || return 
+        parse_git_dir ||  parse_svn_dir || return 
 
      
         ### status:  choose primary (for branch color)
@@ -398,10 +400,10 @@ parse_vcs_dir() {
         ### fringes (added depended on location)
         head_local="${head_local+$vcs_color $head_local\n}"
         tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
-}
+ }
 
 
-############################################################### PROMPT_COMMAND
+###################################################################### PROMPT_COMMAND
 
 prompt_command_function() {
 	rc="$?"
