@@ -344,8 +344,7 @@ parse_git_dir() {
         ### compose vcs_info
 
         if [[ $init ]];  then 
-            vcs_info=init:M
-
+            vcs_info=M$white=init
 
         else
             if [[ "$detached" ]] ;  then     
@@ -357,7 +356,7 @@ parse_git_dir() {
                     if [[ "$op" == "merge" ]] ;  then     
                         branch+="<~$(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
                     fi
-                    branch="<$branch>"
+                    #branch="<$branch>"
             fi
             vcs_info="$branch$white=$rawhex"
 
@@ -377,12 +376,12 @@ parse_vcs_dir() {
         ### status:  choose primary (for branch color)
         unset status
         status=${op:+op}
-        status=${status:-$init}
         status=${status:-$detached}
         status=${status:-$clean}
         status=${status:-$modified}
         status=${status:-$added}
         status=${status:-$untracked}
+        status=${status:-$init}
                                 # at least one should be set
                                 : ${status?prompt internal error: git status}
         eval vcs_color="\${${status}_vcs_color}"

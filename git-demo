@@ -3,6 +3,7 @@ set +xv
 test -d demo && rm -rf demo/
 test -d ../demo && cd .. && rm -rf demo/ 
 clear
+: ------------------------------------------------------------------------
 mkdir demo
 cd demo
 git init
@@ -32,3 +33,5 @@ cat FOO
 git checkout HEAD^
 cat FOO
 git checkout master
+: ------------------------------------------------------------------------
+cd ..
