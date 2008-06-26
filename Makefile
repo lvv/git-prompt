@@ -9,5 +9,5 @@ tgit:
 	echo "ready to paste ..."
 
 release: install
-	 git tag `git tag -l | awk -F. 'END{printf "%s.%s\n", $1,$2+1}'`
+	 git tag  $(shell git tag -l | awk -F. 'END{printf "%s.%s\n", $$1,$$2+1}')
 	 git push
