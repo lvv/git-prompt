@@ -257,7 +257,7 @@ parse_git_dir() {
 
         git_dir=`git-rev-parse --git-dir 2> /dev/null`
 
-        [[ $git_dir ]]  ||  return  1
+        [[ -n ${git_dir/./} ]]  ||  return  1
 
         vcs=git
 
