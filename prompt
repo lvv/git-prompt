@@ -387,12 +387,31 @@ parse_vcs_dir() {
         eval vcs_color="\${${status}_vcs_color}"
                                 # no def:  vcs_color=${vcs_color:-$WHITE}    # default 
 
+
+        ### VIM  ( not yet works for multiple files )
+        
+        unset vim_glob vim_file vim_files
+        old_nullglob=`shopt -p nullglob`
+            shopt -s nullglob
+            vim_glob=`echo .*.swp`
+        eval $old_nullglob
+
+        if [[ $vim_glob ]];  then  
+            vim_file=${vim_glob#.}
+            vim_file=${vim_file%.swp}
+            # if swap is newer,  then unsaved vim session
+            [[ .${vim_file}.swp -nt $vim_file ]]  && vim_files=$vim_file
+        fi
+
+
         ### file list
         unset file_list
         file_list+=${added_files:+$added_vcs_color$added_files}
         file_list+=${modified_files:+$modified_vcs_color$modified_files}
         file_list+=${untracked_files:+$untracked_vcs_color$untracked_files}
+        file_list+=${vim_files:+ ${RED}VIM:$vim_files}
         file_list=${file_list:+:$file_list}
+
 
         tail_local="($vcs_info$vcs_color${file_list}$vcs_color)"
 

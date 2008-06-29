@@ -7,31 +7,32 @@ clear
 mkdir demo
 cd demo
 git init
-echo "1st line" > FOO
-git add FOO
-touch  untracked.o
-rm     untracked.o
-git commit -q -m "FOO's 1st line" 
-git checkout -b test
-echo "added 2nd line in test" >> FOO 
-git add FOO 
+echo 'main() {puts("Hello World!");}' > hello.c
+make hello && ./hello
+git add hello.c
+git commit -q -m "1st hello" 
+git checkout -b universe;  git clean -f
+echo 'main() {puts("Hello Universe!");}' > hello.c
+git add hello.c
 echo "1st BAR" > BAR
 git add BAR
-echo "added 3nd line" >> FOO 
-git add FOO
-git commit -q -m "FOO moded, BAR added"
+echo "// FIXME: includes" >> hello.c
+git add hello.c
+git commit -q -m "hello.c moded, BAR added"
 git checkout master
-cat FOO 
-echo "now added 2nd line in master" >> FOO 
-git add FOO
-git commit -q -m "2nd line"
-git merge test
-git-cat-file -p test:FOO > FOO
-git add FOO 
+cat hello.c
+echo 'main() {puts("Hello Universe!"); exit(0);}' > hello.c
+git add hello.c
+git commit -q -m "fixed exit code"
+git merge universe
+git-cat-file -p universe:hello.c > hello.c
+git add hello.c
 git commit -q -m "merged"
-cat FOO
+cat hello.c
 git checkout HEAD^
-cat FOO
+cat hello.c
 git checkout master
+sleep 2; echo "this emulates unsaved vim session" > .hello.c.swp 
+git clean -f
 : ------------------------------------------------------------------------
 cd ..
