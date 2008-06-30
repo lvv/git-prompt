@@ -3,8 +3,23 @@ GIT Prompt
     Picture worth a thousand words, see wiki for screenshots
 
 
+DEPENDECY
+    bash (tested with v3.2.33) 
+    git  (optinal)
+    svn  (optinal)
+    sed
+    tput (terminfo)
+    tty
+    grep 
+    locale
+    id 
+
+
 TODO
     limit number of files displayed
     VIM module needs to be moved out of GIT module
     make module
 
+
+leonid@volnitsky.com
+http://github.com/lvv/git-prompt/tree/master

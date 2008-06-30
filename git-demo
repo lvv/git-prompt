@@ -14,11 +14,9 @@ git commit -q -m "1st hello"
 git checkout -b universe;  git clean -f
 echo 'main() {puts("Hello Universe!");}' > hello.c
 git add hello.c
-echo "1st BAR" > BAR
-git add BAR
 echo "// FIXME: includes" >> hello.c
 git add hello.c
-git commit -q -m "hello.c moded, BAR added"
+git commit -q -m "notes to self"
 git checkout master
 cat hello.c
 echo 'main() {puts("Hello Universe!"); exit(0);}' > hello.c

@@ -223,7 +223,7 @@ set_shell_title() {
 
 parse_svn_dir() {
 
-        if [[ ! -d .svn ]];   then
+        if [[ ! -d .svn || $HOME == $PWD ]];   then   # if home dir under svn - don't clutter home dir prompt
             return 1
         fi 
 
