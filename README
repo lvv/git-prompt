@@ -1,4 +1,4 @@
-GIT Prompt
+GIT Prompt for BASH
 
     Picture worth a thousand words, see wiki for screenshots
 
@@ -19,6 +19,9 @@ TODO
     limit number of files displayed
     VIM module needs to be moved out of GIT module
     make module
+    
+    wiki/screanshots for labels and svn module
+
 
 
 leonid@volnitsky.com
