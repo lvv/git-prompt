@@ -16,11 +16,12 @@ DEPENDECY
 
 
 TODO
-    limit number of files displayed
-    VIM module needs to be moved out of GIT module
-    make module
-    
-    wiki/screanshots for labels and svn module
+    - limit number of files displayed
+    - VIM module needs to be moved out of GIT module
+    - make module
+    - wiki/screanshots for labels and svn module
+    - How detect current merge?  (current method through .git/MERGE_HEAD not always works)
+        
 
 
 
