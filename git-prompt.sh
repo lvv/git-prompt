@@ -33,6 +33,9 @@
            op_vcs_color=MAGENTA
      detached_vcs_color=RED
 
+    max_untracked=3 
+    max_modified=5 
+    max_added=5 
 
 #####################################################################  post config
 
@@ -263,29 +266,33 @@ parse_git_dir() {
 
         ##########################################################   GIT STATUS
         unset status modified added clean init added mixed untracked op detached
+        local untracked_cnt=0;
+        local modified_cnt=0;
+        local added_cnt=0;
+                            #s/^#	/; : $((untracked_cnt++)); [[  $untracked_cnt -le $max_untracked ]] \&\&  untracked_files+=" "/p   
         eval `
                 git status 2>/dev/null |
-                    sed -n "
+                    sed -n '
                         s/^# On branch /branch=/p
                         s/^nothing to commit (working directory clean)/clean=clean/p
-                        s/^# Initial commit/init=init/p
+                        s/^# Initial commit/;init=init/p
                         /^# Untracked files:/,/^[^#]/{
-                            s/^# Untracked files:/untracked=untracked/p
-                            s/^#	/untracked_files+=\" \"/p   
+                            s/^# Untracked files:/;untracked=untracked/p
+                            s/^#	/; [[  $((++untracked_cnt)) -eq $max_untracked+1 ]] \&\&  untracked_files+="..."; [[  $((untracked_cnt)) -le $max_untracked ]] \&\&  untracked_files+=" "/p   
                         }
                         /^# Changed but not updated:/,/^# [A-Z]/ {
-                            s/^# Changed but not updated:/modified=modified/p
-                            s/^#	modified:   /modified_files+=\" \"/p
-                            s/^#	unmerged:   /modified_files+=\" \"/p
+                            s/^# Changed but not updated:/;modified=modified/p
+                            s/^#	modified:   /; [[ $((++modified_cnt)) -le $max_modified ]] \&\&  modified_files+=" "/p
+                            s/^#	unmerged:   /; [[ $((++modified_cnt)) -le $max_modified ]] \&\&  modified_files+=" "/p
                         }
                         /^# Changes to be committed:/,/^# [A-Z]/ {
-                            s/^# Changes to be committed:/added=added/p
-                            s/^#	modified:   /added_files+=\" \"/p
-                            s/^#	new file: */added_files+=\" \"/p
-                            s/^#	renamed:[^>]*> /added_files+=\" \"/p
-                            s/^#	copied:[^>]*> /added_files+=\" \"/p
+                            s/^# Changes to be committed:/;added=added/p
+                            s/^#	modified:   /; [[ $((++added_cnt)) -le $max_added ]] \&\&  added_files+=" "/p
+                            s/^#	new file: */; [[ $((++added_cnt)) -le $max_added ]] \&\&  added_files+=" "/p
+                            s/^#	renamed:[^>]*> /; [[ $((++added_cnt)) -le $max_added ]] \&\&  added_files+=" "/p
+                            s/^#	copied:[^>]*> /; [[ $((++added_cnt)) -le $max_added ]] \&\&  added_files+=" "/p
                         }
-                    " 
+                    ' 
         `
 
         if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then 
@@ -316,6 +323,7 @@ parse_git_dir() {
             op="rebase -m"
             # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
             
+        # lvv: not always works. Should  ./.dotest  be used instead?
         elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
             op="merge"
             # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
