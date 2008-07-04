@@ -33,6 +33,9 @@
            op_vcs_color=MAGENTA
      detached_vcs_color=RED
 
+    max_untracked=3 
+    max_modified=5 
+    max_added=5 
 
 #####################################################################  post config
 
@@ -263,29 +266,33 @@ parse_git_dir() {
 
         ##########################################################   GIT STATUS
         unset status modified added clean init added mixed untracked op detached
+        local untracked_cnt=0;
+        local modified_cnt=0;
+        local added_cnt=0;
+                            #s/^#	/; : $((untracked_cnt++)); [[  $untracked_cnt -le $max_untracked ]] \&\&  untracked_files+=" "/p   
         eval `
                 git status 2>/dev/null |
-                    sed -n "
+                    sed -n '
                         s/^# On branch /branch=/p
                         s/^nothing to commit (working directory clean)/clean=clean/p
-                        s/^# Initial commit/init=init/p
+                        s/^# Initial commit/;init=init/p
                         /^# Untracked files:/,/^[^#]/{
-                            s/^# Untracked files:/untracked=untracked/p
-                            s/^#	/untracked_files+=\" \"/p   
+                            s/^# Untracked files:/;untracked=untracked/p
+                            s/^#	/untracked_files[${#untracked_files[@]}+1]=/p   
                         }
                         /^# Changed but not updated:/,/^# [A-Z]/ {
-                            s/^# Changed but not updated:/modified=modified/p
-                            s/^#	modified:   /modified_files+=\" \"/p
-                            s/^#	unmerged:   /modified_files+=\" \"/p
+                            s/^# Changed but not updated:/;modified=modified/p
+                            s/^#	modified:   /modified_files[${#modified_files[@]}+1]=/p
+                            s/^#	unmerged:   /modified_files[${#modified_files[@]}+1]=/p
                         }
                         /^# Changes to be committed:/,/^# [A-Z]/ {
-                            s/^# Changes to be committed:/added=added/p
-                            s/^#	modified:   /added_files+=\" \"/p
-                            s/^#	new file: */added_files+=\" \"/p
-                            s/^#	renamed:[^>]*> /added_files+=\" \"/p
-                            s/^#	copied:[^>]*> /added_files+=\" \"/p
+                            s/^# Changes to be committed:/;added=added/p
+                            s/^#	modified:   /added_files[${#added_files[@]}+1]=/p
+                            s/^#	new file: */added_files[${#added_files[@]}+1]=/p
+                            s/^#	renamed:[^>]*> /added_files[${#added_files[@]}+1]=/p
+                            s/^#	copied:[^>]*> /added_files[${#added_files[@]}+1]=/p
                         }
-                    " 
+                    ' 
         `
 
         if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then 
@@ -316,6 +323,7 @@ parse_git_dir() {
             op="rebase -m"
             # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
             
+        # lvv: not always works. Should  ./.dotest  be used instead?
         elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
             op="merge"
             # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
@@ -406,10 +414,10 @@ parse_vcs_dir() {
 
         ### file list
         unset file_list
-        file_list+=${added_files:+$added_vcs_color$added_files}
-        file_list+=${modified_files:+$modified_vcs_color$modified_files}
-        file_list+=${untracked_files:+$untracked_vcs_color$untracked_files}
-        file_list+=${vim_files:+ ${RED}VIM:$vim_files}
+        [[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]:1:$max_added}${added_files[$max_added+1]:+...}
+        [[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]:1:$max_modified}${modified_files[$max_modified+1]:+...}
+        [[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]:1:$max_untracked}${untracked_files[$max_untracked+1]:+...} 
+        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:$vim_files}
         file_list=${file_list:+:$file_list}
 
 
