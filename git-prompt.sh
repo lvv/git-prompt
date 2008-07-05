@@ -278,19 +278,19 @@ parse_git_dir() {
                         s/^# Initial commit/;init=init/p
                         /^# Untracked files:/,/^[^#]/{
                             s/^# Untracked files:/;untracked=untracked/p
-                            s/^#	/; [[  $((++untracked_cnt)) -eq $max_untracked+1 ]] \&\&  untracked_files+="..."; [[  $((untracked_cnt)) -le $max_untracked ]] \&\&  untracked_files+=" "/p   
+                            s/^#	/untracked_files[${#untracked_files[@]}+1]=/p   
                         }
                         /^# Changed but not updated:/,/^# [A-Z]/ {
                             s/^# Changed but not updated:/;modified=modified/p
-                            s/^#	modified:   /; [[ $((++modified_cnt)) -le $max_modified ]] \&\&  modified_files+=" "/p
-                            s/^#	unmerged:   /; [[ $((++modified_cnt)) -le $max_modified ]] \&\&  modified_files+=" "/p
+                            s/^#	modified:   /modified_files[${#modified_files[@]}+1]=/p
+                            s/^#	unmerged:   /modified_files[${#modified_files[@]}+1]=/p
                         }
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/;added=added/p
-                            s/^#	modified:   /; [[ $((++added_cnt)) -le $max_added ]] \&\&  added_files+=" "/p
-                            s/^#	new file: */; [[ $((++added_cnt)) -le $max_added ]] \&\&  added_files+=" "/p
-                            s/^#	renamed:[^>]*> /; [[ $((++added_cnt)) -le $max_added ]] \&\&  added_files+=" "/p
-                            s/^#	copied:[^>]*> /; [[ $((++added_cnt)) -le $max_added ]] \&\&  added_files+=" "/p
+                            s/^#	modified:   /added_files[${#added_files[@]}+1]=/p
+                            s/^#	new file: */added_files[${#added_files[@]}+1]=/p
+                            s/^#	renamed:[^>]*> /added_files[${#added_files[@]}+1]=/p
+                            s/^#	copied:[^>]*> /added_files[${#added_files[@]}+1]=/p
                         }
                     ' 
         `
@@ -414,10 +414,10 @@ parse_vcs_dir() {
 
         ### file list
         unset file_list
-        file_list+=${added_files:+$added_vcs_color$added_files}
-        file_list+=${modified_files:+$modified_vcs_color$modified_files}
-        file_list+=${untracked_files:+$untracked_vcs_color$untracked_files}
-        file_list+=${vim_files:+ ${RED}VIM:$vim_files}
+        [[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]:1:$max_added}${added_files[$max_added+1]:+...}
+        [[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]:1:$max_modified}${modified_files[$max_modified+1]:+...}
+        [[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]:1:$max_untracked}${untracked_files[$max_untracked+1]:+...} 
+        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:$vim_files}
         file_list=${file_list:+:$file_list}
 
 
