@@ -1,6 +1,6 @@
 install:
 	cp git-prompt.sh /etc/
-	ln -s /etc/git-prompt.sh /etc/prompt
+	ln -sf /etc/git-prompt.sh /etc/prompt
 
 clean:
 	git clean -df
