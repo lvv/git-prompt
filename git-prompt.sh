@@ -39,7 +39,7 @@
 
 #####################################################################  post config
 
-	######################################## terminfo colors
+	######################################## terminfo colors-16
 	#
 	#   black?    0	8			  
 	#	red       1 9
@@ -53,6 +53,17 @@
 	#	terminfo setaf/setab - sets ansi foreground/background
 	#	terminfo sgr0 - resets all atributes
 	#	terminfo colors - number of colors
+    #
+    #######################################  Colors-256
+    #  To use foreground and background colors from the extension, you only
+    #  have to remember two escape codes:
+    #       Set the foreground color to index N:    \033[38;5;${N}m
+    #       Set the background color to index M:    \033[48;5;${M}m
+    # To make vim aware of a present 256 color extension, you can either set
+    # the $TERM environment variable to xterm-256color or use vim's -T option
+    # to set the terminal. I'm using an alias in my bashrc to do this. At the
+    # moment I only know of two colorschemes which is made for multi-color
+    # terminals like urxvt (88 colors) or xterm: inkpot and desert256, 
 
 	### if term support colors,  then use color prompt, else bold
 
@@ -275,18 +286,18 @@ parse_git_dir() {
                     sed -n '
                         s/^# On branch /branch=/p
                         s/^nothing to commit (working directory clean)/clean=clean/p
-                        s/^# Initial commit/;init=init/p
+                        s/^# Initial commit/init=init/p
                         /^# Untracked files:/,/^[^#]/{
-                            s/^# Untracked files:/;untracked=untracked/p
+                            s/^# Untracked files:/untracked=untracked;/p
                             s/^#	/untracked_files[${#untracked_files[@]}+1]=/p   
                         }
                         /^# Changed but not updated:/,/^# [A-Z]/ {
-                            s/^# Changed but not updated:/;modified=modified/p
+                            s/^# Changed but not updated:/modified=modified;/p
                             s/^#	modified:   /modified_files[${#modified_files[@]}+1]=/p
                             s/^#	unmerged:   /modified_files[${#modified_files[@]}+1]=/p
                         }
                         /^# Changes to be committed:/,/^# [A-Z]/ {
-                            s/^# Changes to be committed:/;added=added/p
+                            s/^# Changes to be committed:/added=added;/p
                             s/^#	modified:   /added_files[${#added_files[@]}+1]=/p
                             s/^#	new file: */added_files[${#added_files[@]}+1]=/p
                             s/^#	renamed:[^>]*> /added_files[${#added_files[@]}+1]=/p
@@ -456,7 +467,7 @@ prompt_command_function() {
 	PS1="$head_local$colors_reset$label$rc$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
 
     unset head_local tail_local
-}
+ }
     
 
     PROMPT_COMMAND=prompt_command_function
