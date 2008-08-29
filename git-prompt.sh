@@ -33,9 +33,9 @@
            op_vcs_color=MAGENTA
      detached_vcs_color=RED
 
-    max_untracked=3 
-    max_modified=5 
-    max_added=5 
+    max_untracked=6 
+    max_modified=6 
+    max_added=6 
 
 #####################################################################  post config
 
@@ -269,7 +269,7 @@ parse_svn_dir() {
    
 parse_git_dir() {
 
-        git_dir=`git-rev-parse --git-dir 2> /dev/null`
+        git_dir=`git rev-parse --git-dir 2> /dev/null`
 
         [[ -n ${git_dir/./} ]]  ||  return  1
 
@@ -348,7 +348,7 @@ parse_git_dir() {
 
         #####################################################################
 
-        rawhex=`git-rev-parse HEAD 2>/dev/null`
+        rawhex=`git rev-parse HEAD 2>/dev/null`
         rawhex=${rawhex/HEAD/}
         rawhex=${rawhex:0:6}
         
@@ -357,7 +357,7 @@ parse_git_dir() {
         branch=${branch/master/M}
 
                         # another method of above:
-                        # branch=$(git-symbolic-ref -q HEAD || { echo -n "detached:" ; git-name-rev --name-only HEAD 2>/dev/null; } )
+                        # branch=$(git symbolic-ref -q HEAD || { echo -n "detached:" ; git name-rev --name-only HEAD 2>/dev/null; } )
                         # branch=${branch#refs/heads/}
 
         ### compose vcs_info
@@ -367,13 +367,13 @@ parse_git_dir() {
 
         else
             if [[ "$detached" ]] ;  then     
-                branch="<detached:`git-name-rev --name-only HEAD 2>/dev/null`"
+                branch="<detached:`git name-rev --name-only HEAD 2>/dev/null`"
 
 
             elif   [[ "$op" ]];  then
                     branch="$op:$branch"
                     if [[ "$op" == "merge" ]] ;  then     
-                        branch+="<~$(git-name-rev --name-only $(<$git_dir/MERGE_HEAD))"
+                        branch+="<~$(git name-rev --name-only $(<$git_dir/MERGE_HEAD))"
                     fi
                     #branch="<$branch>"
             fi
