@@ -430,6 +430,7 @@ parse_vcs_dir() {
         [[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]:1:$max_untracked}${untracked_files[$max_untracked+1]:+...} 
         [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:$vim_files}
         file_list=${file_list:+:$file_list}
+        file_list=${file_list:0:100} 	# max lenth
 
 
         tail_local="($vcs_info$vcs_color${file_list}$vcs_color)"
