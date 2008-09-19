@@ -28,6 +28,7 @@ git add hello.c
 git commit -q -m "merged"
 cat hello.c
 git checkout HEAD^
+git checkout HEAD^
 cat hello.c
 git checkout master
 sleep 2; echo "this emulates unsaved vim session" > .hello.c.swp 
