@@ -298,10 +298,10 @@ parse_git_dir() {
                         }
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added;/p
-                            s/^#	\([^.]\)modified:   /added_files[${#added_files[@]}+1]=\1/p
-                            s/^#	\([^.]\)new file: */added_files[${#added_files[@]}+1]=\1/p
-                            s/^#	\([^.]\)renamed:[^>]*> /added_files[${#added_files[@]}+1]=\1/p
-                            s/^#	\([^.]\)copied:[^>]*> /added_files[${#added_files[@]}+1]=\1/p
+                            s/^#	modified:   \([^.]\)/added_files[${#added_files[@]}+1]=\1/p
+                            s/^#	new file:   \([^.]\)/added_files[${#added_files[@]}+1]=\1/p
+                            s/^#	renamed:[^>]*> \([^.]\)/added_files[${#added_files[@]}+1]=\1/p
+                            s/^#	copied:[^>]*> \([^.]\)/added_files[${#added_files[@]}+1]=\1/p
                         }
                     ' 
         `
@@ -428,7 +428,7 @@ parse_vcs_dir() {
         [[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]:1:$max_added}${added_files[$max_added+1]:+...}
         [[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]:1:$max_modified}${modified_files[$max_modified+1]:+...}
         [[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]:1:$max_untracked}${untracked_files[$max_untracked+1]:+...} 
-        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:$vim_files}
+        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:${vim_files}
         file_list=${file_list:+:$file_list}
         file_list=${file_list:0:100} 	# max lenth
 
