@@ -4,7 +4,7 @@
 	default_domain="lvvnet"	# default domain is not deplayed, remote host is alwais shown
 
     # dir, rc, root color 
-	if [ "`tput colors`" -ge 8 ];  then				#  if terminal supports colors
+	if [ 0`tput colors` -ge 8 ];  then				#  if terminal supports colors
 		dir_color='CYAN'
 		rc_color='red'
 		root_id_color='magenta'
