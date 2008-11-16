@@ -373,7 +373,7 @@ parse_git_dir() {
             elif   [[ "$op" ]];  then
                     branch="$op:$branch"
                     if [[ "$op" == "merge" ]] ;  then     
-                        branch+="<~$(git name-rev --name-only $(<$git_dir/MERGE_HEAD))"
+                        branch+="<--$(git name-rev --name-only $(<$git_dir/MERGE_HEAD))"
                     fi
                     #branch="<$branch>"
             fi

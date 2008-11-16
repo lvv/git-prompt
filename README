@@ -1,26 +1,29 @@
 GIT Prompt for BASH
 
     Picture worth a thousand words, see wiki for screenshots
+    http://github.com/lvv/git-prompt/wikis
 
 
-DEPENDECY
-    bash (tested with v3.2.33) 
-    git  (optinal)
-    svn  (optinal)
-    sed
-    tput (terminfo)
-    tty
-    grep 
-    locale
-    id 
+DEPENDENCY
+	bash (tested with v3.2.33) 
+	git  (optional)
+	svn  (optional)
+	sed
+	tput (from terminfo)
+	tty
+	grep 
+	locale
+	id 
 
 
 TODO
-    - limit number of files displayed
-    - VIM module needs to be moved out of GIT module
-    - make module
-    - wiki/screanshots for labels and svn module
-    - How detect current merge?  (current method through .git/MERGE_HEAD not always works)
+	- external config at /etc/git-prompt.conf  and ~/.git-prompt.conf
+	- wiki/screen-shots for labels and svn module
+	- VIM module needs to be moved out of GIT module
+	- make module (to show generated, stale  files)
+	- How detect current merge?  (current method through .git/MERGE_HEAD not always works)
+DONE
+	- limit number of files displayed
         
 
 

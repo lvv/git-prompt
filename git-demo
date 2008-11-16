@@ -23,7 +23,7 @@ echo 'main() {puts("Hello Universe!"); exit(0);}' > hello.c
 git add hello.c
 git commit -q -m "fixed exit code"
 git merge universe
-git-cat-file -p universe:hello.c > hello.c
+git cat-file -p universe:hello.c > hello.c
 git add hello.c
 git commit -q -m "merged"
 cat hello.c
