@@ -4,19 +4,35 @@ GIT Prompt for BASH
     http://github.com/lvv/git-prompt/wikis
 
 
+INSTALL
+
+	Put following command in our profile in interactive section:
+
+		. /etc/git-prompt.sh
+
+	If there are no interactivity test in your profile, then above command should be:
+
+		[[ $- == *i* ]] && . /etc/git-prompt.sh
+
+
 DEPENDENCY
-	bash (tested with v3.2.33) 
-	git  (optional)
-	svn  (optional)
+
+	Most of dependencies (except git and svn) are probably already installed on your host. 
+
+	bash	(tested with v3.2.33) 
+	git	(optional)
+	svn	(optional)
 	sed
-	tput (from terminfo)
-	tty
-	grep 
-	locale
-	id 
+	tput	(terminfo)
+	tty	(core utils)
+	grep	
+	locale	(glibc)
+	id 	(core utils)
 
 
 TODO
+
+	- TO FIX: when file list is too long, git-prompt truncates it. Sometimes this truncation can be on color escape sequence.  
 	- external config at /etc/git-prompt.conf  and ~/.git-prompt.conf
 	- wiki/screen-shots for labels and svn module
 	- VIM module needs to be moved out of GIT module
@@ -25,8 +41,6 @@ TODO
 DONE
 	- limit number of files displayed
         
-
-
 
 leonid@volnitsky.com
 http://github.com/lvv/git-prompt/tree/master

@@ -1,3 +1,8 @@
+
+# don't set prompt if this is not interactive shell
+# it is better if this test is done before git-prompt.sh is sources for perfomanse reasons. 
+[[ $- != *i* ]] && return
+
 ##################################################################### CONFIG
 	default_user=lvv 		# default user is not displayed
 	default_host="ahp"      # default host is not displayed
