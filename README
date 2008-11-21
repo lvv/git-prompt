@@ -34,9 +34,11 @@ TODO
 
 	- TO FIX: when file list is too long, git-prompt truncates it. Sometimes this truncation can be on color escape sequence.  
 	- external config at /etc/git-prompt.conf  and ~/.git-prompt.conf
-	- wiki/screen-shots for labels and svn module
+	- new mail (howto at: http://kikhome.net/?p=11)
+	- ^Z subshell indicator
+	- wiki/screenshots for labels and svn module
 	- VIM module needs to be moved out of GIT module
-	- make module (to show generated, stale  files)
+	- make module (to show generated, stale files)
 	- How detect current merge?  (current method through .git/MERGE_HEAD not always works)
 DONE
 	- limit number of files displayed
