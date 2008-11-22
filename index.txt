@@ -1,0 +1,38 @@
+= GIT Prompt
+
+Get it from github:  http://github.com/lvv/git-prompt/tree/master/git-prompt.sh[git-prompt.sh] +
+	git clone 
+
+More info in http://github.com/lvv/git-prompt/tree/master/README[README]
+
+
+== Basic Usage
+
+image:screenshot-prompt-basic.png[basic usage]
+
+[red]*1* is `false(1)` exit code.  Hosts are colored as configured in `git-prompt.sh` file.
+
+
+== GIT
+
+Branch and files are colored according to state. "M" stands for master. 
+
+[cols="3,8",frame="topbot",options="header"]
+|================================================================
+| Color                                    | Meaning
+| [green]#green#                           | Modified or new file. Modifications are in index but not in repo yet.
+| [red]#red#                               | Modified and tracked by repo, but modifications not added to index yet.
+| [lightblue]#light blue#                  | Untracked file.
+| [darkblue]#blue branch#                  | Clean
+| [red]#red# or [magenta]#magenta# branch  | In middle of doing something or detached head.
+|================================================================
+
+image:screenshot-prompt-git.png[git module]
+
+==  Subversion
+
+...
+
+== Labels
+
+...

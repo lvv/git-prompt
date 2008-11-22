@@ -8,7 +8,7 @@ INSTALL
 
 	Put following command in our profile in interactive section:
 
-		. /etc/git-prompt.sh
+		. /path/to/git-prompt.sh
 
 	If there are no interactivity test in your profile, then above command should be:
 
