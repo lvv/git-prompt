@@ -12,7 +12,7 @@ INSTALL
 
 	If there are no interactivity test in your profile, then above command should be:
 
-		[[ $- == *i* ]] && . /etc/git-prompt.sh
+		[[ $- == *i* ]] && . /path/to/git-prompt.sh
 
 
 DEPENDENCY
