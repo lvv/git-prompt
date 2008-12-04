@@ -1,38 +1,82 @@
 = GIT Prompt
-
-Get it from github:  http://github.com/lvv/git-prompt/tree/master/git-prompt.sh[git-prompt.sh] +
-	git clone 
-
-More info in http://github.com/lvv/git-prompt/tree/master/README[README]
+:compact-option: compact
 
 
 == Basic Usage
 
 image:screenshot-prompt-basic.png[basic usage]
 
-[red]*1* is `false(1)` exit code.  Hosts are colored as configured in `git-prompt.sh` file.
+Number [red]*1* is `false(1)` exit code.  Hosts are colored as configured in `git-prompt.sh` file.
 
 
 == GIT
 
 Branch and files are colored according to state. "M" stands for master. 
 
+image:screenshot-prompt-git.png[git module]
+
 [cols="3,8",frame="topbot",options="header"]
 |================================================================
 | Color                                    | Meaning
 | [green]#green#                           | Modified or new file. Modifications are in index but not in repo yet.
 | [red]#red#                               | Modified and tracked by repo, but modifications not added to index yet.
-| [lightblue]#light blue#                  | Untracked file.
+| [blue]#light blue#                  | Untracked file.
 | [darkblue]#blue branch#                  | Clean
 | [red]#red# or [magenta]#magenta# branch  | In middle of doing something or detached head.
 |================================================================
 
-image:screenshot-prompt-git.png[git module]
-
 ==  Subversion
-
 ...
 
 == Labels
 
 ...
+
+== Install
+Download  link:git-prompt.sh[] or get with GIT:
+
+[source,sh]
+------------------
+  git clone git://github.com/lvv/git-prompt.git
+---------------
+
+Put following command in our profile in interactive section:
+
+[source,sh]
+---------------------
+  . /path/to/git-prompt.sh
+---------------------
+
+If there are no interactivity test in your profile, then above command should be:
+
+[source,sh]
+--------------------
+  [[ $- == *i* ]] && . /etc/git-prompt.sh
+---------------------
+
+== DEPENDENCY
+
+Most of dependencies (except git and svn) are probably already installed on your host. 
+
+- bash  (tested with v3.2.33) 
+- git  (optional)
+- svn  (optional)
+- sed
+- tput  (terminfo)
+- tty  (core utils)
+- grep  
+- locale  (glibc)
+- id   (core utils)
+
+
+== TODO
+
+- TO FIX: when file list is too long, git-prompt truncates it. Sometimes this truncation can be on color escape sequence.
+- external config at `/etc/git-prompt.conf` and `~/.git-prompt.conf`
+- new mail (howto at: `http://kikhome.net/?p=11` )
+- ctrl-Z subshell indicator
+- wiki/screenshots for labels and svn module
+- VIM module needs to be moved out of GIT module
+- make module (to show generated, stale files)
+- How detect current merge?  (current method through .git/MERGE_HEAD not always works)
+

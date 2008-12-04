@@ -41,6 +41,7 @@
     max_untracked=2 
     max_modified=4 
     max_added=4 
+    max_file_list_lengh=100
 
 #####################################################################  post config
 
@@ -430,12 +431,19 @@ parse_vcs_dir() {
 
         ### file list
         unset file_list
-        [[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]:1:$max_added}${added_files[$max_added+1]:+...}
-        [[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]:1:$max_modified}${modified_files[$max_modified+1]:+...}
-        [[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]:1:$max_untracked}${untracked_files[$max_untracked+1]:+...} 
+        #[[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]:1:$max_added}${added_files[$max_added+1]:+...}
+        #[[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]:1:$max_modified}${modified_files[$max_modified+1]:+...}
+        #[[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]:1:$max_untracked}${untracked_files[$max_untracked+1]:+...} 
+        [[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
+        [[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
+        [[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
         [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:${vim_files}
         file_list=${file_list:+:$file_list}
-        file_list=${file_list:0:100} 	# max lenth
+
+	if [[ ${#file_list} -gt $max_file_list_lengh ]]  ;  then
+		file_list=${file_list:0:100} 	
+		file_list="${file_list% *} ..."
+	fi
 
 
         tail_local="($vcs_info$vcs_color${file_list}$vcs_color)"
