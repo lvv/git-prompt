@@ -35,21 +35,18 @@ image:screenshot-prompt-git.png[git module]
 == Install
 Download  link:git-prompt.sh[] or get with GIT:
 
-[source,sh]
 ------------------
   git clone git://github.com/lvv/git-prompt.git
 ---------------
 
 Put following command in our profile in interactive section:
 
-[source,sh]
 ---------------------
   . /path/to/git-prompt.sh
 ---------------------
 
 If there are no interactivity test in your profile, then above command should be:
 
-[source,sh]
 --------------------
   [[ $- == *i* ]] && . /etc/git-prompt.sh
 ---------------------

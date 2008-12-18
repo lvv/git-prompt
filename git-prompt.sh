@@ -38,10 +38,10 @@
            op_vcs_color=MAGENTA
      detached_vcs_color=RED
 
-    max_untracked=2 
-    max_modified=4 
-    max_added=4 
-    max_file_list_lengh=100
+    #max_untracked=2 
+    #max_modified=4 
+    #max_added=4 
+    max_file_list_length=100
 
 #####################################################################  post config
 
@@ -440,16 +440,17 @@ parse_vcs_dir() {
         [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:${vim_files}
         file_list=${file_list:+:$file_list}
 
-	if [[ ${#file_list} -gt $max_file_list_lengh ]]  ;  then
-		file_list=${file_list:0:100} 	
+	if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
+		file_list=${file_list:0:$max_file_list_length} 	
 		file_list="${file_list% *} ..."
 	fi
 
 
-        tail_local="($vcs_info$vcs_color${file_list}$vcs_color)"
+        head_local="(${vcs_info}$vcs_color${file_list}$vcs_color)"
 
         ### fringes (added depended on location)
-        head_local="${head_local+$vcs_color $head_local\n}"
+        head_local="${head_local+$vcs_color$head_local }"
+        above_local="${head_local+$vcs_color$head_local\n}"
         tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
 
@@ -468,10 +469,11 @@ prompt_command_function() {
 
 	set_shell_title "$PWD/" 
 
-	# truncate $PWD to $max
-		max=35
-		front=7
-		head=${PWD:0:$front}"..."
+	# TODO: put it back
+	# truncate $PWD to $max_path_length
+    	# max_path_length=50
+	# front=7
+	# head=${PWD:0:$front}"..."
 
     parse_vcs_dir
 
@@ -486,6 +488,6 @@ prompt_command_function() {
 
     PROMPT_COMMAND=prompt_command_function
 
-    unset rc id tty bell
+    unset rc id tty bell modified_files file_list
 
 # vim: set syntax=sh:

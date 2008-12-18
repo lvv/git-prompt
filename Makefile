@@ -6,19 +6,19 @@ tgit:
 	xclip -i git-demo
 	echo "ready to paste ..."
 
-DESTDIR ?= /tmp/html-lopti
+WEB_DESTDIR ?= /tmp/html-lopti
 ASCIIDOC ?= asciidoc
 
 
-show: install
-	firefox $(DESTDIR)/index.html
+show: web_install
+	firefox $(WEB_DESTDIR)/index.html
 
 index.html: index.txt
 	$(ASCIIDOC)  -o $@  $<
 
-install: index.html *.png
-	mkdir -p  $(DESTDIR)
-	cp -uv $^ $(DESTDIR)
+web_install: index.html *.png
+	mkdir -p  $(WEB_DESTDIR)
+	cp -uv $^ $(WEB_DESTDIR)
 
 clean:
 	rm -f *.html

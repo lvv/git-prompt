@@ -10,7 +10,7 @@ INSTALL
 
 		. /path/to/git-prompt.sh
 
-	If there are no interactivity test in your profile, then above command should be:
+	If there are no interactivity test, then above command should be:
 
 		[[ $- == *i* ]] && . /path/to/git-prompt.sh
 
@@ -31,8 +31,8 @@ DEPENDENCY
 
 
 TODO
-
-	- TO FIX: when file list is too long, git-prompt truncates it. Sometimes this truncation can be on color escape sequence.  
+	- TO FIX: when file list is too long, git-prompt truncates it.  Sometimes this truncation can be on color escape sequence.  
+		(fixed fot GIT, TODO for SVN)
 	- external config at /etc/git-prompt.conf  and ~/.git-prompt.conf
 	- new mail (howto at: http://kikhome.net/?p=11)
 	- ^Z subshell indicator
