@@ -34,7 +34,7 @@ image:screenshot-prompt-git.png[git module]
 ...
 
 == Install
-Download  link:git-prompt.sh[] or get with GIT:
+Download  link:git-prompt.sh[] or get it with GIT:
 
 ------------------
   git clone git://github.com/lvv/git-prompt.git
