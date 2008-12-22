@@ -5,7 +5,7 @@
 
 image:screenshot-prompt-basic.png[basic usage]
 
-Number [red]*1* is `false(1)` exit code.  Hosts are colored as configured in `git-prompt.sh` file.
+Digit [red]*1* on 3rd line is `false(1)` exit code.  Hosts are colored as configured in `git-prompt.sh` file.
 
 
 == GIT
@@ -14,14 +14,15 @@ Branch and files are colored according to state. "M" stands for master.
 
 image:screenshot-prompt-git.png[git module]
 
-[cols="3,8",frame="topbot",options="header"]
+[cols="3,3,12",frame="topbot",options="header"]
 |================================================================
-| Color                                    | Meaning
-| [green]#green#                           | Modified or new file. Modifications are in index but not in repo yet.
-| [red]#red#                               | Modified and tracked by repo, but modifications not added to index yet.
-| [blue]#light blue#                  | Untracked file.
-| [darkblue]#blue branch#                  | Clean
-| [red]#red# or [magenta]#magenta# branch  | In middle of doing something or detached head.
+| *Branch*                 |   *File*                   | Meaning
+| [darkblue]#dark blue#    |                          | Clean repo
+| [green]#green#           |  [green]#green#          | Modified or new file. Modifications are in index but not in repo yet.
+| [red]#red#               |  [red]#red#              | Modified and tracked by repo, but modifications not added to index yet.
+| [blue]#light blue#       |  [blue]#light blue#      | Untracked file.
+| [red]#red#               |                          | Detached Head
+| [magenta]#magenta#       |                          | In middle of doing something 
 |================================================================
 
 ==  Subversion
@@ -67,12 +68,14 @@ Most of dependencies (except git and svn) are probably already installed on your
 
 == TODO
 
-- TO FIX: when file list is too long, git-prompt truncates it. Sometimes this truncation can be on color escape sequence.
+- different host color even if they are not in config
 - external config at `/etc/git-prompt.conf` and `~/.git-prompt.conf`
 - new mail (howto at: `http://kikhome.net/?p=11` )
 - ctrl-Z subshell indicator
-- wiki/screenshots for labels and svn module
+- screenshots for labels and svn module
 - VIM module needs to be moved out of GIT module
 - make module (to show generated, stale files)
 - How detect current merge?  (current method through .git/MERGE_HEAD not always works)
 
+== DONE
+- TO FIX: when file list is too long, git-prompt truncates it. Sometimes this truncation can be on color escape sequence.

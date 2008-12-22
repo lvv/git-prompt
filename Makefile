@@ -16,7 +16,7 @@ show: web_install
 index.html: index.txt
 	$(ASCIIDOC)  -o $@  $<
 
-web_install: index.html *.png
+web_install: index.html *.png git-prompt.sh
 	mkdir -p  $(WEB_DESTDIR)
 	cp -uv $^ $(WEB_DESTDIR)
 
