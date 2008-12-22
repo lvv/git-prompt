@@ -6,7 +6,7 @@ tgit:
 	xclip -i git-demo
 	echo "ready to paste ..."
 
-WEB_DESTDIR ?= /tmp/html-lopti
+WEB_DESTDIR ?= /tmp/html
 ASCIIDOC ?= asciidoc
 
 

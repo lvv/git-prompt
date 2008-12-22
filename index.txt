@@ -1,6 +1,5 @@
-= GIT Prompt
+= GIT Prompt - there is a lot more than branch-name
 :compact-option: compact
-
 
 == Basic Usage
 
