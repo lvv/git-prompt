@@ -260,13 +260,14 @@ parse_svn_dir() {
         ### get status
 
         unset status modified added clean init added mixed untracked op detached
-        eval `svn -q status 2>/dev/null |
-                sed -n "
-                    s/^A      /modified=modified; modified_files+=\" \"/p
-                    s/^M      /modified=modified; modified_files+=\" \"/p
-                " 
+        eval `svn status 2>/dev/null |
+                sed -n '
+                    s/^A      \([^.].*\)/modified=modified;		modified_files[${#modified_files[@]}+1]=\"\1\";/p
+                    s/^M      \([^.].*\)/modified=modified;		modified_files[${#modified_files[@]}+1]=\"\1\";/p
+                    s/^\?      \([^.].*\)/untracked=untracked;	untracked_files[${#untracked_files[@]}+1]=\"\1\";/p
+                ' 
         `
-        # TODO untracked files; untracked state; branch detection if standart repo layout
+        # TODO branch detection if standart repo layout
 
         [[  -z $modified ]]  && [[ -z $untracked ]] && clean=clean
         vcs_info=svn:r$rev
@@ -283,10 +284,6 @@ parse_git_dir() {
 
         ##########################################################   GIT STATUS
         unset status modified added clean init added mixed untracked op detached
-        local untracked_cnt=0;
-        local modified_cnt=0;
-        local added_cnt=0;
-                            #s/^#	/; : $((untracked_cnt++)); [[  $untracked_cnt -le $max_untracked ]] \&\&  untracked_files+=" "/p   
         eval `
                 git status 2>/dev/null |
                     sed -n '
@@ -431,9 +428,6 @@ parse_vcs_dir() {
 
         ### file list
         unset file_list
-        #[[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]:1:$max_added}${added_files[$max_added+1]:+...}
-        #[[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]:1:$max_modified}${modified_files[$max_modified+1]:+...}
-        #[[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]:1:$max_untracked}${untracked_files[$max_untracked+1]:+...} 
         [[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
         [[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
         [[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
