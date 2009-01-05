@@ -1,14 +1,14 @@
 
 # don't set prompt if this is not interactive shell
-# it is better if this test is done before git-prompt.sh is sources for perfomanse reasons. 
+# it is better if this test is done before git-prompt.sh is sources for performance reasons. 
 [[ $- != *i* ]] && return
 
 ##################################################################### CONFIG
 	default_user=lvv 		# default user is not displayed
-	default_host="ahp"      # default host is not displayed
-	default_domain="lvvnet"	# default domain is not deplayed, remote host is alwais shown
+	default_host="ahp"     		# default host is not displayed
+	default_domain="lvvnet"		# default domain is not displayed, remote host is always shown
 
-    # dir, rc, root color 
+	# dir, rc, root color 
 	if [ 0`tput colors` -ge 8 ];  then				#  if terminal supports colors
 		dir_color='CYAN'
 		rc_color='red'
@@ -20,34 +20,34 @@
 
                                                     # where is user color?
 
-    # per host color
-    TOSHA_host_color=yellow
-    TASHA_host_color=cyan
-       AL_host_color=green
-       SH_host_color=blue
-      LVV_host_color=blue
-      AHP_host_color=white
+	# per host color
+	    TOSHA_host_color=yellow
+	    TASHA_host_color=cyan
+	       AL_host_color=green
+	       SH_host_color=blue
+	      LVV_host_color=blue
+	      AHP_host_color=white
 
-    # vcs state colors
-         init_vcs_color=WHITE     # initial
-        clean_vcs_color=blue      # nothing to commit (working directory clean)
-     modified_vcs_color=red       # Changed but not updated:
-        added_vcs_color=green     # Changes to be committed:
-        mixed_vcs_color=yellow    # 
-    untracked_vcs_color=BLUE      # Untracked files:
-           op_vcs_color=MAGENTA
-     detached_vcs_color=RED
+	# vcs state colors
+		 init_vcs_color=WHITE     # initial
+		clean_vcs_color=blue      # nothing to commit (working directory clean)
+	     modified_vcs_color=red       # Changed but not updated:
+		added_vcs_color=green     # Changes to be committed:
+		mixed_vcs_color=yellow    # 
+	    untracked_vcs_color=BLUE      # Untracked files:
+		   op_vcs_color=MAGENTA
+	     detached_vcs_color=RED
 
-    #max_untracked=2 
-    #max_modified=4 
-    #max_added=4 
-    max_file_list_length=100
+	#max_untracked=2 
+	#max_modified=4 
+	#max_added=4 
+	max_file_list_length=100
 
-#####################################################################  post config
+	#####################################################################  post config
 
-	######################################## terminfo colors-16
+	################# terminfo colors-16
 	#
-	#   black?    0	8			  
+	#  	black?    0 8			  
 	#	red       1 9
 	#	green     2 10
 	#	yellow    3 11
@@ -57,19 +57,19 @@
 	#	white     7 15
 	#
 	#	terminfo setaf/setab - sets ansi foreground/background
-	#	terminfo sgr0 - resets all atributes
+	#	terminfo sgr0 - resets all attributes
 	#	terminfo colors - number of colors
-    #
-    #######################################  Colors-256
-    #  To use foreground and background colors from the extension, you only
-    #  have to remember two escape codes:
-    #       Set the foreground color to index N:    \033[38;5;${N}m
-    #       Set the background color to index M:    \033[48;5;${M}m
-    # To make vim aware of a present 256 color extension, you can either set
-    # the $TERM environment variable to xterm-256color or use vim's -T option
-    # to set the terminal. I'm using an alias in my bashrc to do this. At the
-    # moment I only know of two colorschemes which is made for multi-color
-    # terminals like urxvt (88 colors) or xterm: inkpot and desert256, 
+	#
+	#################  Colors-256
+	#  To use foreground and background colors from the extension, you only
+	#  have to remember two escape codes:
+	#       Set the foreground color to index N:    \033[38;5;${N}m
+	#       Set the background color to index M:    \033[48;5;${M}m
+	# To make vim aware of a present 256 color extension, you can either set
+	# the $TERM environment variable to xterm-256color or use vim's -T option
+	# to set the terminal. I'm using an alias in my bashrc to do this. At the
+	# moment I only know of two color schemes which is made for multi-color
+	# terminals like urxvt (88 colors) or xterm: inkpot and desert256, 
 
 	### if term support colors,  then use color prompt, else bold
 
@@ -88,7 +88,7 @@
              YELLOW='\['`tput setaf 3; tput bold`'\]'
                BLUE='\['`tput setaf 4; tput bold`'\]'
             MAGENTA='\['`tput setaf 5; tput bold`'\]'
-               CYAN='\['`tput setaf 6; tput bold`'\]'  # why 14 dosn't work?
+               CYAN='\['`tput setaf 6; tput bold`'\]'  # why 14 doesn't work?
               WHITE='\['`tput setaf 7; tput bold`'\]'
 
             bw_bold='\['`tput bold`'\]'
@@ -96,21 +96,21 @@
 
        colors_reset='\['`tput sgr0`'\]'
 
-	# Workaround for UTF readline(?) bug. Dissable bell when UTF
+	# Workaround for UTF readline(?) bug. Disable bell when UTF
 	locale |grep -qi UTF && bell=''	
 
 
-    # replace symbolic colors names to raw treminfo strings
-         init_vcs_color=${!init_vcs_color}
-     modified_vcs_color=${!modified_vcs_color}
-    untracked_vcs_color=${!untracked_vcs_color}
-        clean_vcs_color=${!clean_vcs_color}
-        added_vcs_color=${!added_vcs_color}
-           op_vcs_color=${!op_vcs_color}
-        mixed_vcs_color=${!mixed_vcs_color}
-     detached_vcs_color=${!detached_vcs_color}
+	# replace symbolic colors names to raw treminfo strings
+		 init_vcs_color=${!init_vcs_color}
+	     modified_vcs_color=${!modified_vcs_color}
+	    untracked_vcs_color=${!untracked_vcs_color}
+		clean_vcs_color=${!clean_vcs_color}
+		added_vcs_color=${!added_vcs_color}
+		   op_vcs_color=${!op_vcs_color}
+		mixed_vcs_color=${!mixed_vcs_color}
+	     detached_vcs_color=${!detached_vcs_color}
 
-##################################################################### 
+	##################################################################### 
 	# if label non empty, append 1 space
 	label=${1:+$1 }
 
@@ -118,7 +118,7 @@
 	# echo "*** /etc/prompt  on A,  TERM=$TERM"
 	unset PROMPT_COMMAND
 
-	#######  work aroud for MC bug
+	#######  work around for MC bug
 	if [ -z "$TERM" -o "$TERM" = "dumb" -o -n "$MC_SID" ]; then
 		unset PROMPT_COMMAND
 		PS1='\w> '
@@ -136,7 +136,7 @@ set_shell_title() {
 		# FIXME: run this only if screen is in xterm (how to test for this?)
 		xterm_title  "sCRn  $label$plain_who_where $@" 
 
-		# FIXME $STY not enherited though "su -"
+		# FIXME $STY not inherited though "su -"
 		[ "$STY" ] && screen -S $STY -X title "$@"
 	}
 
@@ -182,33 +182,34 @@ set_shell_title() {
 	# we don't need tty name under X11
 	case $TERM in
 		xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )  unset tty ;;
-		*)		                                                              ;;
+		*);;
 	esac
 
-
-    dir_color=${!dir_color}
-    rc_color=${!rc_color}
-    root_id_color=${!root_id_color}
-
+	dir_color=${!dir_color}
+	rc_color=${!rc_color}
+	root_id_color=${!root_id_color}
 
 	########################################################### HOST
 	### we don't display home host/domain  $SSH_* set by SSHD or keychain
 
-    # I give up.  How to find out if session is local or remote? Working with "su -", ssh-agent, and so on ? 
-	## is sshd our perent?
+	# How to find out if session is local or remote? Working with "su -", ssh-agent, and so on ? 
+	## is sshd our parent?
 	# if 	{ for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd }
 	#then 
-		host=${HOSTNAME}
-		#host=`hostname --short`
-		host=`echo ${host%$default_host} | tr a-z A-Z`
-		#host=`echo ${host} | tr a-z A-Z`
+	host=${HOSTNAME}
+	#host=`hostname --short`
+	host=`echo ${host%$default_host} | tr a-z A-Z`
+	#host=`echo ${host} | tr a-z A-Z`
+	
         host_color=${host}_host_color
         host_color=${!host_color}
-	#else
-	#	host=""
-	#fi 
+        if [[ -z $host_color && -x /usr/bin/cksum ]] ;  then 
+		cksum_color_no=`echo $host | cksum  | awk '{print $1%7}'`
+		color_index=(green yellow blue magenta cyan white)		# FIXME:  bw,  color-256
+		host_color=${color_index[cksum_color_no]}
+	fi
 
-    host_color=${!host_color}
+	host_color=${!host_color}
 
 	# we already should have short host name, but just in case
 	host=${host%.localdoman}
@@ -216,29 +217,29 @@ set_shell_title() {
 
 
 #################################################################### WHO_WHERE 
-    # who_ware. Is constant.  Looks like
-    # 	[user@]host[-tty]
-
-    color_who_where="${id:+$id@}$host_color$host${tty:+ $tty}"
-    plain_who_where="${id:+$id@}$host"
-
-    # remove trailing "@" if any
-    color_who_where="${color_who_where%@}"
-    plain_who_where="${plain_who_where%@}"
-
-    # add traling " "
-    color_who_where="$color_who_where "
-    plain_who_where="$plain_who_where "
-
-    # if  $who_where==" "  then  who_where=""
-    color_who_where="${color_who_where## }"
-    plain_who_where="${plain_who_where## }"
-
-
-    # if root then highlight who_where
-    if	[ "$id" == "root" ]  ; then 
-        color_who_where="$root_id_color$color_who_where$colors_reset"
-    fi
+	# who_ware. Is constant.  Looks like
+	# 	[user@]host[-tty]
+	
+	color_who_where="${id:+$id@}$host_color$host${tty:+ $tty}"
+	plain_who_where="${id:+$id@}$host"
+	
+	# remove trailing "@" if any
+	color_who_where="${color_who_where%@}"
+	plain_who_where="${plain_who_where%@}"
+	
+	# add trailing " "
+	color_who_where="$color_who_where "
+	plain_who_where="$plain_who_where "
+	
+	# if  $who_where==" "  then  who_where=""
+	color_who_where="${color_who_where## }"
+	plain_who_where="${plain_who_where## }"
+	
+	
+	# if root then highlight who_where
+	if	[ "$id" == "root" ]  ; then 
+	    color_who_where="$root_id_color$color_who_where$colors_reset"
+	fi
 
 
 parse_svn_dir() {
@@ -267,7 +268,7 @@ parse_svn_dir() {
                     s/^\?      \([^.].*\)/untracked=untracked;	untracked_files[${#untracked_files[@]}+1]=\"\1\";/p
                 ' 
         `
-        # TODO branch detection if standart repo layout
+        # TODO branch detection if standard repo layout
 
         [[  -z $modified ]]  && [[ -z $untracked ]] && clean=clean
         vcs_info=svn:r$rev
