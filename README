@@ -30,8 +30,6 @@ DEPENDENCY
 
 
 TODO
-	- TO FIX: when file list is too long, git-prompt truncates it.  Sometimes this truncation can be on color escape sequence.  
-		(fixed fot GIT, TODO for SVN)
 	- external config at /etc/git-prompt.conf  and ~/.git-prompt.conf
 	- new mail (howto at: http://kikhome.net/?p=11)
 	- ^Z subshell indicator
@@ -40,6 +38,7 @@ TODO
 	- make module (to show generated, stale files)
 	- How detect current merge?  (current method through .git/MERGE_HEAD not always works)
 DONE
+	- TO FIX: when file list is too long, git-prompt truncates it.  Sometimes this truncation can be on color escape sequence.  
 	- limit number of files displayed
         
 
