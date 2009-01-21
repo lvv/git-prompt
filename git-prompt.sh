@@ -212,7 +212,7 @@ set_shell_title() {
 	host_color=${!host_color}
 
 	# we already should have short host name, but just in case
-	host=${host%.localdoman}
+	host=${host%.$localdomain}
 	host=${host%.$default_domain}
 
 
