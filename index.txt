@@ -1,11 +1,17 @@
 = GIT Prompt - there is a lot more than a branch-name
+
+//  To see HTML rendered web page go to:   http://volnitsky.com/project/lopti
+
+:v-p:		http://volnitsky.com/project
 :compact-option: compact
+
 
 == Basic Usage
 
 image:screenshot-prompt-basic.png[basic usage]
 
-Digit [red]*1* on 3rd line is `false(1)` exit code.  Hosts are colored as configured in `git-prompt.sh` file.
+Digit [red]*1* on 3rd line is `false(1)` exit code.  Host names are colored
+according to config or from hostname checksum if not in config.
 
 
 == GIT
@@ -66,10 +72,10 @@ Most of dependencies (except git and svn) are probably already installed on your
 - locale  (glibc)
 - id   (core utils)
 
+include::../volnitsky.com/project/howto-submit-patch.txt[]
 
 == TODO
 
-- different host color even if they are not in config
 - external config at `/etc/git-prompt.conf` and `~/.git-prompt.conf`
 - always display remote hostname if login is through sshd (how to detect this?)
 - new mail (howto at: `http://kikhome.net/?p=11` )
@@ -80,4 +86,5 @@ Most of dependencies (except git and svn) are probably already installed on your
 - How detect current merge?  (current method through .git/MERGE_HEAD not always works)
 
 == DONE
+- different host color even if they are not in config
 - TO FIX: when file list is too long, git-prompt truncates it. Sometimes this truncation can be on color escape sequence.

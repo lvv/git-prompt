@@ -31,6 +31,7 @@ DEPENDENCY
 
 TODO
 	- external config at /etc/git-prompt.conf  and ~/.git-prompt.conf
+	- avoid wrapping to 2nd line if file list is too long - check current terminal width
 	- new mail (howto at: http://kikhome.net/?p=11)
 	- ^Z subshell indicator
 	- wiki/screenshots for labels and svn module
