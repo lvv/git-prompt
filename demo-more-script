@@ -1,0 +1,37 @@
+set +xv
+. /t/prompt/prompt 
+test -d demo && rm -rf demo/
+test -d ../demo && cd .. && rm -rf demo/ 
+clear
+: ------------------------------------------------------------------------
+mkdir demo
+cd demo
+git init
+echo 'main() {puts("Hello World!");}' > hello.c
+make hello && ./hello
+git add hello.c
+git commit -q -m "1st hello" 
+git checkout -b universe;  git clean -f
+echo 'main() {puts("Hello Universe!");}' > hello.c
+git add hello.c
+echo "// FIXME: includes" >> hello.c
+git add hello.c
+git commit -q -m "notes to self"
+git checkout master
+cat hello.c
+echo 'main() {puts("Hello Universe!"); exit(0);}' > hello.c
+git add hello.c
+git commit -q -m "fixed exit code"
+git merge universe
+git cat-file -p universe:hello.c > hello.c
+git add hello.c
+git commit -q -m "merged"
+cat hello.c
+git checkout HEAD^
+git checkout HEAD^
+cat hello.c
+git checkout master
+sleep 2; echo "this emulates unsaved vim session" > .hello.c.swp 
+git clean -f
+: ------------------------------------------------------------------------
+cd ..

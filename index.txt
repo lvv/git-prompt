@@ -10,8 +10,7 @@
 
 image:screenshot-prompt-basic.png[basic usage]
 
-Digit [red]*1* on 3rd line is `false(1)` exit code.  Host names are colored
-according to config or from hostname checksum if not in config.
+Digit [red]*1* on 3rd line is `false(1)` exit code.
 
 
 == GIT

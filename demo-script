@@ -1,0 +1,40 @@
+cd p/git-prompt
+. ./git-prompt.sh
+cd
+test -d demo && rm -rf demo/
+test -d ../demo && cd .. && rm -rf demo/ 
+clear
+: ------------------------------------------------------------------------
+clear
+mkdir demo
+cd demo
+git init
+echo "1st line" > FOO
+git add FOO
+touch  untracked.o
+echo '*.o' >> .gitignore
+git commit -q -m "1st line"  FOO
+git checkout -b test
+echo "added 2nd line in test" >> FOO 
+git add FOO 
+echo "2nd in BAR" > BAR
+git add BAR
+echo "added 3nd line FOO" >> FOO 
+git add FOO
+git commit -q -m "FOO moded, BAR added"
+git checkout master
+cat FOO 
+echo "now added 2nd line in master" >> FOO 
+git add FOO
+git commit -q -m "2nd line"
+git merge test
+git cat-file -p test:FOO > FOO
+git add FOO 
+git commit -q -m "merged"
+cat FOO
+git checkout HEAD^
+cat FOO
+git checkout HEAD
+git clean -f
+: ------------------------------------------------------------------------
+cd ..

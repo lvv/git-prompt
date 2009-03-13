@@ -30,6 +30,7 @@ DEPENDENCY
 
 
 TODO
+	- git locked state if .git/index.lock exist
 	- external config at /etc/git-prompt.conf  and ~/.git-prompt.conf
 	- avoid wrapping to 2nd line if file list is too long - check current terminal width
 	- new mail (howto at: http://kikhome.net/?p=11)

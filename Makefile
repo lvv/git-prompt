@@ -1,7 +1,7 @@
-#install:
-#	cp git-prompt.sh /etc/
-#	[ -s /etc/prompt ] || ln -sf /etc/git-prompt.sh /etc/prompt
+install:
+	cp -v git-prompt.{sh,conf} /etc/
 
+	
 tgit:
 	xclip -i git-demo
 	echo "ready to paste ..."
@@ -10,13 +10,13 @@ WEB_DESTDIR ?= /tmp/html
 ASCIIDOC ?= asciidoc
 
 
-show: web_install
+show: localweb
 	firefox $(WEB_DESTDIR)/index.html
 
 index.html: index.txt
 	$(ASCIIDOC)  -o $@  $<
 
-web_install: index.html *.png git-prompt.sh
+localweb: index.html *.png git-prompt.sh
 	mkdir -p  $(WEB_DESTDIR)
 	cp -uv $^ $(WEB_DESTDIR)
 

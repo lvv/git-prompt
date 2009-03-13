@@ -1,49 +1,51 @@
 
 # don't set prompt if this is not interactive shell
-# it is better if this test is done before git-prompt.sh is sources for performance reasons. 
-[[ $- != *i* ]] && return
+# it is better if this test is done before git-prompt.sh is source-ed for performance reasons. 
+[[ $- != *i* ]]  &&  return
 
-##################################################################### CONFIG
-	default_user=lvv 		# default user is not displayed
-	default_host="ahp"     		# default host is not displayed
-	default_domain="lvvnet"		# default domain is not displayed, remote host is always shown
+###################################################################   CONFIG
 
-	# dir, rc, root color 
+	#####  read config file if any.
+
+	unset 	dir_color rc_color root_id_color init_vcs_color clean_vcs_color modified_vcs_color added_vcs_color mixed_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color
+
+	conf=git-prompt.conf; 			[[ -r $conf ]]  && . $conf
+	conf=/etc/git-prompt.conf; 		[[ -r $conf ]]  && . $conf
+	conf=~/.git-prompt.conf;  		[[ -r $conf ]]  && . $conf
+	unset conf
+
+	#####  set defaults if not set
+
+	git_module=${git_module:-on}
+	svn_module=${svn_module:-off}
+	vim_module=${vim_module:-on}
+
+
+	#### dir, rc, root color 
 	if [ 0`tput colors` -ge 8 ];  then				#  if terminal supports colors
-		dir_color='CYAN'
-		rc_color='red'
-		root_id_color='magenta'
+		dir_color=${dir_color:-CYAN}
+		rc_color=${rc_color:-red}
+		root_id_color=${root_id_color:-magenta}
 	else											#  only B/W
-		dir_color='bw_bold'
-		rc_color='bw_bold'
+		dir_color=${dir_color:-bw_bold}
+		rc_color=${rc_color:-bw_bold}
 	fi
 
-                                                    # where is user color?
+	#### vcs state colors
+		 init_vcs_color=${init_vcs_color:-WHITE}		# initial
+		clean_vcs_color=${clean_vcs_color:-blue}		# nothing to commit (working directory clean)
+	     modified_vcs_color=${modified_vcs_color:-red}	# Changed but not updated:
+		added_vcs_color=${added_vcs_color:-green}	# Changes to be committed:
+		mixed_vcs_color=${mixed_vcs_color:-yellow}
+	    untracked_vcs_color=${untracked_vcs_color:-BLUE}	# Untracked files:
+		   op_vcs_color=${op_vcs_color:-MAGENTA}
+	     detached_vcs_color=${detached_vcs_color:-RED}
 
-	# per host color
-	    TOSHA_host_color=yellow
-	    TASHA_host_color=cyan
-	       AL_host_color=green
-	       SH_host_color=blue
-	      LVV_host_color=blue
-	      AHP_host_color=white
+	max_file_list_length=${max_file_list_length:-100}
 
-	# vcs state colors
-		 init_vcs_color=WHITE     # initial
-		clean_vcs_color=blue      # nothing to commit (working directory clean)
-	     modified_vcs_color=red       # Changed but not updated:
-		added_vcs_color=green     # Changes to be committed:
-		mixed_vcs_color=yellow    # 
-	    untracked_vcs_color=BLUE      # Untracked files:
-		   op_vcs_color=MAGENTA
-	     detached_vcs_color=RED
 
-	#max_untracked=2 
-	#max_modified=4 
-	#max_added=4 
-	max_file_list_length=100
 
-	#####################################################################  post config
+#####################################################################  post config
 
 	################# terminfo colors-16
 	#
@@ -115,7 +117,6 @@
 	label=${1:+$1 }
 
 
-	# echo "*** /etc/prompt  on A,  TERM=$TERM"
 	unset PROMPT_COMMAND
 
 	#######  work around for MC bug
@@ -126,6 +127,9 @@
 	fi
 
 	export who_where
+
+	on=''
+	off=': '
 
 
 set_shell_title() { 
@@ -148,7 +152,7 @@ set_shell_title() {
 
 		xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )       
 			# is there a capability which we can to test 
-			# for "set term title-bat" and its escapes?
+			# for "set term title-bar" and its escapes?
 			#echo -n "]2;$label$plain_who_where $1"
 			xterm_title  "$label$plain_who_where $@"
 			;;
@@ -194,7 +198,7 @@ set_shell_title() {
 
 	# How to find out if session is local or remote? Working with "su -", ssh-agent, and so on ? 
 	## is sshd our parent?
-	# if 	{ for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd }
+	# if 	{ for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd && echo == REMOTE ==; }
 	#then 
 	host=${HOSTNAME}
 	#host=`hostname --short`
@@ -244,7 +248,7 @@ set_shell_title() {
 
 parse_svn_dir() {
 
-        if [[ ! -d .svn || $HOME == $PWD ]];   then   # if home dir under svn - don't clutter home dir prompt
+        if [[ $svn_module = "off"   ||  ! -d .svn  ||  $HOME == $PWD ]];   then   # if home dir under svn - don't clutter home dir prompt
             return 1
         fi 
 
@@ -277,9 +281,11 @@ parse_svn_dir() {
    
 parse_git_dir() {
 
-        git_dir=`git rev-parse --git-dir 2> /dev/null`
+        git_dir=`[[ $git_module = "on" ]]  &&  git rev-parse --git-dir 2> /dev/null`
+        #git_dir=`eval \$$git_module  git rev-parse --git-dir 2> /dev/null`
+        #git_dir=` git rev-parse --git-dir 2> /dev/null`
 
-        [[ -n ${git_dir/./} ]]  ||  return  1
+        [[  -n ${git_dir/./} ]]   ||   return  1
 
         vcs=git
 
@@ -319,7 +325,9 @@ parse_git_dir() {
             detached=detached
         fi
 
-        ### OP 
+
+        #################  GET GIT OP 
+
         unset op
         
         if [[ -d "$git_dir/.dotest" ]] ;  then
@@ -355,7 +363,8 @@ parse_git_dir() {
             #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
         fi
 
-        #####################################################################
+
+        ####  GET GIT HEX-REVISION
 
         rawhex=`git rev-parse HEAD 2>/dev/null`
         rawhex=${rawhex/HEAD/}
@@ -391,6 +400,7 @@ parse_git_dir() {
         fi
  }
 
+
 parse_vcs_dir() {
 
         unset   file_list modified_files untracked_files added_files 
@@ -418,18 +428,20 @@ parse_vcs_dir() {
 
         ### VIM  ( not yet works for multiple files )
         
-        unset vim_glob vim_file vim_files
-        old_nullglob=`shopt -p nullglob`
-            shopt -s nullglob
-            vim_glob=`echo .*.swp`
-        eval $old_nullglob
+	if  [[ $vim_module = "on" ]] ;  then
+		unset vim_glob vim_file vim_files
+		old_nullglob=`shopt -p nullglob`
+		    shopt -s nullglob
+		    vim_glob=`echo .*.swp`
+		eval $old_nullglob
 
-        if [[ $vim_glob ]];  then  
-            vim_file=${vim_glob#.}
-            vim_file=${vim_file%.swp}
-            # if swap is newer,  then unsaved vim session
-            [[ .${vim_file}.swp -nt $vim_file ]]  && vim_files=$vim_file
-        fi
+		if [[ $vim_glob ]];  then  
+		    vim_file=${vim_glob#.}
+		    vim_file=${vim_file%.swp}
+		    # if swap is newer,  then unsaved vim session
+		    [[ .${vim_file}.swp -nt $vim_file ]]  && vim_files=$vim_file
+		fi
+	fi
 
 
         ### file list
@@ -442,7 +454,9 @@ parse_vcs_dir() {
 
 	if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
 		file_list=${file_list:0:$max_file_list_length} 	
-		file_list="${file_list% *} ..."
+		if [[ $max_file_list_length -gt 0 ]]  ;  then
+			file_list="${file_list% *} ..."
+		fi
 	fi
 
 
@@ -475,14 +489,15 @@ prompt_command_function() {
 	# front=7
 	# head=${PWD:0:$front}"..."
 
-    parse_vcs_dir
 
-    #########################
-	# PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
-    
-	PS1="$head_local$colors_reset$label$rc$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
-
-    unset head_local tail_local
+	parse_vcs_dir
+	
+	#########################
+	    # PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
+	
+	    PS1="$head_local$colors_reset$label$rc$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
+	
+	unset head_local tail_local
  }
     
 
