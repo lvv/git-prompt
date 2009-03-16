@@ -1,6 +1,6 @@
-= GIT Prompt - there is a lot more than a branch-name
+= GIT Prompt
 
-//  To see HTML rendered web page go to:   http://volnitsky.com/project/lopti
+//  To see HTML rendered web page go to:  http://volnitsky.com/project/git-prompt
 
 :v-p:		http://volnitsky.com/project
 :compact-option: compact
@@ -17,7 +17,7 @@ Digit [red]*1* on 3rd line is `false(1)` exit code.
 
 Branch and files are colored according to state. "M" stands for master. 
 
-image:screenshot-prompt-git.png[git module]
+image:screenshot-prompt-git.png[git module screenshot]
 
 .Branch and Files Colors
 [cols="^3,^3,12",frame="topbot",options="header"]
@@ -31,12 +31,49 @@ image:screenshot-prompt-git.png[git module]
 | [magenta]#magenta#       |                          | In middle of doing something 
 |================================================================
 
+
 ==  Subversion
-...
+image:screenshot-svn.png[svn module screenshot]
+
+SVN module disabled by default because even on moderate sized working
+directories there is noticeable delay for prompt display.  SVN is slower then
+GIT.  Enable if needed in <<config,config>> 
+
 
 == Labels
 
-...
+Labels are very much like xterm-title and serve purpose of being  visual cues to help figure out what is
+running what command.
+
+They are displayed in terminal titles, terminal tabs, `screen(1)` status
+line and some other places.
+
+image:screenshot-labels.png["labels screenshot", width="300", link="screenshot-labels.png"]
+
+The `screen(1)` status line at bottom of smaller gnome-terminal is displayed with
+following `~/.screenrc` line:
+
+---------
+caption always "%{= kw}%-w%{= bw}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c"
+---------
+
+We don't need to do any thing for something like `cd` or `ssh` (if you have
+git-prompt on remote host).
+For external command we need set label before it is executed.
+It would be simple if `bash` set command name to some variable before execution,
+but it does not do this. So we have to use not elegant wrappers.
+We can not write wrapper for every command. 
+I use wrapper only for `vim` and `man` in my `~/.bashrc`
+
+-------------------------
+vi() {  set_shell_title "vi $@"; /usr/bin/vim -p "$@"; };  export -f vi
+man() { set_shell_title "man $@"; /usr/bin/man "$@";  }; export -f man
+----------------------------
+
+Note that vim sets xterm title itself, but we still use wrapper to set `screen` labels.
+Function `set_shell_title` defined in `git-prompt.sh`.
+
+
 
 == Install
 Download  link:git-prompt.sh[] or get it with GIT:
@@ -51,11 +88,40 @@ Put following command in our profile in interactive section:
   . /path/to/git-prompt.sh
 ---------------------
 
-If there are no interactivity test in your profile, then above command should be:
+If there are no interactivity test in your profile or you don't know what it
+is, then above command should be:
 
 --------------------
   [[ $- == *i* ]] && . /etc/git-prompt.sh
 ---------------------
+
+
+== Config 
+[[config]]
+
+Git-prompt sources two config file if they are present:
+
+- `/etc/git-prompt.conf`
+- `~/.git-prompt.conf`
+
+Copy example config `git-prompt.conf` 
+to any of above locations and customize as needed.
+
+
+== Limitations
+
+- cd-ing into something like linux kernel git working directory for the 1st
+  time (with cold cache) will take about 10 seconds (that is how long `git status` executes).
+- Because you will be always reminded about not checking-in files, you will
+  be more disciplined about maintaining clean working
+  directory.  And you probably will better maintain `.gitignore` and commit more often.
+- If you have terminal with limited width, you might want to disable
+  file list display (`max_file_list_length=0`).
+- When prompt is longer then screen-width it wraps to second line. Because of
+  bug in `gnome-terminal` (or `readline`?) some color escape codes can be
+  visible on second line.  I've reported gnome-terminal bug.
+  Again, you can disable file list display or limit length (`max_file_list_length`).
+
 
 == DEPENDENCY
 
@@ -67,23 +133,17 @@ Most of dependencies (except git and svn) are probably already installed on your
 - sed
 - tput  (terminfo)
 - tty  (core utils)
-- grep  
+- grep
 - locale  (glibc)
 - id   (core utils)
 
-include::../volnitsky.com/project/howto-submit-patch.txt[]
 
 == TODO
 
-- external config at `/etc/git-prompt.conf` and `~/.git-prompt.conf`
-- always display remote hostname if login is through sshd (how to detect this?)
 - new mail (howto at: `http://kikhome.net/?p=11` )
 - ctrl-Z subshell indicator
-- screenshots for labels and svn module
 - VIM module needs to be moved out of GIT module
 - make module (to show generated, stale files)
 - How detect current merge?  (current method through .git/MERGE_HEAD not always works)
 
-== DONE
-- different host color even if they are not in config
-- TO FIX: when file list is too long, git-prompt truncates it. Sometimes this truncation can be on color escape sequence.
+include::../volnitsky.com/project/howto-submit-patch.txt[]

@@ -6,8 +6,8 @@ tgit:
 	xclip -i git-demo
 	echo "ready to paste ..."
 
-WEB_DESTDIR ?= /tmp/html
-ASCIIDOC ?= asciidoc
+WEB_DESTDIR ?= /tmp/localweb
+ASCIIDOC ?= asciidoc --unsafe
 
 
 show: localweb
