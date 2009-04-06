@@ -223,30 +223,24 @@ set_shell_title() {
 
 
 #################################################################### WHO_WHERE 
-	# who_ware. Is constant.  Looks like
-	# 	[user@]host[-tty]
+	#  [[user@]host[-tty]]
 	
-	color_who_where="${id:+$id@}$host_color$host${tty:+ $tty}"
-	plain_who_where="${id:+$id@}$host"
-	
-	# remove trailing "@" if any
-	color_who_where="${color_who_where%@}"
-	plain_who_where="${plain_who_where%@}"
-	
-	# add trailing " "
-	color_who_where="$color_who_where "
-	plain_who_where="$plain_who_where "
-	
-	# if  $who_where==" "  then  who_where=""
-	color_who_where="${color_who_where## }"
-	plain_who_where="${plain_who_where## }"
-	
-	
-	# if root then highlight who_where
-	if	[ "$id" == "root" ]  ; then 
-	    color_who_where="$root_id_color$color_who_where$colors_reset"
-	fi
+	if [[ -n $id  || -n $host ]] ;   then 
+		[[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
+		color_who_where="${id}$at${host:+$host_color$host}${tty:+ $tty}"
+		plain_who_where="${id}$at$host"
 
+		# add trailing " "
+		color_who_where="$color_who_where "
+		plain_who_where="$plain_who_where "
+		
+		# if root then make it root_color
+		if	[ "$id" == "root" ]  ; then 
+		    color_who_where="$root_id_color$color_who_where$colors_reset"
+		fi
+	else
+		    color_who_where=''
+	fi
 
 parse_svn_dir() {
 
@@ -470,8 +464,8 @@ parse_vcs_dir() {
 
         ### fringes (added depended on location)
         head_local="${head_local+$vcs_color$head_local }"
-        above_local="${head_local+$vcs_color$head_local\n}"
-        tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
+        #above_local="${head_local+$vcs_color$head_local\n}"
+        #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
 
 
@@ -487,13 +481,8 @@ prompt_command_function() {
 	fi
 
 	set_shell_title "$PWD/" 
-
 	parse_vcs_dir
-	
-	#########################
-	    # PS1="$label$rc'$color_who_where$dir_color'${head:10*(${#PWD}<max)}${PWD:(${#PWD}>max)*(${#PWD}-max):max}> '$colors_reset'"
-	
-	    PS1="$head_local$colors_reset$label$rc$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
+	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
 	
 	unset head_local tail_local
  }
@@ -501,6 +490,6 @@ prompt_command_function() {
 
     PROMPT_COMMAND=prompt_command_function
 
-    unset rc id tty modified_files file_list
+    unset rc id tty modified_files file_list  
 
 # vim: set syntax=sh:

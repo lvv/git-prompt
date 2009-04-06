@@ -1,5 +1,6 @@
 install:
-	cp -v git-prompt.{sh,conf} /etc/
+	cp -v git-prompt.sh 	/etc/
+	[ -f /etc/git-prompt.conf ]  || cp -v git-prompt.conf /etc/
 
 	
 tgit:
