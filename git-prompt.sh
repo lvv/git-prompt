@@ -19,6 +19,7 @@
 	git_module=${git_module:-on}
 	svn_module=${svn_module:-off}
 	vim_module=${vim_module:-on}
+	error_bell=${error_bell:-off}
 
 
 	#### dir, rc, root color 
@@ -94,12 +95,16 @@
               WHITE='\['`tput setaf 7; tput bold`'\]'
 
             bw_bold='\['`tput bold`'\]'
-               bell=`tput bel`
+
+	on=''
+	off=': '
+
+	bell=`eval ${!error_bell} tput bel`
 
        colors_reset='\['`tput sgr0`'\]'
 
 	# Workaround for UTF readline(?) bug. Disable bell when UTF
-	locale |grep -qi UTF && bell=''	
+	#locale |grep -qi UTF && bell=''	
 
 
 	# replace symbolic colors names to raw treminfo strings
@@ -127,9 +132,6 @@
 	fi
 
 	export who_where
-
-	on=''
-	off=': '
 
 
 set_shell_title() { 
@@ -279,6 +281,10 @@ parse_svn_dir() {
  }
         
    
+#parse_hg_dir() {
+#	http://stevelosh.com/blog/entry/2009/3/17/mercurial-bash-prompts/
+#}
+
 parse_git_dir() {
 
         git_dir=`[[ $git_module = "on" ]]  &&  git rev-parse --git-dir 2> /dev/null`
@@ -477,18 +483,10 @@ prompt_command_function() {
 	if [[ "$rc" == "0" ]]; then 
 		rc=""
 	else
-		#rc="$rc_color$rc$colors_reset$bell "
-		rc="$rc_color$rc$colors_reset "
+		rc="$rc_color$rc$colors_reset$bell "
 	fi
 
 	set_shell_title "$PWD/" 
-
-	# TODO: put it back
-	# truncate $PWD to $max_path_length
-    	# max_path_length=50
-	# front=7
-	# head=${PWD:0:$front}"..."
-
 
 	parse_vcs_dir
 	
@@ -503,6 +501,6 @@ prompt_command_function() {
 
     PROMPT_COMMAND=prompt_command_function
 
-    unset rc id tty bell modified_files file_list
+    unset rc id tty modified_files file_list
 
 # vim: set syntax=sh:

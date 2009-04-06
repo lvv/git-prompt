@@ -10,7 +10,9 @@
 
 image:screenshot-prompt-basic.png[basic usage]
 
-Digit [red]*1* on 3rd line is `false(1)` exit code.
+Digit [red]*1* on 3rd line is `false(1)` exit code. Also on non-zero exit code
+terminal bell is sounded.  Bell is turnned off by default because most people don't
+know how to set softer bell (`setterm` is your friend).
 
 
 == GIT
@@ -25,7 +27,7 @@ image:screenshot-prompt-git.png[git module screenshot]
 | *Branch*                 |   *File*                 | *Meaning*
 | [darkblue]#dark blue#    |                          | Clean repo
 | [green]#green#           |  [green]#green#          | Modified or new file. Modifications are in index but not in repo yet.
-| [red]#dark red#          |  [red]#darkred#          | Modified and tracked by repo, but modifications not added to index yet.
+| [#cc0000]#dark red#      |  [#cc0000]#dark red#     | Modified and tracked by repo, but modifications not added to index yet.
 | [blue]#light blue#       |  [blue]#light blue#      | Untracked file.
 | [red]#light red#         |                          | Detached Head
 | [magenta]#magenta#       |                          | In middle of doing something 
@@ -36,17 +38,17 @@ image:screenshot-prompt-git.png[git module screenshot]
 image:screenshot-svn.png[svn module screenshot]
 
 SVN module disabled by default because even on moderate sized working
-directories there is noticeable delay for prompt display.  SVN is slower then
+directories there is noticeable delay for prompt display.  SVN is slower than
 GIT.  Enable if needed in <<config,config>> 
 
 
 == Labels
 
-Labels are very much like xterm-title and serve purpose of being  visual cues to help figure out what is
-running what command.
+Labels are visual cues to help figure out what terminal is running what command.
+It is generalization of xterm-title but differ from xterm-title that it
+can be displayed in other places (on screen windows titles for example).
 
-They are displayed in terminal titles, terminal tabs, `screen(1)` status
-line and some other places.
+line and some other places. On screenshot below they are in red ovals. 
 
 image:screenshot-labels.png["labels screenshot", width="300", link="screenshot-labels.png"]
 
@@ -61,8 +63,8 @@ We don't need to do any thing for something like `cd` or `ssh` (if you have
 git-prompt on remote host).
 For external command we need set label before it is executed.
 It would be simple if `bash` set command name to some variable before execution,
-but it does not do this. So we have to use not elegant wrappers.
-We can not write wrapper for every command. 
+but it does not do this. So we have to use wrappers.  This is not very elegant
+and will work only for commands with defined wrapper.
 I use wrapper only for `vim` and `man` in my `~/.bashrc`
 
 -------------------------
@@ -70,7 +72,8 @@ vi() {  set_shell_title "vi $@"; /usr/bin/vim -p "$@"; };  export -f vi
 man() { set_shell_title "man $@"; /usr/bin/man "$@";  }; export -f man
 ----------------------------
 
-Note that vim sets xterm title itself, but we still use wrapper to set `screen` labels.
+Note that vim sets xterm title , but we still use wrapper so that
+`screen` will have labels too.
 Function `set_shell_title` defined in `git-prompt.sh`.
 
 
@@ -82,7 +85,7 @@ Download  link:git-prompt.sh[] or get it with GIT:
   git clone git://github.com/lvv/git-prompt.git
 ---------------
 
-Put following command in our profile in interactive section:
+Put following command in your profile (`~/.bash_profile` or `~/.profile`) in interactive section:
 
 ---------------------
   . /path/to/git-prompt.sh
@@ -92,14 +95,16 @@ If there are no interactivity test in your profile or you don't know what it
 is, then above command should be:
 
 --------------------
-  [[ $- == *i* ]] && . /etc/git-prompt.sh
+  [[ $- == *i* ]]   &&   . /path/to/git-prompt.sh
 ---------------------
+
+There might be your old prompt defined too.  You need to commment it out. 
 
 
 == Config 
 [[config]]
 
-Git-prompt sources two config file if they are present:
+Git-prompt sources (in listed order)  two config file if they are present:
 
 - `/etc/git-prompt.conf`
 - `~/.git-prompt.conf`
@@ -112,15 +117,20 @@ to any of above locations and customize as needed.
 
 - cd-ing into something like linux kernel git working directory for the 1st
   time (with cold cache) will take about 10 seconds (that is how long `git status` executes).
-- Because you will be always reminded about not checking-in files, you will
+- Because you will be always reminded about not checked-in files, you will
   be more disciplined about maintaining clean working
   directory.  And you probably will better maintain `.gitignore` and commit more often.
-- If you have terminal with limited width, you might want to disable
+- This prompt is most useful if your screen have enough width. If this is
+  not the case, you might want to disable
   file list display (`max_file_list_length=0`).
 - When prompt is longer then screen-width it wraps to second line. Because of
   bug in `gnome-terminal` (or `readline`?) some color escape codes can be
   visible on second line.  I've reported gnome-terminal bug.
   Again, you can disable file list display or limit length (`max_file_list_length`).
+- By default some terminals display ascii color with maximum color saturation
+  which makes colored text of different perceptual brightness.  This makes it hard
+  to read.  If your terminal colors are configurable, try to change it softer(pastel)
+  colors.
 
 
 == DEPENDENCY
