@@ -1,6 +1,6 @@
-= GIT Prompt
+//  This is asciidoc file. The HTML rendered page is at:  http://volnitsky.com/project/git-prompt
 
-//  To see HTML rendered web page go to:  http://volnitsky.com/project/git-prompt
+= GIT Prompt
 
 :v-p:		http://volnitsky.com/project
 :compact-option: compact
@@ -47,8 +47,7 @@ GIT.  Enable if needed in <<config,config>>
 Labels are visual cues to help figure out what terminal is running what command.
 It is generalization of xterm-title but differ from xterm-title that it
 can be displayed in other places (on screen windows titles for example).
-
-line and some other places. On screenshot below they are in red ovals. 
+On screenshot below they are in red ovals.
 
 image:screenshot-labels.png["labels screenshot", width="300", link="screenshot-labels.png"]
 

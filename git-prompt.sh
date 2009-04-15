@@ -99,7 +99,7 @@
 	on=''
 	off=': '
 
-	bell=`eval ${!error_bell} tput bel`
+	bell="\[`eval ${!error_bell} tput bel`\]"
 
        colors_reset='\['`tput sgr0`'\]'
 
