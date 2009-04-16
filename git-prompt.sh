@@ -469,6 +469,9 @@ parse_vcs_dir() {
  }
 
 
+trap - DEBUG  #>& /dev/null
+trap '[[ $BASH_COMMAND != prompt_command_function ]] && set_shell_title $BASH_COMMAND' DEBUG  #>& /dev/null
+
 ###################################################################### PROMPT_COMMAND
 
 prompt_command_function() {
@@ -487,7 +490,6 @@ prompt_command_function() {
 	unset head_local tail_local
  }
     
-
     PROMPT_COMMAND=prompt_command_function
 
     unset rc id tty modified_files file_list  

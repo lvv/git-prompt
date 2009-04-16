@@ -1,4 +1,4 @@
-//  This is asciidoc file. The HTML rendered page is at:  http://volnitsky.com/project/git-prompt
+//  This is raw asciidoc file. The HTML rendered page is  http://volnitsky.com/project/git-prompt
 
 = GIT Prompt
 
@@ -46,18 +46,19 @@ GIT.  Enable if needed in <<config,config>>
 
 Labels are visual cues to help figure out what terminal is running what command.
 It is generalization of xterm-title but differ from xterm-title that it
-can be displayed in other places (on screen windows titles for example).
+can be displayed in other places (on Screen(1) windows titles for example).
 On screenshot below they are in red ovals.
 
 image:screenshot-labels.png["labels screenshot", width="300", link="screenshot-labels.png"]
 
 The `screen(1)` status line at bottom of smaller gnome-terminal is displayed with
-following `~/.screenrc` line:
+following line in `~/.screenrc`:
 
 ---------
 caption always "%{= kw}%-w%{= bw}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c"
 ---------
 
+//////////////////
 We don't need to do any thing for something like `cd` or `ssh` (if you have
 git-prompt on remote host).
 For external command we need set label before it is executed.
@@ -74,6 +75,7 @@ man() { set_shell_title "man $@"; /usr/bin/man "$@";  }; export -f man
 Note that vim sets xterm title , but we still use wrapper so that
 `screen` will have labels too.
 Function `set_shell_title` defined in `git-prompt.sh`.
+///////////////////
 
 
 
