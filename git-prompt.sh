@@ -136,20 +136,20 @@
 
 set_shell_title() { 
 
-	xterm_title() { echo  -n "]2;${@}" ; }
+	xterm_title() { echo  -n "]2;${@}" ; }   # FIXME: replace hardcodes with terminfo codes
 
 	screen_title() { 
 		# FIXME: run this only if screen is in xterm (how to test for this?)
 		xterm_title  "sCRn  $label$plain_who_where $@" 
 
 		# FIXME $STY not inherited though "su -"
-		[ "$STY" ] && screen -S $STY -X title "$@"
+		[ "$STY" ] && screen -S $STY -X title "$*"
 	}
 
 	case $TERM in
 
 		screen*)                                                    
-			screen_title "$@"
+			screen_title "$*"
 			;;
 
 		xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )       
