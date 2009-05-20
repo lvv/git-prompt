@@ -18,6 +18,7 @@
 
 	git_module=${git_module:-on}
 	svn_module=${svn_module:-off}
+	hg_module=${hg_module:-on}
 	vim_module=${vim_module:-on}
 	error_bell=${error_bell:-off}
 
@@ -274,10 +275,34 @@ parse_svn_dir() {
         vcs_info=svn:r$rev
  }
         
-   
-#parse_hg_dir() {
-#	http://stevelosh.com/blog/entry/2009/3/17/mercurial-bash-prompts/
-#}
+parse_hg_dir() {
+  if [[ $hg_module = "off" || $HOME == $PWD ]]; then
+    return 1
+  fi
+
+  if [[ -z `hg branch 2> /dev/null` ]]; then
+    return 1
+  fi
+
+  vcs=hg
+
+  ### get status
+  unset status modified added clean init added mixed untracked op detached
+
+  eval `hg status 2>/dev/null |
+    sed -n '
+      s/^M \([^.].*\)/modified=modified; modified_files[${#modified_files[@]}+1]=\"\1\";/p
+      s/^A \([^.].*\)/added=added; added_files[${#added_files[@]}+1]=\"\1\";/p
+      s/^R \([^.].*\)/added=added;/p
+      s/^! \([^.].*\)/modified=modified;/p
+      s/^? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}+1]=\\"\1\\";/p
+    '`
+
+  branch=`hg branch 2> /dev/null`
+
+  [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && clean=clean
+  vcs_info=${branch/default/D}
+}
 
 parse_git_dir() {
 
@@ -408,7 +433,7 @@ parse_vcs_dir() {
         unset   status modified untracked added init detached
         unset   file_list modified_files untracked_files added_files 
 
-        parse_git_dir ||  parse_svn_dir || return 
+        parse_git_dir || parse_svn_dir || parse_hg_dir || return
 
      
         ### status:  choose primary (for branch color)
