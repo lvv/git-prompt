@@ -243,7 +243,7 @@ set_shell_title() {
 		    color_who_where=''
 	fi
 
-parse_svn_dir() {
+parse_svn_status() {
 
         if [[ $svn_module = "off"   ||  ! -d .svn  ||  $HOME == $PWD ]];   then   # if home dir under svn - don't clutter home dir prompt
             return 1
@@ -275,7 +275,7 @@ parse_svn_dir() {
         vcs_info=svn:r$rev
  }
         
-parse_hg_dir() {
+parse_hg_status() {
   if [[ $hg_module = "off" || $HOME == $PWD ]]; then
     return 1
   fi
@@ -302,9 +302,9 @@ parse_hg_dir() {
 
   [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && clean=clean
   vcs_info=${branch/default/D}
-}
+ }
 
-parse_git_dir() {
+parse_git_status() {
 
         git_dir=`[[ $git_module = "on" ]]  &&  git rev-parse --git-dir 2> /dev/null`
         #git_dir=`eval \$$git_module  git rev-parse --git-dir 2> /dev/null`
@@ -426,14 +426,15 @@ parse_git_dir() {
  }
 
 
-parse_vcs_dir() {
+parse_vcs_status() {
 
         unset   file_list modified_files untracked_files added_files 
         unset   vcs vcs_info
         unset   status modified untracked added init detached
         unset   file_list modified_files untracked_files added_files 
 
-        parse_git_dir || parse_svn_dir || parse_hg_dir || return
+        #parse_git_status || parse_svn_status || parse_hg_status || return
+        eval $PARSE_VCS_STATUS
 
      
         ### status:  choose primary (for branch color)
@@ -509,7 +510,7 @@ prompt_command_function() {
 	fi
 
 	set_shell_title "$PWD/" 
-	parse_vcs_dir
+	parse_vcs_status
 	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
 	
 	unset head_local tail_local
