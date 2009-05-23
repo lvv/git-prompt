@@ -49,6 +49,12 @@
 
 #####################################################################  post config
 
+	################# make PARSE_VCS_STATUS
+
+	[[ $git_module = "on" ]]   &&   type git >&/dev/null   &&   PARSE_VCS_STATUS="parse_git_status"
+	[[ $svn_module = "on" ]]   &&   type svn >&/dev/null   &&   PARSE_VCS_STATUS+="||parse_svn_status"
+	[[ $hg_module  = "on" ]]   &&   type hg  >&/dev/null   &&   PARSE_VCS_STATUS+="||parse_hg_status"
+	                                                            PARSE_VCS_STATUS+="||return"
 	################# terminfo colors-16
 	#
 	#  	black?    0 8			  
@@ -245,9 +251,7 @@ set_shell_title() {
 
 parse_svn_status() {
 
-        if [[ $svn_module = "off"   ||  ! -d .svn  ||  $HOME == $PWD ]];   then   # if home dir under svn - don't clutter home dir prompt
-            return 1
-        fi 
+        [[   -d .svn  ]] || return 1
 
         vcs=svn
 
@@ -276,13 +280,8 @@ parse_svn_status() {
  }
         
 parse_hg_status() {
-  if [[ $hg_module = "off" || $HOME == $PWD ]]; then
-    return 1
-  fi
 
-  if [[ -z `hg branch 2> /dev/null` ]]; then
-    return 1
-  fi
+  [[  -d ./.hg/ ]]  ||  return  1
 
   vcs=hg
 
@@ -433,8 +432,7 @@ parse_vcs_status() {
         unset   status modified untracked added init detached
         unset   file_list modified_files untracked_files added_files 
 
-        #parse_git_status || parse_svn_status || parse_hg_status || return
-        eval $PARSE_VCS_STATUS
+        eval '[[ $HOME != $PWD ]]&&'  $PARSE_VCS_STATUS
 
      
         ### status:  choose primary (for branch color)
@@ -495,8 +493,8 @@ parse_vcs_status() {
  }
 
 
-trap - DEBUG  #>& /dev/null
-trap '[[ $BASH_COMMAND != prompt_command_function ]] && set_shell_title $BASH_COMMAND' DEBUG  #>& /dev/null
+ trap - DEBUG  >& /dev/null
+ trap '[[ $BASH_COMMAND != prompt_command_function ]] && set_shell_title $BASH_COMMAND' DEBUG  >& /dev/null
 
 ###################################################################### PROMPT_COMMAND
 
