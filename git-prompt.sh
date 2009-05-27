@@ -44,6 +44,8 @@
 	     detached_vcs_color=${detached_vcs_color:-RED}
 
 	max_file_list_length=${max_file_list_length:-100}
+
+   truncate_pwd=${truncate_pwd:-off}
    max_pwd_length=${max_pwd_length:-30}
    min_chars_per_pwd=${min_chars_per_pwd:-1}
 
@@ -144,6 +146,7 @@
 
 truncate_working_directory() {
   pwd=`echo $PWD | sed "s:^${HOME}:~:"`
+  [[ $truncate_pwd != "on" ]] && return
   chars_per_dir=5
   while [[ $((chars_per_dir--)) -gt $((min_chars_per_pwd)) && `echo ${pwd} | wc -m` -gt $((max_pwd_length)) ]]; do
      pwd=`echo ${pwd} | sed "s:[^\/~]*\(/.\{${chars_per_dir}\}\):\1:g"`
