@@ -44,6 +44,8 @@
 	     detached_vcs_color=${detached_vcs_color:-RED}
 
 	max_file_list_length=${max_file_list_length:-100}
+   max_pwd_length=${max_pwd_length:-30}
+   min_chars_per_pwd=${min_chars_per_pwd:-1}
 
 
 
@@ -140,6 +142,14 @@
 
 	export who_where
 
+truncate_working_directory() {
+  pwd=`echo $PWD | sed "s:^${HOME}:~:"`
+  chars_per_dir=5
+  while [[ $((chars_per_dir--)) -gt $((min_chars_per_pwd)) && `echo ${pwd} | wc -m` -gt $((max_pwd_length)) ]]; do
+     pwd=`echo ${pwd} | sed "s:[^\/~]*\(/.\{${chars_per_dir}\}\):\1:g"`
+  done
+  unset chars_per_dir
+}
 
 set_shell_title() { 
 
@@ -509,9 +519,10 @@ prompt_command_function() {
 
 	set_shell_title "$PWD/" 
 	parse_vcs_status
-	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
+	truncate_working_directory
+	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color$pwd$tail_local$dir_color> $colors_reset"
 	
-	unset head_local tail_local
+	unset head_local tail_local pwd
  }
     
     PROMPT_COMMAND=prompt_command_function
