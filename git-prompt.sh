@@ -49,6 +49,7 @@
    max_pwd_length=${max_pwd_length:-30}
    min_chars_per_pwd=${min_chars_per_pwd:-1}
 
+   upcase_hostname=${upcase_hostname:-on}
 
 
 #####################################################################  post config
@@ -224,7 +225,7 @@ set_shell_title() {
 	#then 
 	host=${HOSTNAME}
 	#host=`hostname --short`
-	host=`echo ${host%$default_host} | tr a-z A-Z`
+	[[ $upcase_hostname = "on" ]] && host=`echo ${host%$default_host} | tr a-z A-Z`
 	#host=`echo ${host} | tr a-z A-Z`
 	
         host_color=${host}_host_color
