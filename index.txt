@@ -99,16 +99,20 @@ is, then above command should be:
   [[ $- == *i* ]]   &&   . /path/to/git-prompt.sh
 ---------------------
 
-There might be your old prompt defined too.  You need to commment it out. 
+There might be your old prompt defined too.  You need to comment it out. 
+Some distros also have `/etc/bashrc` or `/etc/bash/bashrc` with distro default
+prompt.
 
 
 == Config 
 [[config]]
 
-Git-prompt sources (in listed order)  two config file if they are present:
+Is optional.  If config file is not found then git-prompt uses defaults. 
+Defaults are listed in example `git-prompt.conf`.  Git-prompt looks (in listed order)
+for config file in following locations:
 
-- `/etc/git-prompt.conf`
-- `~/.git-prompt.conf`
+* `/etc/git-prompt.conf`
+* `~/.git-prompt.conf`
 
 Copy example config `git-prompt.conf` 
 to any of above locations and customize as needed.
@@ -116,45 +120,45 @@ to any of above locations and customize as needed.
 
 == Limitations
 
-- cd-ing into something like linux kernel git working directory for the 1st
-  time (with cold cache) will take about 10 seconds (that is how long `git status` executes).
-- Because you will be always reminded about not checked-in files, you will
-  be more disciplined about maintaining clean working
-  directory.  And you probably will better maintain `.gitignore` and commit more often.
-- This prompt is most useful if your screen have enough width. If this is
-  not the case, you might want to disable
-  file list display (`max_file_list_length=0`).
-- When prompt is longer then screen-width it wraps to second line. Because of
-  bug in `gnome-terminal` (or `readline`?) some color escape codes can be
-  visible on second line.  I've reported gnome-terminal bug.
-  Again, you can disable file list display or limit length (`max_file_list_length`).
-- By default some terminals display ascii color with maximum color saturation
-  which makes colored text of different perceptual brightness.  This makes it hard
-  to read.  If your terminal colors are configurable, try to change it softer(pastel)
+* cd-ing into something like linux kernel git working directory for the 1st
+  time (with cold cache) might take up to 10 seconds (that is how long `git status` executes).
+* Because you will be always reminded about not checked-in files,
+  it will force you to keep working directory clean,  better maintain `.gitignore` and commit more often.
+* This prompt is most useful if your screen have enough width.
+  If this is not the case, you might want to disable file list display (`max_file_list_length=0`).
+* When prompt is longer then screen-width it wraps to second line.
+  Because of bug in `gnome-terminal` (or `readline` ?) some color escape codes can be visible on second line. 
+  I've reported gnome-terminal bug.  Again, you can disable file list display or limit length (`max_file_list_length`).
+* By default some terminals display ascii color with maximum color saturation
+  which makes colored text of different perceptual brightness.  This makes it hard to read. 
+  If your terminal colors are configurable, try change it to softer (pastel)
   colors.
 
 
 == DEPENDENCY
 
-Most of dependencies (except git and svn) are probably already installed on your host. 
+Most of not optional dependencies are probably already installed on your host. 
 
-- bash  (tested with v3.2.33) 
-- git  (optional)
-- svn  (optional)
-- sed
-- tput  (terminfo)
-- tty  (core utils)
-- grep
-- locale  (glibc)
-- id   (core utils)
+* bash  (tested with v3.2.33) 
+* sed
+* tput  (terminfo)
+* tty  (core utils)
+* grep
+* locale  (glibc)
+* id   (core utils)
+
+* git  (optional)
+* svn  (optional)
+* hg   (optional)
 
 
 == TODO
 
-- new mail (howto at: `http://kikhome.net/?p=11` )
-- ctrl-Z subshell indicator
-- VIM module needs to be moved out of GIT module
-- make module (to show generated, stale files)
-- How detect current merge?  (current method through .git/MERGE_HEAD not always works)
+* VCS exclude dir list
+* new mail (howto at: `http://kikhome.net/?p=11` )
+* ctrl-Z subshell indicator
+* VIM module needs to be moved out of GIT module
+* make module (to show generated, stale files)
+* How detect current merge?  (current method through .git/MERGE_HEAD not always works)
 
 include::../volnitsky.com/project/howto-submit-patch.txt[]
