@@ -331,12 +331,20 @@ parse_git_status() {
 
                         /^# Changed but not updated:/,/^# [A-Z]/ {
                             s/^# Changed but not updated:/modified=modified;/p
+                            s/^#	modified:   \.\./: SKIP/
                             s/^#	modified:   \(.*\)/modified_files[${#modified_files[@]}+1]=\"\1\"/p
+                            s/^#	unmerged:   \.\./: SKIP/
                             s/^#	unmerged:   \(.*\)/modified_files[${#modified_files[@]}+1]=\"\1\"/p
                         }
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added;/p
+
+                            s/^#	modified:   \.\./: SKIP/
+                            s/^#	new file:   \.\./: SKIP/
+                            s/^#	renamed:[^>]*> \.\./: SKIP/
+                            s/^#	copied:[^>]*> \.\./: SKIP/
+
                             s/^#	modified:   \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
                             s/^#	new file:   \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
                             s/^#	renamed:[^>]*> \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
