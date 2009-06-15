@@ -7,7 +7,8 @@
 
 	#####  read config file if any.
 
-	unset 	dir_color rc_color root_id_color init_vcs_color clean_vcs_color modified_vcs_color added_vcs_color mixed_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color
+	unset 	dir_color rc_color root_id_color init_vcs_color clean_vcs_color
+	unset modified_vcs_color added_vcs_color mixed_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color
 
 	conf=git-prompt.conf; 			[[ -r $conf ]]  && . $conf
 	conf=/etc/git-prompt.conf; 		[[ -r $conf ]]  && . $conf
@@ -50,7 +51,7 @@
 #####################################################################  post config
 
 	################# make PARSE_VCS_STATUS
-
+								    PARSE_VCS_STATUS=""
 	[[ $git_module = "on" ]]   &&   type git >&/dev/null   &&   PARSE_VCS_STATUS="parse_git_status"
 	[[ $svn_module = "on" ]]   &&   type svn >&/dev/null   &&   PARSE_VCS_STATUS+="||parse_svn_status"
 	[[ $hg_module  = "on" ]]   &&   type hg  >&/dev/null   &&   PARSE_VCS_STATUS+="||parse_hg_status"

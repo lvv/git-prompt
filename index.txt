@@ -34,12 +34,15 @@ image:screenshot-prompt-git.png[git module screenshot]
 |================================================================
 
 
-==  Subversion
+==  Subversion/SVN 
 image:screenshot-svn.png[svn module screenshot]
 
 SVN module disabled by default because even on moderate sized working
 directories there is noticeable delay for prompt display.  SVN is slower than
 GIT.  Enable if needed in <<config,config>> 
+
+==  Mercurial/HG
+Was recently added thanks to Lee Nussbaum <wln@scrunch.org>.
 
 
 == Labels
@@ -47,7 +50,9 @@ GIT.  Enable if needed in <<config,config>>
 Labels are visual cues to help figure out what terminal is running what command.
 It is generalization of xterm-title but differ from xterm-title that it
 can be displayed in other places (on Screen(1) windows titles for example).
-On screenshot below they are in red ovals.
+Also label can display currently executed command (when bash prompt obviously
+is not displayed).
+On screenshot below labels are in red ovals.
 
 image:screenshot-labels.png["labels screenshot", width="300", link="screenshot-labels.png"]
 
