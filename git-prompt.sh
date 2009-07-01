@@ -160,7 +160,7 @@ cwd_truncate() {
 
 	[[ $truncate_pwd != "on" ]] && return
 
-	local pwd_length=10
+	local pwd_length=$1
 
 	# Get the current working directory. We'll format it in $dir.
 	local dir="$PWD"
@@ -196,7 +196,7 @@ cwd_truncate() {
 		dir="$tilde/...$directory"
 	fi
 
-	pwd="$dir"
+	cwd="$dir"
 }
 
 
@@ -576,9 +576,12 @@ prompt_command_function() {
 
 	set_shell_title "$PWD/" 
 	parse_vcs_status
-	#truncate_working_directory
-	cwd_truncate
-	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color$pwd$tail_local$dir_color> $colors_reset"
+
+	# if cwd_cmd have back-slash, then assign it value to cwd
+	# else eval cmd_cmd,  cwd should have path after exection
+	eval "${cwd_cmd/\\/cwd=\\\\}"		
+
+	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color$cwd$tail_local$dir_color> $colors_reset"
 	
 	unset head_local tail_local pwd
  }
