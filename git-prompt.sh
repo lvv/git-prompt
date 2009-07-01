@@ -1,6 +1,5 @@
 
 # don't set prompt if this is not interactive shell
-# it is better if this test is done before git-prompt.sh is source-ed for performance reasons. 
 [[ $- != *i* ]]  &&  return
 
 ###################################################################   CONFIG
@@ -147,14 +146,59 @@
 	export who_where
 
 truncate_working_directory() {
-  pwd=`echo $PWD | sed "s:^${HOME}:~:"`
-  [[ $truncate_pwd != "on" ]] && return
-  chars_per_dir=5
-  while [[ $((chars_per_dir--)) -gt $((min_chars_per_pwd)) && `echo ${pwd} | wc -m` -gt $((max_pwd_length)) ]]; do
-     pwd=`echo ${pwd} | sed "s:[^\/~]*\(/.\{${chars_per_dir}\}\):\1:g"`
-  done
-  unset chars_per_dir
+	pwd=`echo $PWD | sed "s:^${HOME}:~:"`
+	[[ $truncate_pwd != "on" ]] && return
+	chars_per_dir=5
+	while [[ $((chars_per_dir--)) -gt $((min_chars_per_pwd)) && `echo ${pwd} | wc -m` -gt $((max_pwd_length)) ]]; do
+	   pwd=`echo ${pwd} | sed "s:[^\/~]*\(/.\{${chars_per_dir}\}\):\1:g"`
+	done
+	unset chars_per_dir
+ }
+
+cwd_truncate() {
+	# https://www.blog.montgomerie.net/pwd-in-the-title-bar-or-a-regex-adventure-in-bash
+
+	[[ $truncate_pwd != "on" ]] && return
+
+	local pwd_length=10
+
+	# Get the current working directory. We'll format it in $dir.
+	local dir="$PWD"
+
+	# Substitute a leading path that's in $HOME for "~"
+	if [[ "$HOME" == ${dir:0:${#HOME}} ]] ; then
+		dir="~${dir:${#HOME}}"
+	fi
+
+	# Append a trailing slash if it's not there already.
+	#if [[ ${dir:${#dir}-1} != "/" ]] ; then
+	#	dir="$dir/"
+	#fi
+
+	# Truncate if we're too long.
+	# We preserve the leading '/' or '~/', and substitute
+	# ellipses for some directories in the middle.
+	if [[ "$dir" =~ (~){0,1}/.*(.{${pwd_length}}) ]] ; then
+		local tilde=${BASH_REMATCH[1]}
+		local directory=${BASH_REMATCH[2]}
+
+		# At this point, $directory is the truncated end-section of the
+		# path. We will now make it only contain full directory names
+		# (e.g. "ibrary/Mail" -> "/Mail").
+		if [[ "$directory" =~ [^/]*(.*) ]] ; then
+			directory=${BASH_REMATCH[1]}
+		fi
+
+		# Can't work out if it's possible to use the Unicode ellipsis,
+		# '…' (Unicode 2026). Directly embedding it in the string does not
+		# seem to work, and \u escape sequences ('\u2026') are not expanded.
+		#printf -v dir "$tilde/\u2026$s", $directory"
+		dir="$tilde/...$directory"
+	fi
+
+	pwd="$dir"
 }
+
 
 set_shell_title() { 
 
@@ -532,7 +576,8 @@ prompt_command_function() {
 
 	set_shell_title "$PWD/" 
 	parse_vcs_status
-	truncate_working_directory
+	#truncate_working_directory
+	cwd_truncate
 	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color$pwd$tail_local$dir_color> $colors_reset"
 	
 	unset head_local tail_local pwd
