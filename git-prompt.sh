@@ -46,6 +46,11 @@
 
 	max_file_list_length=${max_file_list_length:-100}
 
+   truncate_pwd=${truncate_pwd:-off}
+   max_pwd_length=${max_pwd_length:-30}
+   min_chars_per_pwd=${min_chars_per_pwd:-1}
+
+   upcase_hostname=${upcase_hostname:-on}
 
 
 #####################################################################  post config
@@ -141,6 +146,15 @@
 
 	export who_where
 
+truncate_working_directory() {
+  pwd=`echo $PWD | sed "s:^${HOME}:~:"`
+  [[ $truncate_pwd != "on" ]] && return
+  chars_per_dir=5
+  while [[ $((chars_per_dir--)) -gt $((min_chars_per_pwd)) && `echo ${pwd} | wc -m` -gt $((max_pwd_length)) ]]; do
+     pwd=`echo ${pwd} | sed "s:[^\/~]*\(/.\{${chars_per_dir}\}\):\1:g"`
+  done
+  unset chars_per_dir
+}
 
 set_shell_title() { 
 
@@ -212,7 +226,7 @@ set_shell_title() {
 	#then 
 	host=${HOSTNAME}
 	#host=`hostname --short`
-	host=`echo ${host%$default_host} | tr a-z A-Z`
+	[[ $upcase_hostname = "on" ]] && host=`echo ${host%$default_host} | tr a-z A-Z`
 	#host=`echo ${host} | tr a-z A-Z`
 	
         host_color=${host}_host_color
@@ -518,9 +532,10 @@ prompt_command_function() {
 
 	set_shell_title "$PWD/" 
 	parse_vcs_status
-	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color\w$tail_local$dir_color> $colors_reset"
+	truncate_working_directory
+	PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color$pwd$tail_local$dir_color> $colors_reset"
 	
-	unset head_local tail_local
+	unset head_local tail_local pwd
  }
     
     PROMPT_COMMAND=prompt_command_function
