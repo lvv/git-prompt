@@ -140,7 +140,7 @@ to any of above locations and customize as needed.
   colors.
 
 
-== DEPENDENCY
+== Dependencies
 
 Most of not optional dependencies are probably already installed on your computer. 
 
@@ -157,13 +157,25 @@ Most of not optional dependencies are probably already installed on your compute
 * hg   (optional)
 
 
-== TODO
+== Todo
 
 * VCS exclude dir list
 * new mail (howto at: `http://kikhome.net/?p=11` )
 * ctrl-Z subshell indicator
 * VIM module needs to be moved out of GIT module
-* make module (to show generated, stale files)
 * How detect current merge?  (current method through .git/MERGE_HEAD not always works)
 
+
 include::../volnitsky.com/project/howto-submit-patch.txt[]
+
+== Authors
+- Leonid Volnitsky (original author) <leonid@volnitsky.com> http://volnitsky.com
+- Niklas Hofer (CWD truncation) <niklas+dev@lanpartei.de> http://github.com/niklas/
+- Lee Nussbaum  (HG support) lee.nussbaum@gmail.com	http://github.com/wln   
+- Albert Vernon http://xenoclub.wordpress
+
+
+[bibliography]
+.References
+- [[[1]]] 'Bash Prompt HOWTO', http://tldp.org/HOWTO/Bash-Prompt-HOWTO/index.html
+

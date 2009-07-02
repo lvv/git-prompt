@@ -270,8 +270,11 @@ set_shell_title() {
 	#then 
 	host=${HOSTNAME}
 	#host=`hostname --short`
-	[[ $upcase_hostname = "on" ]] && host=`echo ${host%$default_host} | tr a-z A-Z`
-	#host=`echo ${host} | tr a-z A-Z`
+	if [[ $upcase_hostname = "on" ]]; then 
+		host=`echo ${host%$default_host} | tr a-z A-Z`
+	else
+		host=${host%$default_host}
+	fi
 	
         host_color=${host}_host_color
         host_color=${!host_color}
