@@ -21,6 +21,7 @@
         hg_module=${hg_module:-on}
         vim_module=${vim_module:-on}
         error_bell=${error_bell:-off}
+        cwd_cmd=${cwd_cmd:-\\w}
 
 
         #### dir, rc, root color 
