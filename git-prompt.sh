@@ -125,10 +125,6 @@
                 mixed_vcs_color=${!mixed_vcs_color}
              detached_vcs_color=${!detached_vcs_color}
 
-        ##################################################################### 
-        # if label non empty, append 1 space
-        label=${1:+$1 }
-
 
         unset PROMPT_COMMAND
 
@@ -192,13 +188,13 @@ cwd_truncate() {
  }
 
 
-set_shell_title() { 
+set_shell_label() { 
 
-        xterm_title() { echo  -n "]2;${@}" ; }   # FIXME: replace hardcodes with terminfo codes
+        xterm_label() { echo  -n "]2;${@}" ; }   # FIXME: replace hardcodes with terminfo codes
 
-        screen_title() { 
+        screen_label() { 
                 # FIXME: run this only if screen is in xterm (how to test for this?)
-                xterm_title  "$screen_marker  $label$plain_who_where $@" 
+                xterm_label  "$screen_marker  $plain_who_where $@" 
 
                 # FIXME $STY not inherited though "su -"
                 [ "$STY" ] && screen -S $STY -X title "$*"
@@ -207,13 +203,13 @@ set_shell_title() {
         case $TERM in
 
                 screen*)                                                    
-                        screen_title "$*"
+                        screen_label "$*"
                         ;;
 
                 xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )       
                         # is there a capability which we can to test 
                         # for "set term title-bar" and its escapes?
-                        xterm_title  "$label$plain_who_where $@"
+                        xterm_label  "$plain_who_where $@"
                         ;;
 
                 *)                                                     
@@ -221,7 +217,7 @@ set_shell_title() {
         esac
  }
 
-    export -f set_shell_title
+    export -f set_shell_label
 
 ###################################################### ID (user name)
         id=`id -un`
@@ -555,8 +551,9 @@ parse_vcs_status() {
  }
 
 
+        # currently executed comman display in label
         trap - DEBUG  >& /dev/null
-        trap '[[ $BASH_COMMAND != prompt_command_function ]] && set_shell_title $BASH_COMMAND' DEBUG  >& /dev/null
+        trap '[[ $BASH_COMMAND != prompt_command_function ]] && set_shell_label $BASH_COMMAND' DEBUG  >& /dev/null
 
 ###################################################################### PROMPT_COMMAND
 
@@ -569,15 +566,16 @@ prompt_command_function() {
                 rc="$rc_color$rc$colors_reset$bell "
         fi
 
-        cwd=${PWD/$HOME/\~}             # substitute  "~"
-        set_shell_title "${cwd##[/~]*/}>"     # default label - path last dir 
+        cwd=${PWD/$HOME/\~}                     # substitute  "~"
+        set_shell_label "${cwd##[/~]*/}>"       # default label - path last dir 
+
         parse_vcs_status
 
         # if cwd_cmd have back-slash, then assign it value to cwd
         # else eval cmd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"           
 
-        PS1="$colors_reset$rc$head_local$label$color_who_where$dir_color$cwd$tail_local$dir_color> $colors_reset"
+        PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color> $colors_reset"
         
         unset head_local tail_local pwd
  }
