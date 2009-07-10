@@ -142,9 +142,9 @@
         ####################################################################  MARKERS
         screen_marker="sCRn"
         if [[ $LANG =~ "UTF" ]];  then 
-                truncated_marker="..."
+                truncated_marker="…"
         else
-                truncated_marker="..."   # FIXME: replace with unicode elipse
+                truncated_marker="..."
         fi
 
         export who_where
@@ -157,52 +157,38 @@ cwd_truncate() {
         # arg1: max path lenght
         # returns abbrivated $PWD  in public "cwd" var
 
+        cwd=${PWD/$HOME/\~}             # substitute  "~"
+
         case $1 in
                 full)
-                        cwd=${PWD}
                         return 
                         ;;
                 last)
                         cwd=${PWD##/*/}
+                        [[ $PWD == $HOME ]] && cwd="~"
                         return 
                         ;;
                 *)
                         local cwd_max_length=$1
-                        cwd="$PWD"
                         ;;
         esac
 
+                # split path into:  head='~/',  truncapable middle,  last_dir
+        if [[ "$cwd" =~ (~?/)(.*)/([^/]*) ]] ;  then  # only valid if path have more then 1 dir
+                path_head=${BASH_REMATCH[1]}
+                path_middle=${BASH_REMATCH[2]}
+                path_last_dir=${BASH_REMATCH[3]}
 
+                # if middle is too long, truncate
 
-        # Substitute a leading path that's in $HOME for "~"
-        if [[ "$HOME" == ${cwd:0:${#HOME}} ]] ; then
-                cwd="~${cwd:${#HOME}}"
-        fi
+                cwd_middle_max=$(($cwd_max_length +${#truncated_marker}+1 - ${#path_last_dir}))
+                [[ $cwd_middle_max < 0  ]] && cwd_middle_max=0
 
-        # Append a trailing slash if it's not there already.
-        #if [[ ${cwd:${#cwd}-1} != "/" ]] ; then
-        #       cwd="$cwd/"
-        #fi
-
-        # Truncate if we're too long.  We preserve the leading '/' or '~/', and substitute
-        # ellipses for some directories in the middle.
-        if [[ "$cwd" =~ (~){0,1}/.*(.{${cwd_max_length}}) ]] ; then
-                local tilde=${BASH_REMATCH[1]}
-                local directory=${BASH_REMATCH[2]}
-
-                # At this point, $directory is the truncated end-section of the
-                # path. We will now make it only contain full directory names
-                # (e.g. "ibrary/Mail" -> "/Mail").
-                if [[ "$directory" =~ [^/]*(.*) ]] ; then
-                        directory=${BASH_REMATCH[1]}
+                if [[ $path_middle =~ (.{$(($cwd_middle_max))})$ ]];  then
+                        cwd=$path_head$truncated_marker${BASH_REMATCH[1]}/$path_last_dir
                 fi
-
-                # Can't work out if it's possible to use the Unicode ellipsis,
-                # '…' (Unicode 2026). Directly embedding it in the string does not
-                # seem to work, and \u escape sequences ('\u2026') are not expanded.
-                #printf -v cwd "$tilde/\u2026$s", $directory"
-                cwd="$tilde/...$directory"
         fi
+        return
  }
 
 
@@ -372,6 +358,8 @@ parse_hg_status() {
  }
 
 parse_git_status() {
+
+        # TODO add status: LOCKED (.git/index.lock)
 
         git_dir=`[[ $git_module = "on" ]]  &&  git rev-parse --git-dir 2> /dev/null`
         #git_dir=`eval \$$git_module  git rev-parse --git-dir 2> /dev/null`
@@ -581,7 +569,8 @@ prompt_command_function() {
                 rc="$rc_color$rc$colors_reset$bell "
         fi
 
-        set_shell_title "${PWD##/*/}/"   # default label - path last dir 
+        cwd=${PWD/$HOME/\~}             # substitute  "~"
+        set_shell_title "${cwd##[/~]*/}>"     # default label - path last dir 
         parse_vcs_status
 
         # if cwd_cmd have back-slash, then assign it value to cwd
