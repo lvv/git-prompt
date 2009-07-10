@@ -1,4 +1,4 @@
-//  This is raw asciidoc file. The HTML rendered page is  http://volnitsky.com/project/git-prompt
+//  This is raw asciidoc file. The HTML rendered page is at  http://volnitsky.com/project/git-prompt
 
 = GIT Prompt
 
@@ -160,7 +160,7 @@ Most of not optional dependencies are probably already installed on your compute
 == Todo
 
 * VCS exclude dir list
-* new mail (howto at: `http://kikhome.net/?p=11` )
+* new mail (howto at: httpx://kikhome.net/?p=11[] )
 * ctrl-Z subshell indicator
 * VIM module needs to be moved out of GIT module
 * How detect current merge?  (current method through .git/MERGE_HEAD not always works)
@@ -168,11 +168,16 @@ Most of not optional dependencies are probably already installed on your compute
 
 include::../volnitsky.com/project/howto-submit-patch.txt[]
 
+People will hate any prompt if there will be delay in prompt display.
+Try to avoid use of external commands and
+subshells (backticks) in prompt_command_function.  It is ok to use
+timeconsuming ops in postconfig which is executed only once. 
+
 == Authors
-- Leonid Volnitsky (original author) <leonid@volnitsky.com> http://volnitsky.com
-- Niklas Hofer (CWD truncation) <niklas+dev@lanpartei.de> http://github.com/niklas/
-- Lee Nussbaum  (HG support) lee.nussbaum@gmail.com	http://github.com/wln   
-- Albert Vernon http://xenoclub.wordpress
+- Leonid Volnitsky (original author) <leonid@volnitsky.com>,  http://volnitsky.com
+- Niklas Hofer (CWD truncation) <niklas+dev@lanpartei.de>,  http://github.com/niklas/
+- Lee Nussbaum  (HG support) lee.nussbaum@gmail.com, http://github.com/wln   
+- Albert Vernon http://xenoclub.wordpress.com[]
 
 
 [bibliography]

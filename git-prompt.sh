@@ -139,6 +139,14 @@
                 return 0
         fi
 
+        ####################################################################  MARKERS
+        screen_marker="sCRn"
+        if [[ $LANG =~ "UTF" ]];  then 
+                truncated_marker="..."
+        else
+                truncated_marker="..."   # FIXME: replace with unicode elipse
+        fi
+
         export who_where
 
 
@@ -146,27 +154,39 @@ cwd_truncate() {
         # based on:   https://www.blog.montgomerie.net/pwd-in-the-title-bar-or-a-regex-adventure-in-bash
         # TODO: never abbrivate last  dir
 
-        [[ $truncate_pwd != "on" ]] && return
+        # arg1: max path lenght
+        # returns abbrivated $PWD  in public "cwd" var
 
-        local pwd_length=$1
+        case $1 in
+                full)
+                        cwd=${PWD}
+                        return 
+                        ;;
+                last)
+                        cwd=${PWD##/*/}
+                        return 
+                        ;;
+                *)
+                        local cwd_max_length=$1
+                        cwd="$PWD"
+                        ;;
+        esac
 
-        # Get the current working directory. We'll format it in $dir.
-        local dir="$PWD"
+
 
         # Substitute a leading path that's in $HOME for "~"
-        if [[ "$HOME" == ${dir:0:${#HOME}} ]] ; then
-                dir="~${dir:${#HOME}}"
+        if [[ "$HOME" == ${cwd:0:${#HOME}} ]] ; then
+                cwd="~${cwd:${#HOME}}"
         fi
 
         # Append a trailing slash if it's not there already.
-        #if [[ ${dir:${#dir}-1} != "/" ]] ; then
-        #       dir="$dir/"
+        #if [[ ${cwd:${#cwd}-1} != "/" ]] ; then
+        #       cwd="$cwd/"
         #fi
 
-        # Truncate if we're too long.
-        # We preserve the leading '/' or '~/', and substitute
+        # Truncate if we're too long.  We preserve the leading '/' or '~/', and substitute
         # ellipses for some directories in the middle.
-        if [[ "$dir" =~ (~){0,1}/.*(.{${pwd_length}}) ]] ; then
+        if [[ "$cwd" =~ (~){0,1}/.*(.{${cwd_max_length}}) ]] ; then
                 local tilde=${BASH_REMATCH[1]}
                 local directory=${BASH_REMATCH[2]}
 
@@ -180,11 +200,9 @@ cwd_truncate() {
                 # Can't work out if it's possible to use the Unicode ellipsis,
                 # '…' (Unicode 2026). Directly embedding it in the string does not
                 # seem to work, and \u escape sequences ('\u2026') are not expanded.
-                #printf -v dir "$tilde/\u2026$s", $directory"
-                dir="$tilde/...$directory"
+                #printf -v cwd "$tilde/\u2026$s", $directory"
+                cwd="$tilde/...$directory"
         fi
-
-        cwd="$dir"
  }
 
 
@@ -194,7 +212,7 @@ set_shell_title() {
 
         screen_title() { 
                 # FIXME: run this only if screen is in xterm (how to test for this?)
-                xterm_title  "sCRn  $label$plain_who_where $@" 
+                xterm_title  "$screen_marker  $label$plain_who_where $@" 
 
                 # FIXME $STY not inherited though "su -"
                 [ "$STY" ] && screen -S $STY -X title "$*"
@@ -209,7 +227,6 @@ set_shell_title() {
                 xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )       
                         # is there a capability which we can to test 
                         # for "set term title-bar" and its escapes?
-                        #echo -n "]2;$label$plain_who_where $1"
                         xterm_title  "$label$plain_who_where $@"
                         ;;
 
@@ -564,7 +581,7 @@ prompt_command_function() {
                 rc="$rc_color$rc$colors_reset$bell "
         fi
 
-        set_shell_title "$PWD/" 
+        set_shell_title "${PWD##/*/}/"   # default label - path last dir 
         parse_vcs_status
 
         # if cwd_cmd have back-slash, then assign it value to cwd
