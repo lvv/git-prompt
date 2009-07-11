@@ -380,15 +380,15 @@ parse_git_status() {
 
                         /^# Untracked files:/,/^[^#]/{
                             s/^# Untracked files:/untracked=untracked;/p
-                            s/^#	\(.*\)/untracked_files[${#untracked_files[@]}+1]=\\"\1\\"/p   
+                            s/^#	\([^/]*\/\?\).*/untracked_files[${#untracked_files[@]}+1]=\\"\1\\"/p   
                         }
 
                         /^# Changed but not updated:/,/^# [A-Z]/ {
                             s/^# Changed but not updated:/modified=modified;/p
                             s/^#	modified:   \.\./: SKIP/
-                            s/^#	modified:   \(.*\)/modified_files[${#modified_files[@]}+1]=\"\1\"/p
+                            s/^#	modified:   \([^/]*\/\?\).*/modified_files[${#modified_files[@]}+1]=\"\1\"/p
                             s/^#	unmerged:   \.\./: SKIP/
-                            s/^#	unmerged:   \(.*\)/modified_files[${#modified_files[@]}+1]=\"\1\"/p
+                            s/^#	unmerged:   \([^/]*\/\?\).*/modified_files[${#modified_files[@]}+1]=\"\1\"/p
                         }
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
@@ -399,10 +399,10 @@ parse_git_status() {
                             s/^#	renamed:[^>]*> \.\./: SKIP/
                             s/^#	copied:[^>]*> \.\./: SKIP/
 
-                            s/^#	modified:   \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
-                            s/^#	new file:   \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
-                            s/^#	renamed:[^>]*> \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
-                            s/^#	copied:[^>]*> \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	modified:   \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	new file:   \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	renamed:[^>]*> \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	copied:[^>]*> \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
                         }
                     ' 
         `
