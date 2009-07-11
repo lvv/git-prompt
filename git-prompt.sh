@@ -137,10 +137,10 @@
 
         ####################################################################  MARKERS
         screen_marker="sCRn"
-        if [[ $LANG =~ "UTF" ]];  then 
-                truncated_marker="…"
+        if [[ $LANG =~ "UTF" && $TERM != "linux" ]];  then 
+                elipses_marker="…"
         else
-                truncated_marker="..."
+                elipses_marker="..."
         fi
 
         export who_where
@@ -161,7 +161,7 @@ cwd_truncate() {
                         ;;
                 last)
                         cwd=${PWD##/*/}
-                        [[ $PWD == $HOME ]] && cwd="~"
+                        [[ $PWD == $HOME ]]  &&  cwd="~"
                         return 
                         ;;
                 *)
@@ -171,17 +171,19 @@ cwd_truncate() {
 
                 # split path into:  head='~/',  truncapable middle,  last_dir
         if [[ "$cwd" =~ (~?/)(.*)/([^/]*) ]] ;  then  # only valid if path have more then 1 dir
-                path_head=${BASH_REMATCH[1]}
-                path_middle=${BASH_REMATCH[2]}
-                path_last_dir=${BASH_REMATCH[3]}
+                local path_head=${BASH_REMATCH[1]}
+                local path_middle=${BASH_REMATCH[2]}
+                local path_last_dir=${BASH_REMATCH[3]}
 
                 # if middle is too long, truncate
+                local cwd_middle_max=$(( $cwd_max_length - ${#path_last_dir} ))
+                [[ $cwd_middle_max < 0  ]]  &&  cwd_middle_max=0
 
-                cwd_middle_max=$(($cwd_max_length +${#truncated_marker}+1 - ${#path_last_dir}))
-                [[ $cwd_middle_max < 0  ]] && cwd_middle_max=0
 
-                if [[ $path_middle =~ (.{$(($cwd_middle_max))})$ ]];  then
-                        cwd=$path_head$truncated_marker${BASH_REMATCH[1]}/$path_last_dir
+                if   [[ $(( ${#path_middle} > $cwd_middle_max+${#elipses_marker} + 2)) ]];  then   # if it will trunc at least 2 chars
+                        if   [[ $path_middle =~ (.{$(($cwd_middle_max))})$ ]];   then
+                                cwd=$path_head$elipses_marker${BASH_REMATCH[1]}/$path_last_dir
+                        fi
                 fi
         fi
         return
@@ -369,40 +371,40 @@ parse_git_status() {
         unset status modified added clean init added mixed untracked op detached
         eval `
                 git status 2>/dev/null |
-                        sed -n '
-                                s/^# On branch /branch=/p
-                                s/^nothing to commit (working directory clean)/clean=clean/p
-                                s/^# Initial commit/init=init/p
+                    sed -n '
+                        s/^# On branch /branch=/p
+                        s/^nothing to commit (working directory clean)/clean=clean/p
+                        s/^# Initial commit/init=init/p
 
-                                s/^#    \.\./: SKIP/
-                                
-                                /^# Untracked files:/,/^[^#]/{
-                                        s/^# Untracked files:/untracked=untracked;/p
-                                        s/^#    \(.*\)/untracked_files[${#untracked_files[@]}+1]=\\"\1\\"/p   
-                                }
+			s/^#	\.\./: SKIP/
 
-                                /^# Changed but not updated:/,/^# [A-Z]/ {
-                                        s/^# Changed but not updated:/modified=modified;/p
-                                        s/^#    modified:   \.\./: SKIP/
-                                        s/^#    modified:   \(.*\)/modified_files[${#modified_files[@]}+1]=\"\1\"/p
-                                        s/^#    unmerged:   \.\./: SKIP/
-                                        s/^#    unmerged:   \(.*\)/modified_files[${#modified_files[@]}+1]=\"\1\"/p
-                                }
+                        /^# Untracked files:/,/^[^#]/{
+                            s/^# Untracked files:/untracked=untracked;/p
+                            s/^#	\(.*\)/untracked_files[${#untracked_files[@]}+1]=\\"\1\\"/p   
+                        }
 
-                                /^# Changes to be committed:/,/^# [A-Z]/ {
-                                        s/^# Changes to be committed:/added=added;/p
+                        /^# Changed but not updated:/,/^# [A-Z]/ {
+                            s/^# Changed but not updated:/modified=modified;/p
+                            s/^#	modified:   \.\./: SKIP/
+                            s/^#	modified:   \(.*\)/modified_files[${#modified_files[@]}+1]=\"\1\"/p
+                            s/^#	unmerged:   \.\./: SKIP/
+                            s/^#	unmerged:   \(.*\)/modified_files[${#modified_files[@]}+1]=\"\1\"/p
+                        }
 
-                                        s/^#    modified:   \.\./: SKIP/
-                                        s/^#    new file:   \.\./: SKIP/
-                                        s/^#    renamed:[^>]*> \.\./: SKIP/
-                                        s/^#    copied:[^>]*> \.\./: SKIP/
+                        /^# Changes to be committed:/,/^# [A-Z]/ {
+                            s/^# Changes to be committed:/added=added;/p
 
-                                        s/^#    modified:   \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
-                                        s/^#    new file:   \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
-                                        s/^#    renamed:[^>]*> \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
-                                        s/^#    copied:[^>]*> \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
-                                }
-                        ' 
+                            s/^#	modified:   \.\./: SKIP/
+                            s/^#	new file:   \.\./: SKIP/
+                            s/^#	renamed:[^>]*> \.\./: SKIP/
+                            s/^#	copied:[^>]*> \.\./: SKIP/
+
+                            s/^#	modified:   \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	new file:   \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	renamed:[^>]*> \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	copied:[^>]*> \(.*\)/added_files[${#added_files[@]}+1]=\"\1\"/p
+                        }
+                    ' 
         `
 
         if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then 
@@ -537,7 +539,7 @@ parse_vcs_status() {
         if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
                 file_list=${file_list:0:$max_file_list_length}  
                 if [[ $max_file_list_length -gt 0 ]]  ;  then
-                        file_list="${file_list% *} ..."
+                        file_list="${file_list% *} $elipses_marker"
                 fi
         fi
 
@@ -584,4 +586,4 @@ prompt_command_function() {
 
         unset rc id tty modified_files file_list  
 
-# vim: set ft=sh ts=8 sw=8 et:
+# vim: set ft=sh ts=8 sw=8:
