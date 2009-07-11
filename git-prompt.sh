@@ -180,8 +180,8 @@ cwd_truncate() {
                 [[ $cwd_middle_max < 0  ]]  &&  cwd_middle_max=0
 
 
-                if   [[ $(( ${#path_middle} > $cwd_middle_max+${#elipses_marker} + 2)) ]];  then   # if it will trunc at least 2 chars
-                        if   [[ $path_middle =~ (.{$(($cwd_middle_max))})$ ]];   then
+                if   [[ $(( ${#path_middle} > $cwd_middle_max+${#elipses_marker})) ]];  then 
+                        if   [[ $path_middle =~ (.{$(($cwd_middle_max+4))})$ ]];   then  # trunc at least 4 chars or don't trunc at all 
                                 cwd=$path_head$elipses_marker${BASH_REMATCH[1]}/$path_last_dir
                         fi
                 fi
@@ -369,34 +369,34 @@ parse_git_status() {
 
         ##########################################################   GIT STATUS
         unset status modified added clean init added mixed untracked op detached
-        eval `
+        eval " $(
                 git status 2>/dev/null |
                     sed -n '
                         s/^# On branch /branch=/p
                         s/^nothing to commit (working directory clean)/clean=clean/p
                         s/^# Initial commit/init=init/p
 
-                        /^# Untracked files:/,/^[^#]/{
-                            s/^# Untracked files:/untracked=untracked;/p
-                            s/^#	\([^/]*\/\?\).*/untracked_files[${#untracked_files[@]}+1]=\\"\1\\"/p   
-                        }
-
-                        /^# Changed but not updated:/,/^# [A-Z]/ {
-                            s/^# Changed but not updated:/modified=modified;/p
-                            s/^#	modified:   \([^/]*\/\?\).*/modified_files[${#modified_files[@]}+1]=\"\1\"/p
-                            s/^#	unmerged:   \([^/]*\/\?\).*/modified_files[${#modified_files[@]}+1]=\"\1\"/p
-                        }
-
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added;/p
 
-                            s/^#	modified:   \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	modified:   \([^/]*\/\?\).*/[[ \" ${modified_files[*]} ${added_files[*]} ${untracked_files[*]} \" =~ \"\1\" ]] || added_files[${#added_files[@]}+1]=\"\1\"/p
                             s/^#	new file:   \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
                             s/^#	renamed:[^>]*> \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
                             s/^#	copied:[^>]*> \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
                         }
+
+                        /^# Changed but not updated:/,/^# [A-Z]/ {
+                            s/^# Changed but not updated:/modified=modified;/p
+                            s/^#	modified:   \([^/]*\/\?\).*/[[ \" ${modified_files[*]} ${added_files[*]} ${untracked_files[*]} \" =~ \"\1\" ]] || modified_files[${#modified_files[@]}+1]=\"\1\"/p
+                            s/^#	unmerged:   \([^/]*\/\?\).*/modified_files[${#modified_files[@]}+1]=\"\1\"/p
+                        }
+
+                        /^# Untracked files:/,/^[^#]/{
+                            s/^# Untracked files:/untracked=untracked;/p
+                            s/^#	\([^/]*\/\?\).*/[[ \" ${modified_files[*]} ${added_files[*]} ${untracked_files[*]} \" =~ \"\1\" ]] || untracked_files[${#untracked_files[@]}+1]=\"\1\"/p   
+                        }
                     ' 
-        `
+        )"
 
         if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then 
                 detached=detached
@@ -501,7 +501,7 @@ parse_vcs_status() {
                                 # no def:  vcs_color=${vcs_color:-$WHITE}    # default 
 
 
-        ### VIM  ( not yet works for multiple files )
+        ### VIM 
         
         if  [[ $vim_module = "on" ]] ;  then
                 unset vim_glob vim_file vim_files
@@ -537,7 +537,7 @@ parse_vcs_status() {
 
         head_local="(${vcs_info}$vcs_color${file_list}$vcs_color)"
 
-        ### fringes (added depended on location)
+        ### fringes 
         head_local="${head_local+$vcs_color$head_local }"
         #above_local="${head_local+$vcs_color$head_local\n}"
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
