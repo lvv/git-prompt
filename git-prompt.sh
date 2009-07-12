@@ -7,7 +7,7 @@
         #####  read config file if any.
 
         unset   dir_color rc_color root_id_color init_vcs_color clean_vcs_color
-        unset modified_vcs_color added_vcs_color mixed_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color
+        unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color
 
         conf=git-prompt.conf;                   [[ -r $conf ]]  && . $conf
         conf=/etc/git-prompt.conf;              [[ -r $conf ]]  && . $conf
@@ -39,7 +39,7 @@
                 clean_vcs_color=${clean_vcs_color:-blue}                # nothing to commit (working directory clean)
              modified_vcs_color=${modified_vcs_color:-red}      # Changed but not updated:
                 added_vcs_color=${added_vcs_color:-green}       # Changes to be committed:
-                mixed_vcs_color=${mixed_vcs_color:-yellow}
+             addmoded_vcs_color=${addmoded_vcs_color:-yellow}
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
@@ -122,7 +122,7 @@
                 clean_vcs_color=${!clean_vcs_color}
                 added_vcs_color=${!added_vcs_color}
                    op_vcs_color=${!op_vcs_color}
-                mixed_vcs_color=${!mixed_vcs_color}
+             addmoded_vcs_color=${!addmoded_vcs_color}
              detached_vcs_color=${!detached_vcs_color}
 
 
@@ -377,7 +377,13 @@ parse_git_status() {
         vcs=git
 
         ##########################################################   GIT STATUS
+	file_regex='\([^/]*\/\?\).*'
+	added_files=()
+	modified_files=()
+	untracked_files=()
         unset status modified added clean init added mixed untracked op detached
+
+	# quoting hell
         eval " $(
                 git status 2>/dev/null |
                     sed -n '
@@ -388,21 +394,21 @@ parse_git_status() {
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added;/p
 
-                            s/^#	modified:   \([^/]*\/\?\).*/[[ \" ${modified_files[*]} ${added_files[*]} ${untracked_files[*]} \" =~ \"\1\" ]] || added_files[${#added_files[@]}+1]=\"\1\"/p
-                            s/^#	new file:   \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
-                            s/^#	renamed:[^>]*> \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
-                            s/^#	copied:[^>]*> \([^/]*\/\?\).*/added_files[${#added_files[@]}+1]=\"\1\"/p
+                            s/^#	modified:   '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
+                            s/^#	new file:   '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
+                            s/^#	renamed:[^>]*> '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
+                            s/^#	copied:[^>]*> '"$file_regex"'/ 	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
                         }
 
                         /^# Changed but not updated:/,/^# [A-Z]/ {
                             s/^# Changed but not updated:/modified=modified;/p
-                            s/^#	modified:   \([^/]*\/\?\).*/[[ \" ${modified_files[*]} ${added_files[*]} ${untracked_files[*]} \" =~ \"\1\" ]] || modified_files[${#modified_files[@]}+1]=\"\1\"/p
-                            s/^#	unmerged:   \([^/]*\/\?\).*/modified_files[${#modified_files[@]}+1]=\"\1\"/p
+                            s/^#	modified:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
+                            s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
                         }
 
                         /^# Untracked files:/,/^[^#]/{
                             s/^# Untracked files:/untracked=untracked;/p
-                            s/^#	\([^/]*\/\?\).*/[[ \" ${modified_files[*]} ${added_files[*]} ${untracked_files[*]} \" =~ \"\1\" ]] || untracked_files[${#untracked_files[@]}+1]=\"\1\"/p   
+                            s/^#	'"$file_regex"'/		[[ \" ${untracked_files[*]} ${modified_files[*]} ${added_files[*]} \" =~ \" \1 \" ]] || untracked_files[${#untracked_files[@]}]=\"\1\"/p   
                         }
                     ' 
         )"
@@ -530,9 +536,9 @@ parse_vcs_status() {
 
         ### file list
         unset file_list
-        [[ ${added_files[1]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
-        [[ ${modified_files[1]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
-        [[ ${untracked_files[1]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
+        [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
+        [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
+        [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
         [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:${vim_files}
         file_list=${file_list:+:$file_list}
 
@@ -569,7 +575,7 @@ prompt_command_function() {
         fi
 
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
-        set_shell_label "${cwd##[/~]*/}>"       # default label - path last dir 
+        set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir 
 
         parse_vcs_status
 
