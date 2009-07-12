@@ -170,20 +170,29 @@ cwd_truncate() {
         esac
 
                 # split path into:  head='~/',  truncapable middle,  last_dir
-        if [[ "$cwd" =~ (~?/)(.*)/([^/]*) ]] ;  then  # only valid if path have more then 1 dir
+        if [[ "$cwd" =~ (~?/)(.*/)([^/]*)$ ]] ;  then  # only valid if path have more then 1 dir
                 local path_head=${BASH_REMATCH[1]}
                 local path_middle=${BASH_REMATCH[2]}
                 local path_last_dir=${BASH_REMATCH[3]}
 
-                # if middle is too long, truncate
                 local cwd_middle_max=$(( $cwd_max_length - ${#path_last_dir} ))
                 [[ $cwd_middle_max < 0  ]]  &&  cwd_middle_max=0
 
 
-                if   [[ $(( ${#path_middle} > $cwd_middle_max+${#elipses_marker})) ]];  then 
-                        if   [[ $path_middle =~ (.{$(($cwd_middle_max+4))})$ ]];   then  # trunc at least 4 chars or don't trunc at all 
-                                cwd=$path_head$elipses_marker${BASH_REMATCH[1]}/$path_last_dir
-                        fi
+		# trunc middle if over limit
+                if   [[ $(( ${#path_middle}  >  $cwd_middle_max + ${#elipses_marker} + 5 )) ]];  then 
+			
+			# truncate
+			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
+
+			# trunc on dir boundary (trunc 1st, probably tuncated dir)
+			[[ $middle_tail =~ [^/]*/(.*)$ ]]
+			middle_tail=${BASH_REMATCH[1]}
+
+			# use truncated only if we cut at least 4 chars 
+			if [[ $((  ${#path_middle} - ${#middle_tail}))  -gt 4  ]];  then
+				cwd=$path_head$elipses_marker$middle_tail$path_last_dir
+			fi
                 fi
         fi
         return
