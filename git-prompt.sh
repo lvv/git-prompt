@@ -180,7 +180,7 @@ cwd_truncate() {
 
 
 		# trunc middle if over limit
-                if   [[ $(( ${#path_middle}  >  $cwd_middle_max + ${#elipses_marker} + 5 )) ]];  then 
+                if   [[ ${#path_middle}   -gt   $(( $cwd_middle_max + ${#elipses_marker} + 5 )) ]];   then 
 			
 			# truncate
 			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
