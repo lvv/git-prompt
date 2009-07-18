@@ -165,7 +165,12 @@ cwd_truncate() {
                         return 
                         ;;
                 *)
-                        local cwd_max_length=$1
+			if [[  ${BASH_VERSINFO[0]} -ge 3   &&   ${BASH_VERSINFO[1]} -ge 2   ]] ;  then
+				local cwd_max_length=$1
+			else
+				# if bash < v3.2  then don't truncate
+				return
+			fi
                         ;;
         esac
 
