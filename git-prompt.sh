@@ -273,16 +273,16 @@ set_shell_label() {
         #then 
         host=${HOSTNAME}
         #host=`hostname --short`
+	host=${host%$default_host}
+	uphost=`echo ${host} | tr a-z A-Z`
         if [[ $upcase_hostname = "on" ]]; then 
-                host=`echo ${host%$default_host} | tr a-z A-Z`
-        else
-                host=${host%$default_host}
+                host=${uphost}
         fi
         
-        host_color=${host}_host_color
+        host_color=${uphost}_host_color
         host_color=${!host_color}
         if [[ -z $host_color && -x /usr/bin/cksum ]] ;  then 
-                cksum_color_no=`echo $host | cksum  | awk '{print $1%7}'`
+                cksum_color_no=`echo $uphost | cksum  | awk '{print $1%7}'`
                 color_index=(green yellow blue magenta cyan white)              # FIXME:  bw,  color-256
                 host_color=${color_index[cksum_color_no]}
         fi
