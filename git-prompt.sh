@@ -6,7 +6,7 @@
 
         #####  read config file if any.
 
-        unset   dir_color rc_color root_id_color init_vcs_color clean_vcs_color
+        unset   dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color
 
         conf=git-prompt.conf;                   [[ -r $conf ]]  && . $conf
@@ -28,6 +28,7 @@
         if [ 0`tput colors` -ge 8 ];  then                              #  if terminal supports colors
                 dir_color=${dir_color:-CYAN}
                 rc_color=${rc_color:-red}
+                user_id_color=${user_id_color:-blue}
                 root_id_color=${root_id_color:-magenta}
         else                                                                                    #  only B/W
                 dir_color=${dir_color:-bw_bold}
@@ -262,6 +263,7 @@ set_shell_label() {
 
         dir_color=${!dir_color}
         rc_color=${!rc_color}
+        user_id_color=${!user_id_color}
         root_id_color=${!root_id_color}
 
         ########################################################### HOST
@@ -299,7 +301,7 @@ set_shell_label() {
         
         if [[ -n $id  || -n $host ]] ;   then 
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
-                color_who_where="${id}$at${host:+$host_color$host}${tty:+ $tty}"
+                color_who_where="${id}${host:+$host_color$at$host}${tty:+ $tty}"
                 plain_who_where="${id}$at$host"
 
                 # add trailing " "
@@ -307,9 +309,10 @@ set_shell_label() {
                 plain_who_where="$plain_who_where "
                 
                 # if root then make it root_color
-                if      [ "$id" == "root" ]  ; then 
-                    color_who_where="$root_id_color$color_who_where$colors_reset"
+                if [ "$id" == "root" ]  ; then
+                        user_id_color=$root_id_color
                 fi
+                color_who_where="$user_id_color$color_who_where$colors_reset"
         else
                 color_who_where=''
         fi
