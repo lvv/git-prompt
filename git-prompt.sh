@@ -334,9 +334,10 @@ parse_svn_status() {
         unset status modified added clean init added mixed untracked op detached
         eval `svn status 2>/dev/null |
                 sed -n '
-                    s/^A      \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}+1]=\"\1\";/p
-                    s/^M      \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}+1]=\"\1\";/p
-                    s/^\?      \([^.].*\)/untracked=untracked;  untracked_files[${#untracked_files[@]}+1]=\"\1\";/p
+		    s/^#	modified:   '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
+                    s/^A       \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}]=\"\1\";/p
+                    s/^M       \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}]=\"\1\";/p
+                    s/^\?       \([^.].*\)/untracked=untracked;  untracked_files[${#untracked_files[@]}]=\"\1\";/p
                 ' 
         `
         # TODO branch detection if standard repo layout
@@ -356,11 +357,11 @@ parse_hg_status() {
         
         eval `hg status 2>/dev/null |
                 sed -n '
-                        s/^M \([^.].*\)/modified=modified; modified_files[${#modified_files[@]}+1]=\"\1\";/p
-                        s/^A \([^.].*\)/added=added; added_files[${#added_files[@]}+1]=\"\1\";/p
+                        s/^M \([^.].*\)/modified=modified; modified_files[${#modified_files[@]}]=\"\1\";/p
+                        s/^A \([^.].*\)/added=added; added_files[${#added_files[@]}]=\"\1\";/p
                         s/^R \([^.].*\)/added=added;/p
                         s/^! \([^.].*\)/modified=modified;/p
-                        s/^? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}+1]=\\"\1\\";/p
+                        s/^? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\\"\1\\";/p
         '`
         
         branch=`hg branch 2> /dev/null`

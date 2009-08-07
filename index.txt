@@ -11,8 +11,8 @@
 image:screenshot-prompt-basic.png[basic usage]
 
 Digit [red]*1* on 3rd line is `false(1)` exit code. Also on non-zero exit code
-terminal bell is sounded.  Bell is turnned off by default because most people don't
-know how to set softer bell (`setterm` is your friend).
+terminal bell is sounded.  Bell is turnned off by default (to set softer
+terminal bell use `setterm`).
 
 
 == GIT
@@ -42,7 +42,7 @@ directories there is noticeable delay for prompt display.  SVN is slower than
 GIT.  Enable if needed in <<config,config>> 
 
 ==  Mercurial/HG
-Was recently added thanks to Lee Nussbaum <wln@scrunch.org>.
+HG module was developed by Lee Nussbaum `<wln AT scrunch.org>`.
 
 
 == Labels
@@ -51,8 +51,8 @@ Labels are visual cues to help figure out what terminal is running what command.
 It is generalization of xterm-title but differ from xterm-title that it
 can be displayed in other places (on Screen(1) windows titles for example).
 Also label can display currently executed command (when bash prompt obviously
-is not displayed). Because labels have less space then prompt, instead of path
-only last dir in path is shown.
+is not displayed). Because labels have less space then prompt, instead of full path
+only last dir is shown.
 On screenshot below labels are in red ovals.
 
 image:screenshot-labels.png["labels screenshot", width="300", link="screenshot-labels.png"]
@@ -109,7 +109,7 @@ to any of above locations and customize as needed.
 * cd-ing into something like linux kernel git working directory for the 1st
   time (with cold cache) might take up to 10 seconds (that is how long `git status` executes).
 * Because you will be always reminded about dirty repo (not checked-in files),
-  you will better maintain `.gitignore` and commit more often.
+  you will maintain `.gitignore` and commit more often.
 * This prompt is most useful if your screen have enough width.
   If this is not the case, you might want to disable file list display (`max_file_list_length=0`).
 * When prompt is longer then screen-width it wraps to second line. This is always undesirable. 
@@ -132,6 +132,7 @@ Most of not optional dependencies are probably already installed on your compute
 * grep
 * locale  (glibc)
 * id   (core utils)
+* cksum (core utils)
 
 * git  (optional)
 * svn  (optional)
@@ -153,16 +154,17 @@ Most of not optional dependencies are probably already installed on your compute
 
 include::../volnitsky.com/project/howto-submit-patch.txt[]
 
-People will hate any prompt if there will be delay in prompt display.
+People will not use git-prompt if there will be delay in prompt display.
 Try to avoid use of external commands and
 subshells (backticks) in prompt_command_function.  It is ok to use
-timeconsuming ops in postconfig which is executed only once. 
+time consuming ops in postconfig which is executed only once. 
 
 == Authors
 - Leonid Volnitsky (original author) <leonid@volnitsky.com>,  http://volnitsky.com
-- Niklas Hofer (CWD truncation) <niklas+dev@lanpartei.de>,  http://github.com/niklas/
-- Lee Nussbaum  (HG support) lee.nussbaum@gmail.com, http://github.com/wln   
+- Niklas Hofer (CWD truncation) <niklas+dev AT lanpartei.de>,  httpx://github.com/niklas/
+- Lee Nussbaum  (HG support) lee.nussbaum AT gmail.com, httpx://github.com/wln   
 - Albert Vernon http://xenoclub.wordpress.com[]
+- Amir Yalon httpx://github.com/amiryal[]  
 
 
 [bibliography]
