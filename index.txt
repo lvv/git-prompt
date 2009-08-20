@@ -161,10 +161,13 @@ time consuming ops in postconfig which is executed only once.
 
 == Authors
 - Leonid Volnitsky (original author) <leonid@volnitsky.com>,  http://volnitsky.com
-- Niklas Hofer (CWD truncation) <niklas+dev AT lanpartei.de>,  httpx://github.com/niklas/
-- Lee Nussbaum  (HG support) lee.nussbaum AT gmail.com, httpx://github.com/wln   
+- Niklas Hofer (CWD truncation) <niklas+dev AT lanpartei.de>, httpx://github.com/niklas/[]
+- Lee Nussbaum  (HG support) lee.nussbaum AT gmail.com, httpx://github.com/wln[]
 - Albert Vernon http://xenoclub.wordpress.com[]
 - Amir Yalon httpx://github.com/amiryal[]  
+- Martin httpx://github.com/jerrywho[]  <JerryWho AT gmx.de>
+
+
 
 
 [bibliography]
