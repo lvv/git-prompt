@@ -52,8 +52,8 @@
 #####################################################################  post config
 
         ################# make PARSE_VCS_STATUS
-                                                                    PARSE_VCS_STATUS=""
-        [[ $git_module = "on" ]]   &&   type git >&/dev/null   &&   PARSE_VCS_STATUS="parse_git_status"
+        unset PARSE_VCS_STATUS
+        [[ $git_module = "on" ]]   &&   type git >&/dev/null   &&   PARSE_VCS_STATUS+="parse_git_status"
         [[ $svn_module = "on" ]]   &&   type svn >&/dev/null   &&   PARSE_VCS_STATUS+="||parse_svn_status"
         [[ $hg_module  = "on" ]]   &&   type hg  >&/dev/null   &&   PARSE_VCS_STATUS+="||parse_hg_status"
                                                                     PARSE_VCS_STATUS+="||return"
@@ -270,9 +270,11 @@ set_shell_label() {
         ### we don't display home host/domain  $SSH_* set by SSHD or keychain
 
         # How to find out if session is local or remote? Working with "su -", ssh-agent, and so on ? 
+
         ## is sshd our parent?
         # if    { for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd && echo == REMOTE ==; }
         #then 
+
         host=${HOSTNAME}
         #host=`hostname --short`
 	host=${host#$default_host}
@@ -291,8 +293,7 @@ set_shell_label() {
 
         host_color=${!host_color}
 
-        # we already should have short host name, but just in case
-        host=${host%.$localdomain}
+        # we might already have short host name
         host=${host%.$default_domain}
 
 
@@ -506,7 +507,9 @@ parse_vcs_status() {
         unset   status modified untracked added init detached
         unset   file_list modified_files untracked_files added_files 
 
-        eval '[[ $HOME != $PWD ]]&&'  $PARSE_VCS_STATUS
+        [[ $vcs_ignore_dir_list =~ $PWD ]] && return
+
+        eval   $PARSE_VCS_STATUS
 
      
         ### status:  choose primary (for branch color)
