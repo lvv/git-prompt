@@ -149,7 +149,6 @@
 
 cwd_truncate() {
         # based on:   https://www.blog.montgomerie.net/pwd-in-the-title-bar-or-a-regex-adventure-in-bash
-        # TODO: never abbrivate last  dir
 
         # arg1: max path lenght
         # returns abbrivated $PWD  in public "cwd" var
@@ -166,17 +165,19 @@ cwd_truncate() {
                         return 
                         ;;
                 *)
-			if [[  ${BASH_VERSINFO[0]} -ge 3   &&   ${BASH_VERSINFO[1]} -ge 2  || ${BASH_VERSINFO[0]} -gt 3 ]] ;  then
-				local cwd_max_length=$1
-			else
-				# if bash < v3.2  then don't truncate
+                        # if bash < v3.2  then don't truncate
+			if [[  ${BASH_VERSINFO[0]} -eq 3   &&   ${BASH_VERSINFO[1]} -le 1  || ${BASH_VERSINFO[0]} -lt 3 ]] ;  then
 				return
 			fi
                         ;;
         esac
 
-                # split path into:  head='~/',  truncapable middle,  last_dir
-        if [[ "$cwd" =~ (~?/)(.*/)([^/]*)$ ]] ;  then  # only valid if path have more then 1 dir
+        # split path into:  head='~/',  truncateble middle,  last_dir
+
+        local cwd_max_length=$1
+        # expression wich bash-3.1 or older can not understand, so we wrap it in eval
+        exp31='[[ "$cwd" =~ (~?/)(.*/)([^/]*)$ ]]'   
+        if  eval $exp31 ;  then  # only valid if path have more then 1 dir
                 local path_head=${BASH_REMATCH[1]}
                 local path_middle=${BASH_REMATCH[2]}
                 local path_last_dir=${BASH_REMATCH[3]}
@@ -192,7 +193,8 @@ cwd_truncate() {
 			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
 
 			# trunc on dir boundary (trunc 1st, probably tuncated dir)
-			[[ $middle_tail =~ [^/]*/(.*)$ ]]
+			exp31='[[ $middle_tail =~ [^/]*/(.*)$ ]]'
+			eval $exp31
 			middle_tail=${BASH_REMATCH[1]}
 
 			# use truncated only if we cut at least 4 chars 
@@ -277,8 +279,8 @@ set_shell_label() {
 
         host=${HOSTNAME}
         #host=`hostname --short`
-	host=${host#$default_host}
-	uphost=`echo ${host} | tr a-z A-Z`
+        host=${host#$default_host}
+        uphost=`echo ${host} | tr a-z A-Z`
         if [[ $upcase_hostname = "on" ]]; then 
                 host=${uphost}
         fi
@@ -457,6 +459,9 @@ parse_git_status() {
                 op="merge"
                 # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
                 
+        elif  [[ -f "$git_dir/index.lock" ]] ;  then
+                op="locked"
+                
         else
                 [[  -f "$git_dir/BISECT_LOG"  ]]   &&  op="bisect"
                 # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)" || \
@@ -603,4 +608,4 @@ prompt_command_function() {
 
         unset rc id tty modified_files file_list  
 
-# vim: set ft=sh ts=8 sw=8:
+# vim: set ft=sh ts=8 sw=8 et:
