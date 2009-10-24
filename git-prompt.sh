@@ -175,7 +175,7 @@ cwd_truncate() {
         # split path into:  head='~/',  truncateble middle,  last_dir
 
         local cwd_max_length=$1
-        # expression wich bash-3.1 or older can not understand, so we wrap it in eval
+        # expression which bash-3.1 or older can not understand, so we wrap it in eval
         exp31='[[ "$cwd" =~ (~?/)(.*/)([^/]*)$ ]]'   
         if  eval $exp31 ;  then  # only valid if path have more then 1 dir
                 local path_head=${BASH_REMATCH[1]}
@@ -392,7 +392,7 @@ parse_git_status() {
 	added_files=()
 	modified_files=()
 	untracked_files=()
-        unset status modified added clean init added mixed untracked op detached
+        unset branch status modified added clean init added mixed untracked op detached
 
 	# quoting hell
         eval " $(
