@@ -1,1 +1,5 @@
 *.html
+
+# emacs backup and lock files
+*~
+\#*\#

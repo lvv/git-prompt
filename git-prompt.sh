@@ -25,15 +25,23 @@
 
 
         #### dir, rc, root color 
-        if [ 0`tput colors` -ge 8 ];  then                              #  if terminal supports colors
+	####  alexg: removed prefixing 0 to `tput colors`, 
+	####  in emacs shell-mode tput colors returns -1
+        cols=`tput colors`
+        if [[ -n "$cols" && $cols -ge 8 ]];  then #  if terminal supports colors
                 dir_color=${dir_color:-CYAN}
                 rc_color=${rc_color:-red}
                 user_id_color=${user_id_color:-blue}
                 root_id_color=${root_id_color:-magenta}
-        else                                                                                    #  only B/W
+        else                                      #  only B/W
                 dir_color=${dir_color:-bw_bold}
                 rc_color=${rc_color:-bw_bold}
         fi
+        unset cols
+
+	#### prompt character, default '>' for user, '#' for root 
+	prompt_char=${prompt_char:-'>'}
+	root_prompt_char=${root_prompt_char:-'#'}
 
         #### vcs state colors
                  init_vcs_color=${init_vcs_color:-WHITE}                # initial
@@ -129,10 +137,13 @@
 
         unset PROMPT_COMMAND
 
-        #######  work around for MC bug
-        if [ -z "$TERM" -o "$TERM" = "dumb" -o -n "$MC_SID" ]; then
+        #######  work around for MC bug.  
+        #######  specifically exclude emacs, want full when running inside emacs
+        if [[ -z "$TERM" || \
+              ("$TERM" = "dumb" && -z "$INSIDE_EMACS") || \
+              -n "$MC_SID" ]]; then
                 unset PROMPT_COMMAND
-                PS1='\w> '
+                PS1="\w$prompt_char "
                 return 0
         fi
 
@@ -314,6 +325,7 @@ set_shell_label() {
                 # if root then make it root_color
                 if [ "$id" == "root" ]  ; then
                         user_id_color=$root_id_color
+                        prompt_char="$root_prompt_char"
                 fi
                 color_who_where="$user_id_color$color_who_where$colors_reset"
         else
@@ -596,10 +608,10 @@ prompt_command_function() {
         parse_vcs_status
 
         # if cwd_cmd have back-slash, then assign it value to cwd
-        # else eval cmd_cmd,  cwd should have path after exection
+        # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"           
 
-        PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color> $colors_reset"
+        PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
         
         unset head_local tail_local pwd
  }
