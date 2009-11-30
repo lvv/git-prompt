@@ -586,10 +586,17 @@ parse_vcs_status() {
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
 
-
-        # currently executed comman display in label
+disable_set_shell_label() {
         trap - DEBUG  >& /dev/null
-        trap '[[ $BASH_COMMAND != prompt_command_function ]] && set_shell_label $BASH_COMMAND' DEBUG  >& /dev/null
+ }
+
+# enable stuffing currently executed command displays in label
+enable_set_shell_label() {
+        disable_set_shell_label
+	# check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
+        trap '[[ -z "$BASH_SOURCE" && ($BASH_COMMAND != prompt_command_function) ]] && 
+	     set_shell_label $BASH_COMMAND' DEBUG  >& /dev/null
+ }
 
 ###################################################################### PROMPT_COMMAND
 
@@ -617,6 +624,8 @@ prompt_command_function() {
  }
     
         PROMPT_COMMAND=prompt_command_function
+
+        enable_set_shell_label
 
         unset rc id tty modified_files file_list  
 
