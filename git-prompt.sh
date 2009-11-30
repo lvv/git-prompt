@@ -25,27 +25,25 @@
 
 
         #### dir, rc, root color 
-	####  alexg: removed prefixing 0 to `tput colors`, 
-	####  in emacs shell-mode tput colors returns -1
-        cols=`tput colors`
-        if [[ -n "$cols" && $cols -ge 8 ]];  then #  if terminal supports colors
+        cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
+        if [[ -n "$cols" && $cols -ge 8 ]];  then       #  if terminal supports colors
                 dir_color=${dir_color:-CYAN}
                 rc_color=${rc_color:-red}
                 user_id_color=${user_id_color:-blue}
                 root_id_color=${root_id_color:-magenta}
-        else                                      #  only B/W
+        else                                            #  only B/W
                 dir_color=${dir_color:-bw_bold}
                 rc_color=${rc_color:-bw_bold}
         fi
         unset cols
 
-	#### prompt character, default '>' for user, '#' for root 
+	#### prompt character, for root/non-root
 	prompt_char=${prompt_char:-'>'}
-	root_prompt_char=${root_prompt_char:-'#'}
+	root_prompt_char=${root_prompt_char:-'>'}
 
         #### vcs state colors
-                 init_vcs_color=${init_vcs_color:-WHITE}                # initial
-                clean_vcs_color=${clean_vcs_color:-blue}                # nothing to commit (working directory clean)
+                 init_vcs_color=${init_vcs_color:-WHITE}        # initial
+                clean_vcs_color=${clean_vcs_color:-blue}        # nothing to commit (working directory clean)
              modified_vcs_color=${modified_vcs_color:-red}      # Changed but not updated:
                 added_vcs_color=${added_vcs_color:-green}       # Changes to be committed:
              addmoded_vcs_color=${addmoded_vcs_color:-yellow}
@@ -81,8 +79,7 @@
         #       terminfo colors - number of colors
         #
         #################  Colors-256
-        #  To use foreground and background colors from the extension, you only
-        #  have to remember two escape codes:
+        #  To use foreground and background colors:
         #       Set the foreground color to index N:    \033[38;5;${N}m
         #       Set the background color to index M:    \033[48;5;${M}m
         # To make vim aware of a present 256 color extension, you can either set
@@ -115,14 +112,8 @@
 
         on=''
         off=': '
-        
         bell="\[`eval ${!error_bell} tput bel`\]"
-
         colors_reset='\['`tput sgr0`'\]'
-
-        # Workaround for UTF readline(?) bug. Disable bell when UTF
-        #locale |grep -qi UTF && bell=''        
-
 
         # replace symbolic colors names to raw treminfo strings
                  init_vcs_color=${!init_vcs_color}
@@ -134,14 +125,11 @@
              addmoded_vcs_color=${!addmoded_vcs_color}
              detached_vcs_color=${!detached_vcs_color}
 
-
         unset PROMPT_COMMAND
 
         #######  work around for MC bug.  
         #######  specifically exclude emacs, want full when running inside emacs
-        if [[ -z "$TERM" || \
-              ("$TERM" = "dumb" && -z "$INSIDE_EMACS") || \
-              -n "$MC_SID" ]]; then
+        if   [[ -z "$TERM"   ||  ("$TERM" = "dumb" && -z "$INSIDE_EMACS")  ||  -n "$MC_SID" ]];   then
                 unset PROMPT_COMMAND
                 PS1="\w$prompt_char "
                 return 0
@@ -547,6 +535,7 @@ parse_vcs_status() {
         ### VIM 
         
         if  [[ $vim_module = "on" ]] ;  then
+                # equivalent to vim_glob=`ls .*.vim`  but without running ls
                 unset vim_glob vim_file vim_files
                 old_nullglob=`shopt -p nullglob`
                     shopt -s nullglob
@@ -556,7 +545,7 @@ parse_vcs_status() {
                 if [[ $vim_glob ]];  then  
                     vim_file=${vim_glob#.}
                     vim_file=${vim_file%.swp}
-                    # if swap is newer,  then unsaved vim session
+                    # if swap is newer,  then this is unsaved vim session
                     [[ .${vim_file}.swp -nt $vim_file ]]  && vim_files=$vim_file
                 fi
         fi
