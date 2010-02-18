@@ -355,6 +355,8 @@ parse_svn_status() {
         
 parse_hg_status() {
         
+        # ☿
+
         [[  -d ./.hg/ ]]  ||  return  1
         
         vcs=hg

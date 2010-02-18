@@ -65,6 +65,28 @@ caption always "%{= kw}%-w%{= bw}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c"
 ---------
 
 
+== Simple AutoJump
+
+AutoJump is python script from Joel Schaerer providing shortcuts for jumping
+to directories you once visited.  Git-prompt have builtin, simplified
+autojump. It is only about 10 lines of code (vs original 100+ LOC), there is
+no database. It remembers only directories from current session. It selects
+not most frequent dir, but last visited. Matches are done from beginning of of
+dir name.
+
+-----------------
+cd /tmp                                                                                                                                      
+cd "~/long dir mp3"
+cd "~/long dir mp4"
+cd /tmp
+cd /var/tmp
+cd /etc 
+cd
+j t     # same as  cd /var/tmp
+j .*3   # same as  cd "~/long dir mp3"
+-------------
+
+
 == Install
 Download  link:git-prompt.sh[] or get it with GIT:
 
@@ -72,20 +94,13 @@ Download  link:git-prompt.sh[] or get it with GIT:
   git clone git://github.com/lvv/git-prompt.git
 ---------------
 
-Put following command in your profile (`~/.bash_profile` or `~/.profile`) in interactive section:
-
----------------------
-  . /path/to/git-prompt.sh
----------------------
-
-If there are no interactivity test in your profile or you don't know what it
-is, then above command should be:
+Put following command at the end of your profile (`~/.bash_profile` or `~/.profile`) 
 
 --------------------
   [[ $- == *i* ]]   &&   . /path/to/git-prompt.sh
 ---------------------
 
-There might be your old prompt defined too.  You need to comment it out. 
+There might be your old prompt defined too.  You can comment it out. 
 Some distros also have `/etc/bashrc` or `/etc/bash/bashrc` with distro default
 prompt.
 
@@ -108,11 +123,12 @@ to any of above locations and customize as needed.
 
 * cd-ing into something like linux kernel git working directory for the 1st
   time (with cold cache) might take up to 10 seconds (that is how long `git status` executes).
+  Use `vcs_ignore_dir_list` in config if you want to ingnore such dirs.
 * Because you will be always reminded about dirty repo (not checked-in files),
   you will maintain `.gitignore` and commit more often.
 * This prompt is most useful if your screen have enough width.
   If this is not the case, you might want to disable file list display (`max_file_list_length=0`).
-* When prompt is longer then screen-width it wraps to second line. This is always undesirable. 
+* When prompt is longer than screen-width it wraps to second line. This is always undesirable. 
   Because of bug in `gnome-terminal` (or `readline` ?) some color escape codes can be visible on second line. 
   I've reported gnome-terminal bug.  Again, you can disable file list display or limit length (`max_file_list_length`).
 * By default some terminals display ascii color with maximum color saturation
@@ -123,7 +139,8 @@ to any of above locations and customize as needed.
 
 == Dependencies
 
-Most of not optional dependencies are probably already installed on your computer. 
+Most probably you don't need to install anything because not optional
+dependencies are standard unix utils. 
 
 * bash  (tested with v3.2.33) 
 * sed
@@ -141,20 +158,15 @@ Most of not optional dependencies are probably already installed on your compute
 
 == Todo
 
-* VCS exclude dir list
-* option for hash/pound marker when `$USER=="root"`
-* new mail (howto at: httpx://kikhome.net/?p=11[] )
 * Subshells number indicator. Don't know how to do this. There is bash
-  `"\j"`, but let say I want `">>"` after path instead of `">"` when I have 2 jobs (including current)
+  `"\j"`, but let say I want `">>"` after path instead of `">"` when I have 2 jobs 
   running. Running `+++`jobs | ... `+++` is extra bash fork, hate to do this. 
 * VIM module needs to be moved out of GIT module
-* How detect current merge?  (current method through .git/MERGE_HEAD not always works)
-* git lock-ed state
 
 
 include::../volnitsky.com/project/howto-submit-patch.txt[]
 
-People will not use git-prompt if there will be delay in prompt display.
+Nobody will use git-prompt if there will be delay in prompt display.
 Try to avoid use of external commands and
 subshells (backticks) in prompt_command_function.  It is ok to use
 time consuming ops in postconfig which is executed only once. 
@@ -166,11 +178,11 @@ time consuming ops in postconfig which is executed only once.
 - Albert Vernon http://xenoclub.wordpress.com[]
 - Amir Yalon httpx://github.com/amiryal[]  
 - Martin httpx://github.com/jerrywho[]  <JerryWho AT gmx.de>
-
-
+- Alexander Goldstein (emacs-shell, prompt chars) httpx://github.com/alexg0[]
 
 
 [bibliography]
 .References
 - [[[1]]] 'Bash Prompt HOWTO', http://tldp.org/HOWTO/Bash-Prompt-HOWTO/index.html
+- [[[2]]] 'BASH Frequently Asked Questions', http://mywiki.wooledge.org/BashFAQ
 
