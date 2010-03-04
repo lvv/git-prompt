@@ -62,9 +62,9 @@
         ################# make PARSE_VCS_STATUS
         unset PARSE_VCS_STATUS
         [[ $git_module = "on" ]]   &&   type git >&/dev/null   &&   PARSE_VCS_STATUS+="parse_git_status"
-        [[ $svn_module = "on" ]]   &&   type svn >&/dev/null   &&   PARSE_VCS_STATUS+="||parse_svn_status"
-        [[ $hg_module  = "on" ]]   &&   type hg  >&/dev/null   &&   PARSE_VCS_STATUS+="||parse_hg_status"
-                                                                    PARSE_VCS_STATUS+="||return"
+        [[ $svn_module = "on" ]]   &&   type svn >&/dev/null   &&   PARSE_VCS_STATUS+="${PARSE_VCS_STATUS+||}parse_svn_status"
+        [[ $hg_module  = "on" ]]   &&   type hg  >&/dev/null   &&   PARSE_VCS_STATUS+="${PARSE_VCS_STATUS+||}parse_hg_status"
+                                                                    PARSE_VCS_STATUS+="${PARSE_VCS_STATUS+||}return"
         ################# terminfo colors-16
         #
         #       black?    0 8                     
