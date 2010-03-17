@@ -379,11 +379,8 @@ parse_hg_status() {
         vcs_info=${branch/default/D}
  }
 
-alias g='git'
 
-# parse git complete
-parse_git_complete()
-{
+parse_git_complete() {
         if [ "${BASH_VERSION%.*}" \< "3.0" ]; then
                 # echo "You will need to upgrade 'bash' to version 3.0 \
                 # for full programmable completion features (bash complete) \
@@ -391,13 +388,14 @@ parse_git_complete()
                 return
         fi
 
-        complete -f -W "$(echo `git branch -a | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
-        echo `git remote | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
-        echo `git | tail -23 | head -21 | cut -d ' ' -f 4`; \
-        echo '--help'; \
-        echo '--staged'; \
-        echo 'remote'; \
-        echo 'help'; \
+        complete -f -W "$(
+                echo `git branch -a | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
+                echo `git remote | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
+                echo `git | tail -23 | head -21 | cut -d ' ' -f 4`; \
+                echo '--help'; \
+                echo '--staged'; \
+                echo 'remote'; \
+                echo 'help'; \
         )" g git
 }
 

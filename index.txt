@@ -72,7 +72,7 @@ to directories you once visited.  Git-prompt have builtin, simplified
 autojump. It is only about 10 lines of code (vs original 100+ LOC), there is
 no database. It remembers only directories from current session. It selects
 not most frequent dir, but last visited. Matches are done from beginning of of
-dir name.
+dir name (not path name).
 
 -----------------
 cd /tmp                                                                                                                                      
@@ -85,6 +85,16 @@ cd
 j t     # same as  cd /var/tmp
 j .*3   # same as  cd "~/long dir mp3"
 -------------
+
+
+== Bash Completion
+
+Completion can be done for git subcommands, branches and remotes:
+
+---------------------
+git ch<tab>   		#  expands to git checkout
+git checkout ma<tab>	#  expands to git checkout master
+--------------------
 
 
 == Install
@@ -174,11 +184,12 @@ time consuming ops in postconfig which is executed only once.
 == Authors
 - Leonid Volnitsky (original author) <leonid@volnitsky.com>,  http://volnitsky.com
 - Niklas Hofer (CWD truncation) <niklas+dev AT lanpartei.de>, httpx://github.com/niklas/[]
-- Lee Nussbaum  (HG support) lee.nussbaum AT gmail.com, httpx://github.com/wln[]
+- Lee Nussbaum  (HG support) <lee.nussbaum AT gmail.com>, httpx://github.com/wln[]
 - Albert Vernon http://xenoclub.wordpress.com[]
 - Amir Yalon httpx://github.com/amiryal[]  
 - Martin httpx://github.com/jerrywho[]  <JerryWho AT gmx.de>
 - Alexander Goldstein (emacs-shell, prompt chars) httpx://github.com/alexg0[]
+- Dmitry <uok AT gmx.net> (bash completion)
 
 
 [bibliography]

@@ -1,6 +1,15 @@
-HOMEDIR ?= /home/lvv/p/volnitsky.com/
-include $(HOMEDIR)/include.mk
+ifeq ($(USER),lvv)
+        HOMEDIR := /home/lvv/p/volnitsky.com/
+        INCLUDE := $(HOMEDIR)/include.mk
+else
+        INCLUDE := /dev/null
+endif
+
+include $(INCLUDE)
+
+
 COPY_LIST = git-prompt.sh
+
 
 install:
 	cp -v git-prompt.sh 	/etc/
