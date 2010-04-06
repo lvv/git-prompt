@@ -584,7 +584,7 @@ parse_vcs_status() {
         [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
         [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
         [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
-        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:${vim_files}
+        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}vim:${vim_files}
         file_list=${file_list:+:$file_list}
 
         if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
