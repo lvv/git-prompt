@@ -414,7 +414,7 @@ parse_git_status() {
         parse_git_complete
 
         ##########################################################   GIT STATUS
-	file_regex='\([^/]*\/\?\).*'
+	file_regex='\([^/]*\/\{0,1\}\).*'
 	added_files=()
 	modified_files=()
 	untracked_files=()
