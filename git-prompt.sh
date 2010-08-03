@@ -220,22 +220,25 @@ set_shell_label() {
                 # FIXME $STY not inherited though "su -"
                 [ "$STY" ] && screen -S $STY -X title "$*"
         }
+        if [[ -n "$STY" ]]; then
+                screen_label "$*"
+        else
+                case $TERM in
 
-        case $TERM in
+                        screen*)
+                                screen_label "$*"
+                                ;;
 
-                screen*)
-                        screen_label "$*"
-                        ;;
+                        xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )
+                                # is there a capability which we can to test
+                                # for "set term title-bar" and its escapes?
+                                xterm_label  "$plain_who_where $@"
+                                ;;
 
-                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )
-                        # is there a capability which we can to test
-                        # for "set term title-bar" and its escapes?
-                        xterm_label  "$plain_who_where $@"
-                        ;;
-
-                *)
-                        ;;
-        esac
+                        *)
+                                ;;
+                esac
+        fi
  }
 
     export -f set_shell_label
