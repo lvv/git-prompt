@@ -12,6 +12,7 @@
         conf=git-prompt.conf;                   [[ -r $conf ]]  && . $conf
         conf=/etc/git-prompt.conf;              [[ -r $conf ]]  && . $conf
         conf=~/.git-prompt.conf;                [[ -r $conf ]]  && . $conf
+        conf=~/.config/git-prompt.conf;         [[ -r $conf ]]  && . $conf
         unset conf
 
         #####  set defaults if not set
@@ -24,7 +25,7 @@
         cwd_cmd=${cwd_cmd:-\\w}
 
 
-        #### dir, rc, root color 
+        #### dir, rc, root color
         cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
         if [[ -n "$cols" && $cols -ge 8 ]];  then       #  if terminal supports colors
                 dir_color=${dir_color:-CYAN}
@@ -67,7 +68,7 @@
                                                                     PARSE_VCS_STATUS+="${PARSE_VCS_STATUS+||}return"
         ################# terminfo colors-16
         #
-        #       black?    0 8                     
+        #       black?    0 8
         #       red       1 9
         #       green     2 10
         #       yellow    3 11
@@ -88,7 +89,7 @@
         # the $TERM environment variable to xterm-256color or use vim's -T option
         # to set the terminal. I'm using an alias in my bashrc to do this. At the
         # moment I only know of two color schemes which is made for multi-color
-        # terminals like urxvt (88 colors) or xterm: inkpot and desert256, 
+        # terminals like urxvt (88 colors) or xterm: inkpot and desert256,
 
         ### if term support colors,  then use color prompt, else bold
 
@@ -129,7 +130,7 @@
 
         unset PROMPT_COMMAND
 
-        #######  work around for MC bug.  
+        #######  work around for MC bug.
         #######  specifically exclude emacs, want full when running inside emacs
         if   [[ -z "$TERM"   ||  ("$TERM" = "dumb" && -z "$INSIDE_EMACS")  ||  -n "$MC_SID" ]];   then
                 unset PROMPT_COMMAND
@@ -139,7 +140,7 @@
 
         ####################################################################  MARKERS
         screen_marker="sCRn"
-        if [[ $LC_CTYPE =~ "UTF" && $TERM != "linux" ]];  then 
+        if [[ $LC_CTYPE =~ "UTF" && $TERM != "linux" ]];  then
                 elipses_marker="…"
         else
                 elipses_marker="..."
@@ -158,12 +159,12 @@ cwd_truncate() {
 
         case $1 in
                 full)
-                        return 
+                        return
                         ;;
                 last)
                         cwd=${PWD##/*/}
                         [[ $PWD == $HOME ]]  &&  cwd="~"
-                        return 
+                        return
                         ;;
                 *)
                         # if bash < v3.2  then don't truncate
@@ -177,7 +178,7 @@ cwd_truncate() {
 
         local cwd_max_length=$1
         # expression which bash-3.1 or older can not understand, so we wrap it in eval
-        exp31='[[ "$cwd" =~ (~?/)(.*/)([^/]*)$ ]]'   
+        exp31='[[ "$cwd" =~ (~?/)(.*/)([^/]*)$ ]]'
         if  eval $exp31 ;  then  # only valid if path have more then 1 dir
                 local path_head=${BASH_REMATCH[1]}
                 local path_middle=${BASH_REMATCH[2]}
@@ -188,7 +189,7 @@ cwd_truncate() {
 
 
 		# trunc middle if over limit
-                if   [[ ${#path_middle}   -gt   $(( $cwd_middle_max + ${#elipses_marker} + 5 )) ]];   then 
+                if   [[ ${#path_middle}   -gt   $(( $cwd_middle_max + ${#elipses_marker} + 5 )) ]];   then
 			
 			# truncate
 			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
@@ -198,7 +199,7 @@ cwd_truncate() {
 			eval $exp31
 			middle_tail=${BASH_REMATCH[1]}
 
-			# use truncated only if we cut at least 4 chars 
+			# use truncated only if we cut at least 4 chars
 			if [[ $((  ${#path_middle} - ${#middle_tail}))  -gt 4  ]];  then
 				cwd=$path_head$elipses_marker$middle_tail$path_last_dir
 			fi
@@ -208,13 +209,13 @@ cwd_truncate() {
  }
 
 
-set_shell_label() { 
+set_shell_label() {
 
         xterm_label() { echo  -n "]2;${@}" ; }   # FIXME: replace hardcodes with terminfo codes
 
-        screen_label() { 
+        screen_label() {
                 # FIXME: run this only if screen is in xterm (how to test for this?)
-                xterm_label  "$screen_marker  $plain_who_where $@" 
+                xterm_label  "$screen_marker  $plain_who_where $@"
 
                 # FIXME $STY not inherited though "su -"
                 [ "$STY" ] && screen -S $STY -X title "$*"
@@ -222,17 +223,17 @@ set_shell_label() {
 
         case $TERM in
 
-                screen*)                                                    
+                screen*)
                         screen_label "$*"
                         ;;
 
-                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )       
-                        # is there a capability which we can to test 
+                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )
+                        # is there a capability which we can to test
                         # for "set term title-bar" and its escapes?
                         xterm_label  "$plain_who_where $@"
                         ;;
 
-                *)                                                     
+                *)
                         ;;
         esac
  }
@@ -245,13 +246,13 @@ set_shell_label() {
 
 ########################################################### TTY
         tty=`tty`
-        tty=`echo $tty | sed "s:/dev/pts/:p:; s:/dev/tty::" `           # RH tty devs   
+        tty=`echo $tty | sed "s:/dev/pts/:p:; s:/dev/tty::" `           # RH tty devs
         tty=`echo $tty | sed "s:/dev/vc/:vc:" `                         # gentoo tty devs
 
         if [[ "$TERM" = "screen" ]] ;  then
 
                 #       [ "$WINDOW" = "" ] && WINDOW="?"
-                #       
+                #
                 #               # if under screen then make tty name look like s1-p2
                 #               # tty="${WINDOW:+s}$WINDOW${WINDOW:+-}$tty"
                 #       tty="${WINDOW:+s}$WINDOW"  # replace tty name with screen number
@@ -272,23 +273,23 @@ set_shell_label() {
         ########################################################### HOST
         ### we don't display home host/domain  $SSH_* set by SSHD or keychain
 
-        # How to find out if session is local or remote? Working with "su -", ssh-agent, and so on ? 
+        # How to find out if session is local or remote? Working with "su -", ssh-agent, and so on ?
 
         ## is sshd our parent?
         # if    { for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd && echo == REMOTE ==; }
-        #then 
+        #then
 
         host=${HOSTNAME}
         #host=`hostname --short`
         host=${host#$default_host}
         uphost=`echo ${host} | tr a-z A-Z`
-        if [[ $upcase_hostname = "on" ]]; then 
+        if [[ $upcase_hostname = "on" ]]; then
                 host=${uphost}
         fi
-        
+
         host_color=${uphost}_host_color
         host_color=${!host_color}
-        if [[ -z $host_color && -x /usr/bin/cksum ]] ;  then 
+        if [[ -z $host_color && -x /usr/bin/cksum ]] ;  then
                 cksum_color_no=`echo $uphost | cksum  | awk '{print $1%7}'`
                 color_index=(green yellow blue magenta cyan white)              # FIXME:  bw,  color-256
                 host_color=${color_index[cksum_color_no]}
@@ -300,10 +301,10 @@ set_shell_label() {
         host=${host%.$default_domain}
 
 
-#################################################################### WHO_WHERE 
+#################################################################### WHO_WHERE
         #  [[user@]host[-tty]]
-        
-        if [[ -n $id  || -n $host ]] ;   then 
+
+        if [[ -n $id  || -n $host ]] ;   then
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
                 color_who_where="${id}${host:+$host_color$at$host}${tty:+ $tty}"
                 plain_who_where="${id}$at$host"
@@ -311,7 +312,7 @@ set_shell_label() {
                 # add trailing " "
                 color_who_where="$color_who_where "
                 plain_who_where="$plain_who_where "
-                
+
                 # if root then make it root_color
                 if [ "$id" == "root" ]  ; then
                         user_id_color=$root_id_color
@@ -321,7 +322,7 @@ set_shell_label() {
         else
                 color_who_where=''
         fi
-                
+
 
 parse_svn_status() {
 
@@ -332,7 +333,7 @@ parse_svn_status() {
         ### get rev
         eval `
             svn info |
-                sed -n "                                                                                                                          
+                sed -n "
                     s@^URL[^/]*//@repo_dir=@p
                     s/^Revision: /rev=/p
                 "
@@ -345,25 +346,25 @@ parse_svn_status() {
                     s/^A...    \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}]=\"\1\";/p
                     s/^M...    \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}]=\"\1\";/p
                     s/^\?...    \([^.].*\)/untracked=untracked;  untracked_files[${#untracked_files[@]}]=\"\1\";/p
-                ' 
+                '
         `
         # TODO branch detection if standard repo layout
 
         [[  -z $modified ]]   &&  [[ -z $untracked ]]  &&  clean=clean
         vcs_info=svn:r$rev
  }
-        
+
 parse_hg_status() {
-        
+
         # ☿
 
         [[  -d ./.hg/ ]]  ||  return  1
-        
+
         vcs=hg
-        
+
         ### get status
         unset status modified added clean init added mixed untracked op detached
-        
+
         eval `hg status 2>/dev/null |
                 sed -n '
                         s/^M \([^.].*\)/modified=modified; modified_files[${#modified_files[@]}]=\"\1\";/p
@@ -372,9 +373,9 @@ parse_hg_status() {
                         s/^! \([^.].*\)/modified=modified;/p
                         s/^? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\\"\1\\";/p
         '`
-        
+
         branch=`hg branch 2> /dev/null`
-        
+
         [[ -z $modified ]]   &&   [[ -z $untracked ]]   &&   [[ -z $added ]]   &&   clean=clean
         vcs_info=${branch/default/D}
  }
@@ -444,20 +445,20 @@ parse_git_status() {
 
                         /^# Untracked files:/,/^[^#]/{
                             s/^# Untracked files:/untracked=untracked;/p
-                            s/^#	'"$file_regex"'/		[[ \" ${untracked_files[*]} ${modified_files[*]} ${added_files[*]} \" =~ \" \1 \" ]] || untracked_files[${#untracked_files[@]}]=\"\1\"/p   
+                            s/^#	'"$file_regex"'/		[[ \" ${untracked_files[*]} ${modified_files[*]} ${added_files[*]} \" =~ \" \1 \" ]] || untracked_files[${#untracked_files[@]}]=\"\1\"/p
                         }
-                    ' 
+                    '
         )"
 
-        if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then 
+        if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then
                 detached=detached
         fi
 
 
-        #################  GET GIT OP 
+        #################  GET GIT OP
 
         unset op
-        
+
         if [[ -d "$git_dir/.dotest" ]] ;  then
 
                 if [[ -f "$git_dir/.dotest/rebasing" ]] ;  then
@@ -478,15 +479,15 @@ parse_git_status() {
         elif  [[ -d "$git_dir/.dotest-merge" ]] ;  then
                 op="rebase -m"
                 # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
-            
+
         # lvv: not always works. Should  ./.dotest  be used instead?
         elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
                 op="merge"
                 # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
-                
+
         elif  [[ -f "$git_dir/index.lock" ]] ;  then
                 op="locked"
-                
+
         else
                 [[  -f "$git_dir/BISECT_LOG"  ]]   &&  op="bisect"
                 # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)" || \
@@ -499,7 +500,7 @@ parse_git_status() {
         rawhex=`git rev-parse HEAD 2>/dev/null`
         rawhex=${rawhex/HEAD/}
         rawhex=${rawhex:0:6}
-        
+
         #### branch
         branch=${branch/master/M}
 
@@ -513,13 +514,13 @@ parse_git_status() {
                 vcs_info=${white}init
 
         else
-                if [[ "$detached" ]] ;  then     
+                if [[ "$detached" ]] ;  then
                         branch="<detached:`git name-rev --name-only HEAD 2>/dev/null`"
 
 
                 elif   [[ "$op" ]];  then
                         branch="$op:$branch"
-                        if [[ "$op" == "merge" ]] ;  then     
+                        if [[ "$op" == "merge" ]] ;  then
                             branch+="<--$(git name-rev --name-only $(<$git_dir/MERGE_HEAD))"
                         fi
                         #branch="<$branch>"
@@ -528,20 +529,20 @@ parse_git_status() {
 
         fi
  }
-        
+
 
 parse_vcs_status() {
 
-        unset   file_list modified_files untracked_files added_files 
+        unset   file_list modified_files untracked_files added_files
         unset   vcs vcs_info
         unset   status modified untracked added init detached
-        unset   file_list modified_files untracked_files added_files 
+        unset   file_list modified_files untracked_files added_files
 
         [[ $vcs_ignore_dir_list =~ $PWD ]] && return
 
         eval   $PARSE_VCS_STATUS
 
-     
+
         ### status:  choose primary (for branch color)
         unset status
         status=${op:+op}
@@ -554,24 +555,26 @@ parse_vcs_status() {
                                 # at least one should be set
                                 : ${status?prompt internal error: git status}
         eval vcs_color="\${${status}_vcs_color}"
-                                # no def:  vcs_color=${vcs_color:-$WHITE}    # default 
+                                # no def:  vcs_color=${vcs_color:-$WHITE}    # default
 
 
-        ### VIM 
-        
+        ### VIM
+
         if  [[ $vim_module = "on" ]] ;  then
                 # equivalent to vim_glob=`ls .*.vim`  but without running ls
                 unset vim_glob vim_file vim_files
                 old_nullglob=`shopt -p nullglob`
                     shopt -s nullglob
-                    vim_glob=`echo .*.swp`
+                    vim_glob=`echo .*.sw?`
                 eval $old_nullglob
 
-                if [[ $vim_glob ]];  then  
+                if [[ $vim_glob ]];  then
                     vim_file=${vim_glob#.}
-                    vim_file=${vim_file%.swp}
+                    vim_file=${vim_file/.sw?/}
                     # if swap is newer,  then this is unsaved vim session
-                    [[ .${vim_file}.swp -nt $vim_file ]]  && vim_files=$vim_file
+                    #[[ .${vim_file}.swp -nt $vim_file ]]  && vim_files=$vim_file
+                    # [temoto custom] if swap is older, then it must be deleted, so show all swaps.
+                    vim_files=$vim_file
                 fi
         fi
 
@@ -581,11 +584,11 @@ parse_vcs_status() {
         [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
         [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
         [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
-        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}VIM:${vim_files}
+        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}vim:${vim_files}
         file_list=${file_list:+:$file_list}
 
         if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
-                file_list=${file_list:0:$max_file_list_length}  
+                file_list=${file_list:0:$max_file_list_length}
                 if [[ $max_file_list_length -gt 0 ]]  ;  then
                         file_list="${file_list% *} $elipses_marker"
                 fi
@@ -594,7 +597,7 @@ parse_vcs_status() {
 
         head_local="(${vcs_info}$vcs_color${file_list}$vcs_color)"
 
-        ### fringes 
+        ### fringes
         head_local="${head_local+$vcs_color$head_local }"
         #above_local="${head_local+$vcs_color$head_local\n}"
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
@@ -608,7 +611,7 @@ disable_set_shell_label() {
 enable_set_shell_label() {
         disable_set_shell_label
 	# check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
-        trap '[[ -z "$BASH_SOURCE" && ($BASH_COMMAND != prompt_command_function) ]] && 
+        trap '[[ -z "$BASH_SOURCE" && ($BASH_COMMAND != prompt_command_function) ]] &&
 	     set_shell_label $BASH_COMMAND' DEBUG  >& /dev/null
  }
 
@@ -616,8 +619,8 @@ enable_set_shell_label() {
 j (){
         : ${1? usage: j dir-beginning}
         # go in ring buffer starting from current index.  cd to first matching dir
-        for (( i=(aj_idx+1)%aj_max;   i != aj_idx%aj_max;  i=++i%aj_max )) ; do 
-                #echo == ${aj_dir_list[$i]} == $i 
+        for (( i=(aj_idx+1)%aj_max;   i != aj_idx%aj_max;  i=++i%aj_max )) ; do
+                #echo == ${aj_dir_list[$i]} == $i
                 if [[ ${aj_dir_list[$i]} =~ ^.*/$1[^/]*$ ]] ; then
                         cd "${aj_dir_list[$i]}"
                         return
@@ -633,35 +636,35 @@ alias jumpstart='echo ${aj_dir_list[@]}'
 prompt_command_function() {
         rc="$?"
 
-        if [[ "$rc" == "0" ]]; then 
+        if [[ "$rc" == "0" ]]; then
                 rc=""
         else
                 rc="$rc_color$rc$colors_reset$bell "
         fi
 
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
-        set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir 
+        set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
 
         parse_vcs_status
 
         # autojump
-        if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then 
+        if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
               aj_dir_list[++aj_idx%aj_max]="$PWD"
         fi
 
         # if cwd_cmd have back-slash, then assign it value to cwd
         # else eval cwd_cmd,  cwd should have path after exection
-        eval "${cwd_cmd/\\/cwd=\\\\}"           
+        eval "${cwd_cmd/\\/cwd=\\\\}"
 
         PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
-        
+
         unset head_local tail_local pwd
- }
-    
+}
+
         PROMPT_COMMAND=prompt_command_function
 
         enable_set_shell_label
 
-        unset rc id tty modified_files file_list  
+        unset rc id tty modified_files file_list
 
 # vim: set ft=sh ts=8 sw=8 et:
