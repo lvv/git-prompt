@@ -510,7 +510,7 @@ parse_git_status() {
         ### compose vcs_info
 
         if [[ $init ]];  then 
-                vcs_info=M$white=init
+                vcs_info=${white}init
 
         else
                 if [[ "$detached" ]] ;  then     
@@ -604,7 +604,7 @@ disable_set_shell_label() {
         trap - DEBUG  >& /dev/null
  }
 
-# enable stuffing currently executed command displays in label
+# show currently executed command in label
 enable_set_shell_label() {
         disable_set_shell_label
 	# check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc

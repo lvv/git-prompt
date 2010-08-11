@@ -11,7 +11,7 @@
 image:screenshot-prompt-basic.png[basic usage]
 
 Digit [red]*1* on 3rd line is `false(1)` exit code. Also on non-zero exit code
-terminal bell is sounded.  Bell is turnned off by default (to set softer
+terminal bell is sounded.  Bell is turned off by default (to set softer
 terminal bell use `setterm`).
 
 
@@ -68,11 +68,11 @@ caption always "%{= kw}%-w%{= bw}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c"
 == Simple AutoJump
 
 AutoJump is python script from Joel Schaerer providing shortcuts for jumping
-to directories you once visited.  Git-prompt have builtin, simplified
-autojump. It is only about 10 lines of code (vs original 100+ LOC), there is
-no database. It remembers only directories from current session. It selects
-not most frequent dir, but last visited. Matches are done from beginning of of
-dir name (not path name).
+to directories you once visited.  Git-prompt have built-in, simplified
+autojump. It is only about 10 lines of bash code (vs original 100+ python
+LOC), there is no database. It remembers only directories from current
+session. It selects not most frequent dir, but last visited. Matches are done
+from beginning of of dir name (not path name).
 
 -----------------
 cd /tmp                                                                                                                                      
