@@ -612,8 +612,7 @@ disable_preexec_command_function() {
 enable_preexec_command_function() {
         disable_preexec_command_function
         
-        trap '[[ ($BASH_COMMAND != prompt_command_function) ]] &&
-	     preexec_command_function' DEBUG  >& /dev/null
+        trap '[[ -z "$COMP_LINE" && ($BASH_COMMAND != prompt_command_function) ]] && preexec_command_function' DEBUG  >& /dev/null
  }
 
 # autojump (see http://wiki.github.com/joelthelion/autojump)
@@ -635,6 +634,8 @@ alias jumpstart='echo ${aj_dir_list[@]}'
 ###################################################################### PROMPT_COMMAND
 
 prompt_command_function() {
+        timer_stop
+
         rc="$?"
 
         if [[ "$rc" == "0" ]]; then
@@ -662,18 +663,45 @@ prompt_command_function() {
         unset head_local tail_local pwd
 }
 
-function timing_start() {
-        echo "Starting..."
+function timer_start() {
+        export TIMER_COMMAND="$1"
+        export TIMER_STARTED_AT=$(date +'%s')
+        echo "Started Timer"
+}
+
+function timer_stop() {
+        local stopped_at=$(date +'%s')
+        local started_at=${TIMER_STARTED_AT:-$stopped_at}
+        let elapsed=$stopped_at-$started_at
+        local min="1"
+        if [ $elapsed -gt $min ]; then
+                timer_message $elapsed
+        fi
+}
+
+function timer_message() {
+        local elapsed=$1
+        echo "finished $TIMER_COMMMAND, took $elapsed seconds"
 }
 
 # this should be named preexec_command_function
 function preexec_command_function() {
-        echo "Preexec... '$BASH_SOURCE'"
-	# check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
-        if [[ -z "$BASH_SOURCE" ]]   ;   then
-                set_shell_label $BASH_COMMAND
+        # In more recent versions of bash, this could be set via the "BASH_COMMAND"
+        # variable, but using history here is better in some ways: for example, "ps
+        # auxf | less" will show up with both sides of the pipe if we use history,
+        # but only as "ps auxf" if not.
+        local this_command=`history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//g"`;
+
+        echo "Preexec... "
+        if [[ -n "$this_command" ]] ; then
+                echo "Command: $this_command"
+                set_shell_label "$this_command"
+                # check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
+                timer_start "$this_command"
         fi
-        timing_start
+        if [[ -z "$BASH_SOURCE" ]]   ;   then
+                "BASH_SOURCE is empty"
+        fi
 }
 
 
