@@ -56,7 +56,8 @@
         upcase_hostname=${upcase_hostname:-on}
 
         aj_max=20
-        timer_starts_at=10
+        timer_starts_at=10                      # min seconds for timer
+        timer_blacklist="less*|vi*|man*|emacs*" # prefix-match on the command line
 
 
 #####################################################################  post config
@@ -714,11 +715,20 @@ prompt_command_function() {
 }
 
 timer_start() {
-        export TIMER_COMMAND="$1"
-        export TIMER_STARTED_AT=$(date +'%s')
+        local command=$1
+        # unless applying the blacklist as prefix remove pattern results 
+        # in and empty string (it matches)
+        if [ -n "${command##+(${TIMER_BLACKLIST:-timer_blacklist})}" ] ; then
+                export TIMER_COMMAND="$1"
+                export TIMER_STARTED_AT=$(date +'%s')
+        fi
 }
 
 timer_stop() {
+        if [ -z "$TIMER_COMMAND" ] ; then
+                return # no command to time
+        fi
+
         local stopped_at=$(date +'%s')
         local started_at=${TIMER_STARTED_AT:-$stopped_at}
         let elapsed=$stopped_at-$started_at
