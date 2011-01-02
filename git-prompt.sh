@@ -663,13 +663,13 @@ prompt_command_function() {
         unset head_local tail_local pwd
 }
 
-function timer_start() {
+timer_start() {
         export TIMER_COMMAND="$1"
         export TIMER_STARTED_AT=$(date +'%s')
-        echo "Started Timer"
 }
 
-function timer_stop() {
+timer_stop() {
+        export TIMER_COMMAND=""
         local stopped_at=$(date +'%s')
         local started_at=${TIMER_STARTED_AT:-$stopped_at}
         let elapsed=$stopped_at-$started_at
@@ -679,22 +679,20 @@ function timer_stop() {
         fi
 }
 
-function timer_message() {
+timer_message() {
         local elapsed=$1
         echo "finished $TIMER_COMMMAND, took $elapsed seconds"
 }
 
 # this should be named preexec_command_function
-function preexec_command_function() {
+preexec_command_function() {
         # In more recent versions of bash, this could be set via the "BASH_COMMAND"
         # variable, but using history here is better in some ways: for example, "ps
         # auxf | less" will show up with both sides of the pipe if we use history,
         # but only as "ps auxf" if not.
         local this_command=`history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//g"`;
 
-        echo "Preexec... "
         if [[ -n "$this_command" ]] ; then
-                echo "Command: $this_command"
                 set_shell_label "$this_command"
                 # check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
                 timer_start "$this_command"
