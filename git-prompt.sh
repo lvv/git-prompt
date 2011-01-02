@@ -658,7 +658,7 @@ disable_preexec_command_function() {
  }
 
 
-# show currently executed command in label
+# register a preexec hook eg to show currently executed command in label
 enable_preexec_command_function() {
         disable_preexec_command_function
         
@@ -739,7 +739,14 @@ timer_message() {
         else
             result="FAILED ($status)"
         fi
-        notify-send -i terminal "$TIMER_COMMAND $result" "took $elapsed seconds"
+        local title="$TIMER_COMMAND $result"
+        local message="took $elapsed seconds"
+        if type -P notify-send >&/dev/null ; then
+                notify-send -i terminal "$title" "$message" &
+        fi
+        if type -P growlnotify >&/dev/null ; then
+                growlnotify -s "$title" -m "$message"  &
+        fi
 }
 
 preexec_command_function() {
