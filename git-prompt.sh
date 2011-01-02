@@ -603,6 +603,53 @@ parse_vcs_status() {
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
 
+# this is stolen from http://www.twistedmatrix.com/users/glyph/preexec.bash.txt
+# do nothing we could do in the trap hook directly
+preexec_invoke_exec () {
+        if [[ -z "$preexec_interactive_mode" ]]
+        then
+                # We're doing something related to displaying the prompt.  Let the
+                # prompt set the title instead of me.
+                return
+        else
+                # If we're in a subshell, then the prompt won't be re-displayed to put
+                # us back into interactive mode, so let's not set the variable back.
+                # In other words, if you have a subshell like
+                #   (sleep 1; sleep 2)
+                # You want to see the 'sleep 2' as a set_command_title as well.
+                if [[ 0 -eq "$BASH_SUBSHELL" ]]
+                then
+                        preexec_interactive_mode=""
+                fi
+        fi
+        if [[ "prompt_command_function" == "$BASH_COMMAND" ]]
+        then
+                # Sadly, there's no cleaner way to detect two prompts being displayed
+                # one after another.  This makes it important that PROMPT_COMMAND
+                # remain set _exactly_ as below in preexec_install.  Let's switch back
+                # out of interactive mode and not trace any of the commands run in
+                # precmd.
+
+                # Given their buggy interaction between BASH_COMMAND and debug traps,
+                # versions of bash prior to 3.1 can't detect this at all.
+                preexec_interactive_mode=""
+                return
+        fi
+
+        # In more recent versions of bash, this could be set via the "BASH_COMMAND"
+        # variable, but using history here is better in some ways: for example, "ps
+        # auxf | less" will show up with both sides of the pipe if we use history,
+        # but only as "ps auxf" if not.
+        local this_command=`history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//g"`;
+
+        # If none of the previous checks have earlied out of this function, then
+        # the command is in fact interactive and we should invoke the user's
+        # preexec hook with the running command as an argument.
+        if [[ -n "$this_command" ]] ; then
+                    preexec_command_function "$this_command"
+        fi
+ }
+
 disable_preexec_command_function() {
         trap - DEBUG  >& /dev/null
  }
@@ -612,7 +659,7 @@ disable_preexec_command_function() {
 enable_preexec_command_function() {
         disable_preexec_command_function
         
-        trap '[[ -z "$COMP_LINE" && ($BASH_COMMAND != prompt_command_function) ]] && preexec_command_function' DEBUG  >& /dev/null
+        trap '[[ -z "$COMP_LINE"  ]] && preexec_invoke_exec' DEBUG  >& /dev/null
  }
 
 # autojump (see http://wiki.github.com/joelthelion/autojump)
@@ -633,8 +680,10 @@ alias jumpstart='echo ${aj_dir_list[@]}'
 
 ###################################################################### PROMPT_COMMAND
 
+preexec_interactive_mode=""
 prompt_command_function() {
         timer_stop
+        preexec_interactive_mode="yes"
 
         rc="$?"
 
@@ -669,7 +718,6 @@ timer_start() {
 }
 
 timer_stop() {
-        export TIMER_COMMAND=""
         local stopped_at=$(date +'%s')
         local started_at=${TIMER_STARTED_AT:-$stopped_at}
         let elapsed=$stopped_at-$started_at
@@ -677,29 +725,25 @@ timer_stop() {
         if [ $elapsed -gt $min ]; then
                 timer_message $elapsed
         fi
+        export TIMER_COMMAND=""
 }
 
 timer_message() {
         local elapsed=$1
-        echo "finished $TIMER_COMMMAND, took $elapsed seconds"
+        # decide which status to use
+        if [ "$?" == "0" ] ; then
+            result="completed"
+        else
+            result="FAILED ($status)"
+        fi
+        notify-send -i terminal "$TIMER_COMMAND $result" "took $elapsed seconds"
 }
 
-# this should be named preexec_command_function
 preexec_command_function() {
-        # In more recent versions of bash, this could be set via the "BASH_COMMAND"
-        # variable, but using history here is better in some ways: for example, "ps
-        # auxf | less" will show up with both sides of the pipe if we use history,
-        # but only as "ps auxf" if not.
-        local this_command=`history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//g"`;
+        local this_command="$1"
 
-        if [[ -n "$this_command" ]] ; then
-                set_shell_label "$this_command"
-                # check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
-                timer_start "$this_command"
-        fi
-        if [[ -z "$BASH_SOURCE" ]]   ;   then
-                "BASH_SOURCE is empty"
-        fi
+        set_shell_label "$this_command"
+        timer_start "$this_command"
 }
 
 
