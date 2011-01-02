@@ -723,13 +723,24 @@ timer_stop() {
         let elapsed=$stopped_at-$started_at
         local min="1"
         if [ $elapsed -gt $min ]; then
-                timer_message $elapsed
+                timer_message
         fi
         export TIMER_COMMAND=""
 }
 
 timer_message() {
-        local elapsed=$1
+        local stamper=''
+        if [ $elapsed -gt 60 ] ; then
+                if [ $elapsed -gt 3600 ] ; then
+                        stamper="%-Hh, %-Mm, %-Ss"
+                else
+                        stamper="%-Mm, %-Ss"
+                fi
+        else
+                stamper="%-S seconds"
+        fi
+        local message="took $(date -d "@$elapsed" +"$stamper")"
+
         # decide which status to use
         if [ "$?" == "0" ] ; then
             result="completed"
@@ -737,7 +748,8 @@ timer_message() {
             result="FAILED ($status)"
         fi
         local title="$TIMER_COMMAND $result"
-        local message="took $elapsed seconds"
+
+
         if type -P notify-send >&/dev/null ; then
                 notify-send -i terminal "$title" "$message" &
         fi
