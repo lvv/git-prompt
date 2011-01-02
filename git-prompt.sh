@@ -753,7 +753,8 @@ timer_message() {
         else
                 stamper="%-S seconds"
         fi
-        local message="took $(date -d "@$elapsed" +"$stamper")"
+        local human_elapsed=$(date -d "@$elapsed" +"$stamper")
+        local message="took $human_elapsed"
 
         # decide which status to use
         if [ "$?" == "0" ] ; then
@@ -763,6 +764,8 @@ timer_message() {
         fi
         local title="$TIMER_COMMAND $result"
 
+        # TODO coloring
+        echo "$human_elapsed: $TIMER_COMMAND"
 
         if type -P notify-send >&/dev/null ; then
                 notify-send -i terminal "$title" "$message"
