@@ -56,6 +56,7 @@
         upcase_hostname=${upcase_hostname:-on}
 
         aj_max=20
+        timer_starts_at=10
 
 
 #####################################################################  post config
@@ -721,7 +722,7 @@ timer_stop() {
         local stopped_at=$(date +'%s')
         local started_at=${TIMER_STARTED_AT:-$stopped_at}
         let elapsed=$stopped_at-$started_at
-        local min="1"
+        local min=${TIMER_STARTS_AT:-${timer_starts_at:-10}}
         if [ $elapsed -gt $min ]; then
                 timer_message
         fi
