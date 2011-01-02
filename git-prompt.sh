@@ -752,10 +752,10 @@ timer_message() {
 
 
         if type -P notify-send >&/dev/null ; then
-                notify-send -i terminal "$title" "$message" &
+                notify-send -i terminal "$title" "$message"
         fi
         if type -P growlnotify >&/dev/null ; then
-                growlnotify -s "$title" -m "$message"  &
+                growlnotify -s "$title" -m "$message"
         fi
 }
 
