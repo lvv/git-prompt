@@ -603,16 +603,17 @@ parse_vcs_status() {
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
 
-disable_set_shell_label() {
+disable_preexec_command_function() {
         trap - DEBUG  >& /dev/null
  }
 
+
 # show currently executed command in label
-enable_set_shell_label() {
-        disable_set_shell_label
-	# check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
-        trap '[[ -z "$BASH_SOURCE" && ($BASH_COMMAND != prompt_command_function) ]] &&
-	     set_shell_label $BASH_COMMAND' DEBUG  >& /dev/null
+enable_preexec_command_function() {
+        disable_preexec_command_function
+        
+        trap '[[ ($BASH_COMMAND != prompt_command_function) ]] &&
+	     preexec_command_function' DEBUG  >& /dev/null
  }
 
 # autojump (see http://wiki.github.com/joelthelion/autojump)
@@ -661,9 +662,24 @@ prompt_command_function() {
         unset head_local tail_local pwd
 }
 
-        PROMPT_COMMAND=prompt_command_function
+function timing_start() {
+        echo "Starting..."
+}
 
-        enable_set_shell_label
+# this should be named preexec_command_function
+function preexec_command_function() {
+        echo "Preexec... '$BASH_SOURCE'"
+	# check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
+        if [[ -z "$BASH_SOURCE" ]]   ;   then
+                set_shell_label $BASH_COMMAND
+        fi
+        timing_start
+}
+
+
+        PROMPT_COMMAND="prompt_command_function"
+
+        enable_preexec_command_function
 
         unset rc id tty modified_files file_list
 
