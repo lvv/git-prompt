@@ -15,6 +15,7 @@
         conf=~/.config/git-prompt.conf;         [[ -r $conf ]]  && . $conf
         unset conf
 
+
         #####  set defaults if not set
 
         git_module=${git_module:-on}
@@ -220,22 +221,25 @@ set_shell_label() {
                 # FIXME $STY not inherited though "su -"
                 [ "$STY" ] && screen -S $STY -X title "$*"
         }
+        if [[ -n "$STY" ]]; then
+                screen_label "$*"
+        else
+                case $TERM in
 
-        case $TERM in
+                        screen*)
+                                screen_label "$*"
+                                ;;
 
-                screen*)
-                        screen_label "$*"
-                        ;;
+                        xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )
+                                # is there a capability which we can to test
+                                # for "set term title-bar" and its escapes?
+                                xterm_label  "$plain_who_where $@"
+                                ;;
 
-                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )
-                        # is there a capability which we can to test
-                        # for "set term title-bar" and its escapes?
-                        xterm_label  "$plain_who_where $@"
-                        ;;
-
-                *)
-                        ;;
-        esac
+                        *)
+                                ;;
+                esac
+        fi
  }
 
     export -f set_shell_label
@@ -261,7 +265,7 @@ set_shell_label() {
 
         # we don't need tty name under X11
         case $TERM in
-                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )  unset tty ;;
+                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm | cygwin)  unset tty ;;
                 *);;
         esac
 
@@ -381,24 +385,6 @@ parse_hg_status() {
  }
 
 
-parse_git_complete() {
-        if [ "${BASH_VERSION%.*}" \< "3.0" ]; then
-                # echo "You will need to upgrade 'bash' to version 3.0 \
-                # for full programmable completion features (bash complete) \
-                # Please install bash-completion packet like: $ yum -y install bash-completion"
-                return
-        fi
-
-        complete -f -W "$(
-                echo `git branch -a | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
-                echo `git remote | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
-                echo `git | tail -23 | head -21 | cut -d ' ' -f 4`; \
-                echo '--help'; \
-                echo '--staged'; \
-                echo 'remote'; \
-                echo 'help'; \
-        )" g git
-}
 
 parse_git_status() {
 
@@ -411,7 +397,6 @@ parse_git_status() {
         [[  -n ${git_dir/./} ]]   ||   return  1
 
         vcs=git
-        parse_git_complete
 
         ##########################################################   GIT STATUS
 	file_regex='\([^/]*\/\{0,1\}\).*'
