@@ -15,6 +15,7 @@
         conf=~/.config/git-prompt.conf;         [[ -r $conf ]]  && . $conf
         unset conf
 
+
         #####  set defaults if not set
 
         git_module=${git_module:-on}
@@ -384,24 +385,6 @@ parse_hg_status() {
  }
 
 
-parse_git_complete() {
-        if [ "${BASH_VERSION%.*}" \< "3.0" ]; then
-                # echo "You will need to upgrade 'bash' to version 3.0 \
-                # for full programmable completion features (bash complete) \
-                # Please install bash-completion packet like: $ yum -y install bash-completion"
-                return
-        fi
-
-        complete -f -W "$(
-                echo `git branch -a | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
-                echo `git remote | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
-                echo `git | tail -23 | head -21 | cut -d ' ' -f 4`; \
-                echo '--help'; \
-                echo '--staged'; \
-                echo 'remote'; \
-                echo 'help'; \
-        )" g git
-}
 
 parse_git_status() {
 
@@ -414,7 +397,6 @@ parse_git_status() {
         [[  -n ${git_dir/./} ]]   ||   return  1
 
         vcs=git
-        parse_git_complete
 
         ##########################################################   GIT STATUS
 	file_regex='\([^/]*\/\{0,1\}\).*'

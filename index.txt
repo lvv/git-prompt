@@ -87,16 +87,6 @@ j .*3   # same as  cd "~/long dir mp3"
 -------------
 
 
-== Bash Completion
-
-Completion can be done for git subcommands, branches and remotes:
-
----------------------
-git ch<tab>   		#  expands to git checkout
-git checkout ma<tab>	#  expands to git checkout master
---------------------
-
-
 == Install
 Download  link:git-prompt.sh[] or get it with GIT:
 
