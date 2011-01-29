@@ -399,7 +399,7 @@ parse_git_status() {
         vcs=git
 
         ##########################################################   GIT STATUS
-	file_regex='\([^/]*\/\{0,1\}\).*'
+	file_regex='\([^/ ]*\/\{0,1\}\).*'
 	added_files=()
 	modified_files=()
 	untracked_files=()
@@ -612,7 +612,7 @@ j (){
                 fi
         done
         echo '?'
-}
+ }
 
 alias jumpstart='echo ${aj_dir_list[@]}'
 
@@ -644,7 +644,7 @@ prompt_command_function() {
         PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
-}
+ }
 
         PROMPT_COMMAND=prompt_command_function
 
