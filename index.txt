@@ -27,8 +27,8 @@ image:screenshot-prompt-git.png[git module screenshot]
 | *Branch*                 |   *File*                 | *Meaning*
 | [darkblue]#dark blue#    |                          | Clean repo
 | [green]#green#           |  [green]#green#          | Modified or new file. Modifications are in index but not in repo yet.
-| [#cc0000]#dark red#      |  [#cc0000]#dark red#     | Modified and tracked by repo, but modifications not added to index yet.
-| [blue]#light blue#       |  [blue]#light blue#      | Untracked file.
+| [darkred]#dark red#      |  [darkred]#dark red#     | Modified and tracked by repo, but modifications not added to index yet.
+| [lightblue]#light blue#  |  [lightblue]#light blue#      | Untracked file.
 | [red]#light red#         |                          | Detached Head
 | [magenta]#magenta#       |                          | In middle of doing something 
 |================================================================
