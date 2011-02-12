@@ -3,3 +3,6 @@
 # emacs backup and lock files
 *~
 \#*\#
+
+# joe lock files
+.#*
