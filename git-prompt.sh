@@ -515,7 +515,7 @@ parse_git_status() {
 
         ### compose vcs_info
 
-        if [[ $init ]];  then 
+        if [[ $init ]];  then
                 vcs_info=${white}init
 
         else
@@ -668,7 +668,7 @@ enable_preexec_command_function() {
  }
 
 # autojump (see http://wiki.github.com/joelthelion/autojump)
-j (){
+j() {
         : ${1? usage: j dir-beginning}
         # go in ring buffer starting from current index.  cd to first matching dir
         for (( i=(aj_idx+1)%aj_max;   i != aj_idx%aj_max;  i=++i%aj_max )) ; do
