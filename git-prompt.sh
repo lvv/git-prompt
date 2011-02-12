@@ -142,7 +142,7 @@
 
         ####################################################################  MARKERS
         screen_marker="sCRn"
-        if [[ $LC_CTYPE =~ "UTF" && $TERM != "linux" ]];  then
+        if [[ ($LC_CTYPE =~ "UTF" || $LANG =~ "UTF") && $TERM != "linux" ]];  then
                 elipses_marker="…"
         else
                 elipses_marker="..."
