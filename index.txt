@@ -135,6 +135,7 @@ to any of above locations and customize as needed.
   which makes colored text of different perceptual brightness.  This makes it hard to read. 
   If your terminal colors are configurable, try change it to softer (pastel)
   colors.
+* Screen title can't be changed if the session is password protected.
 
 
 == Dependencies
@@ -162,6 +163,8 @@ dependencies are standard unix utils.
   `"\j"`, but let say I want `">>"` after path instead of `">"` when I have 2 jobs 
   running. Running `+++`jobs | ... `+++` is extra bash fork, hate to do this. 
 * VIM module needs to be moved out of GIT module
+* Check if the screen session is password protected and do not use
+  `"screen -X"` in this case
 
 
 include::../volnitsky.com/project/howto-submit-patch.txt[]
