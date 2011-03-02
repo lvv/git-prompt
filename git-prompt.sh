@@ -56,6 +56,7 @@
         max_file_list_length=${max_file_list_length:-100}
         upcase_hostname=${upcase_hostname:-on}
         count_only=${count_only:-off}
+        rawhex_len=${rawhex_len:-6}
 
         aj_max=20
 
@@ -483,9 +484,13 @@ parse_git_status() {
 
 
         ####  GET GIT HEX-REVISION
-        rawhex=`git rev-parse HEAD 2>/dev/null`
-        rawhex=${rawhex/HEAD/}
-        rawhex=${rawhex:0:6}
+        if  [[ $rawhex_len -gt 0 ]] ;  then
+                rawhex=`git rev-parse HEAD 2>/dev/null`
+                rawhex=${rawhex/HEAD/}
+                rawhex="$white=${rawhex:0:$rawhex_len}"
+        else
+                rawhex=""
+        fi
 
         #### branch
         branch=${branch/master/M}
@@ -511,7 +516,7 @@ parse_git_status() {
                         fi
                         #branch="<$branch>"
                 fi
-                vcs_info="$branch$white=$rawhex"
+                vcs_info="$branch$rawhex"
 
         fi
  }
