@@ -55,6 +55,7 @@
 
         max_file_list_length=${max_file_list_length:-100}
         upcase_hostname=${upcase_hostname:-on}
+        count_only=${count_only:-off}
 
         aj_max=20
 
@@ -566,9 +567,15 @@ parse_vcs_status() {
 
         ### file list
         unset file_list
-        [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
-        [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
-        [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
+        if [[ $count_only = "on" ]] ; then
+                [[ ${added_files[0]}     ]]  &&  file_list+=" "${added_vcs_color}+${#added_files[@]}
+                [[ ${modified_files[0]}  ]]  &&  file_list+=" "${modified_vcs_color}*${#modified_files[@]}
+                [[ ${untracked_files[0]} ]]  &&  file_list+=" "${untracked_vcs_color}?${#untracked_files[@]}
+        else
+                [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
+                [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
+                [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
+        fi
         [[ ${vim_files}          ]]  &&  file_list+=" "${RED}vim:${vim_files}
         file_list=${file_list:+:$file_list}
 
