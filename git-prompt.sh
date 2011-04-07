@@ -592,7 +592,7 @@ parse_vcs_status() {
         fi
 
 
-        head_local="(${vcs_info}$vcs_color${file_list}$vcs_color)"
+        head_local="$vcs_color(${vcs_info}$vcs_color${file_list}$vcs_color)"
 
         ### fringes
         head_local="${head_local+$vcs_color$head_local }"
