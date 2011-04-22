@@ -43,7 +43,7 @@
 	prompt_char=${prompt_char:-'>'}
 	root_prompt_char=${root_prompt_char:-'>'}
 
-        #### vcs state colors
+        #### vcs colors
                  init_vcs_color=${init_vcs_color:-WHITE}        # initial
                 clean_vcs_color=${clean_vcs_color:-blue}        # nothing to commit (working directory clean)
              modified_vcs_color=${modified_vcs_color:-red}      # Changed but not updated:
@@ -52,6 +52,7 @@
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
+                  hex_vcs_color=${hex_vcs_color:-dim}
 
         max_file_list_length=${max_file_list_length:-100}
         upcase_hostname=${upcase_hostname:-on}
@@ -97,6 +98,7 @@
         ### if term support colors,  then use color prompt, else bold
 
               black='\['`tput sgr0; tput setaf 0`'\]'
+                dim='\['`tput sgr0; tput setaf p1`'\]'  # half-bright
                 red='\['`tput sgr0; tput setaf 1`'\]'
               green='\['`tput sgr0; tput setaf 2`'\]'
              yellow='\['`tput sgr0; tput setaf 3`'\]'
@@ -130,6 +132,7 @@
                    op_vcs_color=${!op_vcs_color}
              addmoded_vcs_color=${!addmoded_vcs_color}
              detached_vcs_color=${!detached_vcs_color}
+                  hex_vcs_color=${!hex_vcs_color}
 
         unset PROMPT_COMMAND
 
@@ -487,7 +490,7 @@ parse_git_status() {
         if  [[ $rawhex_len -gt 0 ]] ;  then
                 rawhex=`git rev-parse HEAD 2>/dev/null`
                 rawhex=${rawhex/HEAD/}
-                rawhex="$white=${rawhex:0:$rawhex_len}"
+                rawhex="$hex_vcs_color=${rawhex:0:$rawhex_len}"
         else
                 rawhex=""
         fi
