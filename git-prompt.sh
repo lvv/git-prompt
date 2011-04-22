@@ -6,8 +6,9 @@
 
         #####  read config file if any.
 
-        unset   dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
-        unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color
+        unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
+        unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
+        unset rawhex_len
 
         conf=git-prompt.conf;                   [[ -r $conf ]]  && . $conf
         conf=/etc/git-prompt.conf;              [[ -r $conf ]]  && . $conf
@@ -57,7 +58,7 @@
         max_file_list_length=${max_file_list_length:-100}
         upcase_hostname=${upcase_hostname:-on}
         count_only=${count_only:-off}
-        rawhex_len=${rawhex_len:-6}
+        rawhex_len=${rawhex_len:-5}
 
         aj_max=20
 
@@ -415,7 +416,7 @@ parse_git_status() {
                 git status 2>/dev/null |
                     sed -n '
                         s/^# On branch /branch=/p
-                        s/^nothing to commit (working directory clean)/clean=clean/p
+                        s/^nothing to commit/clean=clean/p
                         s/^# Initial commit/init=init/p
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
@@ -585,7 +586,6 @@ parse_vcs_status() {
                 [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
         fi
         [[ ${vim_files}          ]]  &&  file_list+=" "${RED}vim:${vim_files}
-        file_list=${file_list:+:$file_list}
 
         if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
                 file_list=${file_list:0:$max_file_list_length}
