@@ -416,8 +416,8 @@ parse_git_status() {
                 git status 2>/dev/null |
                     sed -n '
                         s/^# On branch /branch=/p
-                        s/^nothing to commit/clean=clean/p
-                        s/^# Initial commit/init=init/p
+                        s/^nothing to commi.*/clean=clean/p
+                        s/^# Initial commi.*/init=init/p
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added;/p
