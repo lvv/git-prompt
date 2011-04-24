@@ -564,12 +564,17 @@ parse_vcs_status() {
                 eval $old_nullglob
 
                 if [[ $vim_glob ]];  then
-                    vim_file=${vim_glob#.}
-                    vim_file=${vim_file/.sw?/}
+                    set $vim_glob
+                    #vim_file=${vim_glob#.}
+                    if [[ $# > 1 ]] ; then 
+                            vim_files="*"
+                    else
+                            vim_file=${1#.}
+                            vim_file=${vim_file/.sw?/}
+                            [[ .${vim_file}.swp -nt $vim_file ]]  && vim_files=$vim_file
+                    fi
                     # if swap is newer,  then this is unsaved vim session
-                    #[[ .${vim_file}.swp -nt $vim_file ]]  && vim_files=$vim_file
                     # [temoto custom] if swap is older, then it must be deleted, so show all swaps.
-                    vim_files=$vim_file
                 fi
         fi
 
