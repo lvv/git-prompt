@@ -289,8 +289,8 @@ set_shell_label() {
         # if    { for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd && echo == REMOTE ==; }
         #then
 
-        host=${HOSTNAME}
-        #host=`hostname -s`
+        #host=${HOSTNAME}
+        host=`hostname -s`
         host=${host#$default_host}
         uphost=`echo ${host} | tr a-z A-Z`
         if [[ $upcase_hostname = "on" ]]; then
@@ -304,6 +304,8 @@ set_shell_label() {
                 color_index=(green yellow blue magenta cyan white)              # FIXME:  bw,  color-256
                 host_color=${color_index[cksum_color_no]}
         fi
+        #host_color fix in white
+        host_color=white
 
         host_color=${!host_color}
 
