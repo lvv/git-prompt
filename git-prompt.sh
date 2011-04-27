@@ -53,7 +53,13 @@
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
+
+             if [[ $OSTYPE == "linux-gnu" ]] ;  then                # no linux OSs do not support extra colors
                   hex_vcs_color=${hex_vcs_color:-dim}
+             else
+                  hex_vcs_color=${hex_vcs_color:-colors_reset}
+             fi
+
 
         max_file_list_length=${max_file_list_length:-100}
         upcase_hostname=${upcase_hostname:-on}
