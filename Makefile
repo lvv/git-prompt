@@ -12,8 +12,7 @@ COPY_LIST = git-prompt.sh
 
 
 install:
-	cp -v git-prompt.sh 	/etc/
-	[ -f /etc/git-prompt.conf ]  || cp -v git-prompt.conf /etc/
+	[ -f $(HOME)/.git-prompt.conf ] || ln -s $(shell pwd)/git-prompt.conf $(HOME)/.git-prompt.conf 
 	
 tgit:
 	xclip -i git-demo
