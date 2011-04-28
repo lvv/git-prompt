@@ -634,8 +634,7 @@ enable_set_shell_label() {
 j (){
         : ${1? usage: j dir-beginning}
         # go in ring buffer starting from current index.  cd to first matching dir
-        for (( i=(aj_idx+1)%aj_max;   i != aj_idx%aj_max;  i=++i%aj_max )) ; do
-                #echo == ${aj_dir_list[$i]} == $i
+        for (( i=(aj_idx-1)%aj_max;   i != aj_idx%aj_max;  i=(--i+aj_max)%aj_max )) ; do
                 if [[ ${aj_dir_list[$i]} =~ ^.*/$1[^/]*$ ]] ; then
                         cd "${aj_dir_list[$i]}"
                         return
