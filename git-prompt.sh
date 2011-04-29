@@ -53,7 +53,13 @@
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
+
+             if [[ $OSTYPE == "linux-gnu" ]] ;  then                # no linux OSs do not support extra colors
                   hex_vcs_color=${hex_vcs_color:-dim}
+             else
+                  hex_vcs_color=${hex_vcs_color:-colors_reset}
+             fi
+
 
         max_file_list_length=${max_file_list_length:-100}
         upcase_hostname=${upcase_hostname:-on}
@@ -99,7 +105,6 @@
         ### if term support colors,  then use color prompt, else bold
 
               black='\['`tput sgr0; tput setaf 0`'\]'
-                dim='\['`tput sgr0; tput setaf p1`'\]'  # half-bright
                 red='\['`tput sgr0; tput setaf 1`'\]'
               green='\['`tput sgr0; tput setaf 2`'\]'
              yellow='\['`tput sgr0; tput setaf 3`'\]'
@@ -114,8 +119,10 @@
              YELLOW='\['`tput setaf 3; tput bold`'\]'
                BLUE='\['`tput setaf 4; tput bold`'\]'
             MAGENTA='\['`tput setaf 5; tput bold`'\]'
-               CYAN='\['`tput setaf 6; tput bold`'\]'  # why 14 doesn't work?
+               CYAN='\['`tput setaf 6; tput bold`'\]'
               WHITE='\['`tput setaf 7; tput bold`'\]'
+
+                dim='\['`tput sgr0; tput setaf p1`'\]'  # half-bright
 
             bw_bold='\['`tput bold`'\]'
 
@@ -411,6 +418,7 @@ parse_git_status() {
 	added_files=()
 	modified_files=()
 	untracked_files=()
+        freshness="$dim="
         unset branch status modified added clean init added mixed untracked op detached
 
 	# quoting hell
@@ -420,6 +428,8 @@ parse_git_status() {
                         s/^# On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
                         s/^# Initial commi.*/init=init/p
+                        s/^# Your branch is ahead of .[/[:alnum:]]\+. by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
+                        s/^# Your branch is behind .[/[:alnum:]]\+. by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added;/p
@@ -493,7 +503,7 @@ parse_git_status() {
         if  [[ $rawhex_len -gt 0 ]] ;  then
                 rawhex=`git rev-parse HEAD 2>/dev/null`
                 rawhex=${rawhex/HEAD/}
-                rawhex="$hex_vcs_color=${rawhex:0:$rawhex_len}"
+                rawhex="$hex_vcs_color${rawhex:0:$rawhex_len}"
         else
                 rawhex=""
         fi
@@ -522,7 +532,7 @@ parse_git_status() {
                         fi
                         #branch="<$branch>"
                 fi
-                vcs_info="$branch$rawhex"
+                vcs_info="$branch$freshness$rawhex"
 
         fi
  }
@@ -592,7 +602,7 @@ parse_vcs_status() {
                 [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
                 [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
         fi
-        [[ ${vim_files}          ]]  &&  file_list+=" "${RED}vim:${vim_files}
+        [[ ${vim_files}          ]]  &&  file_list+=" "${MAGENTA}vim:${vim_files}
 
         if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
                 file_list=${file_list:0:$max_file_list_length}
@@ -626,8 +636,7 @@ enable_set_shell_label() {
 j (){
         : ${1? usage: j dir-beginning}
         # go in ring buffer starting from current index.  cd to first matching dir
-        for (( i=(aj_idx+1)%aj_max;   i != aj_idx%aj_max;  i=++i%aj_max )) ; do
-                #echo == ${aj_dir_list[$i]} == $i
+        for (( i=(aj_idx-1)%aj_max;   i != aj_idx%aj_max;  i=(--i+aj_max)%aj_max )) ; do
                 if [[ ${aj_dir_list[$i]} =~ ^.*/$1[^/]*$ ]] ; then
                         cd "${aj_dir_list[$i]}"
                         return
