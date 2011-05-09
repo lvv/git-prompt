@@ -23,6 +23,7 @@
         svn_module=${svn_module:-off}
         hg_module=${hg_module:-on}
         vim_module=${vim_module:-on}
+        rvm_module=${rvm_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
@@ -53,6 +54,7 @@
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
+             rvm_color=${rvm_color:-GREEN}
 
              if [[ $OSTYPE == "linux-gnu" ]] ;  then                # no linux OSs do not support extra colors
                   hex_vcs_color=${hex_vcs_color:-dim}
@@ -142,6 +144,7 @@
              addmoded_vcs_color=${!addmoded_vcs_color}
              detached_vcs_color=${!detached_vcs_color}
                   hex_vcs_color=${!hex_vcs_color}
+                      rvm_color=${!rvm_color}
 
         unset PROMPT_COMMAND
 
@@ -634,6 +637,15 @@ parse_vcs_status() {
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
 
+parse_rvm_status() {
+        local gemset=$(echo $GEM_HOME | awk -F'@' '{print $2}')
+        [ "$gemset" != "" ] && gemset="@$gemset"
+        local version=$(echo $MY_RUBY_HOME | awk -F'-' '{print $2}')
+        [ "$version" == "$default_rvm_version" ] && version=""
+        rvm_info="$version$gemset"
+        [[ "$rvm_info" ]] && rvm_info="[$rvm_info] "
+}
+
 disable_set_shell_label() {
         trap - DEBUG  >& /dev/null
  }
@@ -682,6 +694,8 @@ prompt_command_function() {
         set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
 
         parse_vcs_status
+        [[ $rvm_module = "on" ]] && type rvm >&/dev/null && parse_rvm_status
+
 
         # autojump
         if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
@@ -692,7 +706,7 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
+        PS1="$colors_reset$rc$head_local$rvm_color$rvm_info$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
  }
