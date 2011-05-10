@@ -643,7 +643,7 @@ parse_rvm_status() {
         local version=$(echo $MY_RUBY_HOME | awk -F'-' '{print $2}')
         [ "$version" == "$default_rvm_version" ] && version=""
         rvm_info="$version$gemset"
-        [[ "$rvm_info" ]] && rvm_info="[$rvm_info] "
+        [[ "$rvm_info" ]] && rvm_info="$rvm_color[$rvm_info] "
 }
 
 disable_set_shell_label() {
