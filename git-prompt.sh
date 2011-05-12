@@ -631,6 +631,12 @@ enable_set_shell_label() {
  }
 
 # autojump (see http://wiki.github.com/joelthelion/autojump)
+
+# TODO reverse the line order of a file
+#awk ' { line[NR] = $0 }
+#      END  { for (i=NR;i>0;i--)
+#             print line[i] }' listlogs
+
 j (){
         : ${1? usage: j dir-beginning}
         # go in ring buffer starting from current index.  cd to first matching dir
