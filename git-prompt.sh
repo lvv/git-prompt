@@ -444,6 +444,12 @@ parse_git_status() {
                             s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
                         }
 
+                        /^# Changes not staged for commit:/,/^# [A-Z]/ {
+                            s/^# Changes not staged for commit:/modified=modified;/p
+                            s/^#	modified:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
+                            s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
+                        }
+
                         /^# Untracked files:/,/^[^#]/{
                             s/^# Untracked files:/untracked=untracked;/p
                             s/^#	'"$file_regex"'/		[[ \" ${untracked_files[*]} ${modified_files[*]} ${added_files[*]} \" =~ \" \1 \" ]] || untracked_files[${#untracked_files[@]}]=\"\1\"/p
