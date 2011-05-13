@@ -176,6 +176,12 @@ time consuming ops in postconfig which is executed only once.
 - Martin httpx://github.com/jerrywho[]  <JerryWho AT gmx.de>
 - Alexander Goldstein (emacs-shell, prompt chars) httpx://github.com/alexg0[]
 - Dmitry <uok AT gmx.net> (bash completion)
+- Sergey Shepelev <temotor AT gmail.com>
+- Robert Wahler <robert AT gearheadforhire.com>
+- Gustavo Delfino <gdelfino AT gmail.com>
+- Dan Bravender <dan.bravender AT gmail.com>
+- Thomas Geffert <thomas.geffert AT arcutronix.com>
+- Tibor Simko <tibor.simko AT cern.ch>
 
 
 [bibliography]
