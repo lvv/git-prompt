@@ -25,8 +25,10 @@
         vim_module=${vim_module:-on}
         rvm_module=${rvm_module:-on}
         venv_module=${venv_module:-on}
+        clock_module=${clock_module:-off}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
+        clock_format=${clock_format:-%H:%M:%S}
 
 
         #### dir, rc, root color
@@ -57,6 +59,7 @@
              detached_vcs_color=${detached_vcs_color:-RED}
                       rvm_color=${rvm_color:-GREEN}
                      venv_color=${venv_color:-YELLOW}
+                    clock_color=${clock_color:-WHITE}
 
              if [[ $OSTYPE == "linux-gnu" ]] ;  then                # no linux OSs do not support extra colors
                   hex_vcs_color=${hex_vcs_color:-dim}
@@ -148,6 +151,7 @@
                   hex_vcs_color=${!hex_vcs_color}
                       rvm_color=${!rvm_color}
                      venv_color=${!venv_color}
+                    clock_color=${!clock_color}
 
         unset PROMPT_COMMAND
 
@@ -716,6 +720,7 @@ prompt_command_function() {
         parse_vcs_status
         [[ $rvm_module = "on" ]] && type rvm >&/dev/null && parse_rvm_status
         [[ $venv_module = "on" ]] && type virtualenv >&/dev/null && parse_venv_status
+        [[ $clock_module = "on" ]] && local clock="$clock_color$(date +$clock_format) "
 
 
 
@@ -728,7 +733,7 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        PS1="$colors_reset$rc$head_local$venv_info$rvm_info$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
+        PS1="$colors_reset$clock$rc$head_local$venv_info$rvm_info$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
  }
