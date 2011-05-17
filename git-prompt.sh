@@ -63,7 +63,7 @@
 
         max_file_list_length=${max_file_list_length:-100}
         short_hostname=${short_hostname:-off}
-	upcase_hostname=${upcase_hostname:-on}
+        upcase_hostname=${upcase_hostname:-on}
         count_only=${count_only:-off}
         rawhex_len=${rawhex_len:-5}
 
@@ -298,9 +298,9 @@ set_shell_label() {
         #then
 
         host=${HOSTNAME}
-	if [[ $short_hostname = "on" ]]; then
-		host=`hostname -s`
-	fi
+        if [[ $short_hostname = "on" ]]; then
+            host=`hostname -s`
+        fi
         host=${host#$default_host}
         uphost=`echo ${host} | tr a-z A-Z`
         if [[ $upcase_hostname = "on" ]]; then
