@@ -23,8 +23,8 @@
         svn_module=${svn_module:-off}
         hg_module=${hg_module:-on}
         vim_module=${vim_module:-on}
-        rvm_module=${rvm_module:-on}
-        venv_module=${venv_module:-on}
+        rvm_module=${rvm_module:-off}
+        venv_module=${venv_module:-off}
         clock_module=${clock_module:-off}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
