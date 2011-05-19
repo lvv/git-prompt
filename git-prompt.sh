@@ -414,7 +414,7 @@ parse_git_status() {
 	added_files=()
 	modified_files=()
 	untracked_files=()
-        freshness="$dim="
+        freshness="$dim"
         unset branch status modified added clean init added mixed untracked op detached
 
 	# quoting hell
@@ -512,7 +512,7 @@ parse_git_status() {
         if  [[ $rawhex_len -gt 0 ]] ;  then
                 rawhex=`git rev-parse HEAD 2>/dev/null`
                 rawhex=${rawhex/HEAD/}
-                rawhex="$hex_vcs_color${rawhex:0:$rawhex_len}"
+                rawhex="=$hex_vcs_color${rawhex:0:$rawhex_len}"
         else
                 rawhex=""
         fi
