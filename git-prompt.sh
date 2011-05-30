@@ -62,6 +62,7 @@
 
 
         max_file_list_length=${max_file_list_length:-100}
+        short_hostname=${short_hostname:-off}
         upcase_hostname=${upcase_hostname:-on}
         count_only=${count_only:-off}
         rawhex_len=${rawhex_len:-5}
@@ -296,8 +297,10 @@ set_shell_label() {
         # if    { for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd && echo == REMOTE ==; }
         #then
 
-        #host=${HOSTNAME}
-        host=`hostname -s`
+        host=${HOSTNAME}
+        if [[ $short_hostname = "on" ]]; then
+            host=`hostname -s`
+        fi
         host=${host#$default_host}
         uphost=`echo ${host} | tr a-z A-Z`
         if [[ $upcase_hostname = "on" ]]; then
@@ -428,8 +431,10 @@ parse_git_status() {
                         s/^# On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
                         s/^# Initial commi.*/init=init/p
+
                         s/^# Your branch is ahead of .[/[:alnum:]]\+. by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
                         s/^# Your branch is behind .[/[:alnum:]]\+. by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
+                        s/^# Your branch and .[/[:alnum:]]\+. have diverged.*/freshness=${YELLOW}↕/p
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
                             s/^# Changes to be committed:/added=added;/p
@@ -444,6 +449,17 @@ parse_git_status() {
                             s/^# Changed but not updated:/modified=modified;/p
                             s/^#	modified:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
                             s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
+                        }
+
+                        /^# Changes not staged for commit:/,/^# [A-Z]/ {
+                            s/^# Changes not staged for commit:/modified=modified;/p
+                            s/^#	modified:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
+                            s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
+                        }
+
+                        /^# Unmerged paths:/,/^[^#]/ {
+                            s/^# Unmerged paths:/modified=modified;/p
+                            s/^#	both modified:\s*'"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
                         }
 
                         /^# Untracked files:/,/^[^#]/{
@@ -633,6 +649,12 @@ enable_set_shell_label() {
  }
 
 # autojump (see http://wiki.github.com/joelthelion/autojump)
+
+# TODO reverse the line order of a file
+#awk ' { line[NR] = $0 }
+#      END  { for (i=NR;i>0;i--)
+#             print line[i] }' listlogs
+
 j (){
         : ${1? usage: j dir-beginning}
         # go in ring buffer starting from current index.  cd to first matching dir
