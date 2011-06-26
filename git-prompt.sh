@@ -524,8 +524,13 @@ parse_git_status() {
                         fi
                 fi
                 if [[ $(git branch -a | grep $remote) != "" ]]; then
-                        if [[ -f $git_dir/FETCH_HEAD && $(git log --oneline HEAD..$remote/master) != "" ]]; then
-                                remotes+=" "$remote:$(git log --oneline HEAD..$remote/master | wc -l) 
+                        nRemoteCommit=$(git log --oneline HEAD..$remote/master | wc -l)
+                        if [[ -f $git_dir/FETCH_HEAD && $nRemoteCommit != "0" ]]; then
+                                if [[ $remote == "origin" ]]; then
+                                        remotes+=" o:"$nRemoteCommit 
+                                else
+                                        remotes+=" "$remote:$nRemoteCommit
+                                fi
                         fi
                 else
                         git fetch $remote >& /dev/null &
