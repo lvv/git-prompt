@@ -224,7 +224,7 @@ cwd_truncate() {
  }
 
 
-set_shell_label() {
+set_shell_label() { #{{{
 
         xterm_label() { echo  -n "]2;${@}" ; }   # FIXME: replace hardcodes with terminfo codes
 
@@ -254,7 +254,7 @@ set_shell_label() {
                                 ;;
                 esac
         fi
- }
+ } #}}}
 
     export -f set_shell_label
 
@@ -343,9 +343,7 @@ set_shell_label() {
         else
                 color_who_where=''
         fi
-
-
-parse_svn_status() {
+parse_svn_status() { #{{{
 
         [[   -d .svn  ]] || return 1
 
@@ -373,9 +371,8 @@ parse_svn_status() {
 
         [[  -z $modified ]]   &&  [[ -z $untracked ]]  &&  clean=clean
         vcs_info=svn:r$rev
- }
-
-parse_hg_status() {
+ } #}}}
+parse_hg_status() { #{{{
 
         # ☿
 
@@ -399,11 +396,8 @@ parse_hg_status() {
 
         [[ -z $modified ]]   &&   [[ -z $untracked ]]   &&   [[ -z $added ]]   &&   clean=clean
         vcs_info=${branch/default/D}
- }
-
-
-
-parse_git_status() {
+ } #}}}
+parse_git_status() { #{{{
 
         # TODO add status: LOCKED (.git/index.lock)
 
@@ -550,10 +544,8 @@ parse_git_status() {
                 vcs_info="$branch$freshness$rawhex"
 
         fi
- }
-
-
-parse_vcs_status() {
+ } #}}}
+parse_vcs_status() { #{{{
 
         unset   file_list modified_files untracked_files added_files
         unset   vcs vcs_info
@@ -633,14 +625,12 @@ parse_vcs_status() {
         head_local="${head_local+$vcs_color$head_local }"
         #above_local="${head_local+$vcs_color$head_local\n}"
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
- }
-
-disable_set_shell_label() {
+ } #}}}
+disable_set_shell_label() { #{{{
         trap - DEBUG  >& /dev/null
- }
-
+ } #}}}
 # show currently executed command in label
-enable_set_shell_label() {
+enable_set_shell_label() { #{{{
         disable_set_shell_label
 	# check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
         trap '[[ -z "$BASH_SOURCE" && ($BASH_COMMAND != prompt_command_function) ]] &&
@@ -664,13 +654,10 @@ j (){
                 fi
         done
         echo '?'
- }
-
+ } #}}}
 alias jumpstart='echo ${aj_dir_list[@]}'
-
 ###################################################################### PROMPT_COMMAND
-
-prompt_command_function() {
+prompt_command_function() { #{{{
         rc="$?"
 
         if [[ "$rc" == "0" ]]; then
@@ -696,12 +683,8 @@ prompt_command_function() {
         PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
- }
-
+ } #}}}
         PROMPT_COMMAND=prompt_command_function
-
         enable_set_shell_label
-
         unset rc id tty modified_files file_list
-
 # vim: set ft=sh ts=8 sw=8 et:
