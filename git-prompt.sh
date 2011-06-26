@@ -322,7 +322,6 @@ set_shell_label() {
         # we might already have short host name
         host=${host%.$default_domain}
 
-
 #################################################################### WHO_WHERE
         #  [[user@]host[-tty]]
 
