@@ -515,7 +515,7 @@ parse_git_status() {
                 if [[ ! -e $git_dir/FETCH_HEAD ]]; then
                         git fetch $remote >& /dev/null &
                 else
-                        fetchDate=$(date --utc --reference=.git/FETCH_HEAD +%s)
+                        fetchDate=$(date --utc --reference=$git_dir/FETCH_HEAD +%s)
                         now=$(date --utc +%s)
                         delta=$(( $now - $fetchDate ))
                         # if last update to .git/FETCH_HEAD file 
