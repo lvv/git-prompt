@@ -506,32 +506,35 @@ parse_git_status() { #{{{
                 #    branch="$(git describe --exact-match HEAD 2>/dev/null)" || \
                 #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
         fi
-        # TODO : make this a module on/off
-        # hourly checks new commits in remotes
-        fetchUpdate=3600 
-        remotes=()
-        for remote in $(git remote)
-        do
-                if [[ ! -e $git_dir/FETCH_HEAD ]]; then
-                        git fetch $remote >& /dev/null &
-                else
-                        fetchDate=$(date --utc --reference=$git_dir/FETCH_HEAD +%s)
-                        now=$(date --utc +%s)
-                        delta=$(( $now - $fetchDate ))
-                        # if last update to .git/FETCH_HEAD file 
-                        if [[ $delta -gt $fetchUpdate  ]]; then
-                                git fetch $remote >& /dev/null &
-                        fi
-                fi
-                if [[ $(git branch -a | grep $remote) != "" ]]; then
-                        nRemoteCommit=$(git log --oneline HEAD..$remote/master | wc -l)
-                        if [[ -f $git_dir/FETCH_HEAD && $nRemoteCommit != "0" ]]; then
-                                remotes+=" "${remote/origin/o}:$nRemoteCommit
-                        fi
-                else
-                        git fetch $remote >& /dev/null &
-                fi
-        done
+		if [[ $branch == "master" ]]; then
+			# Only work with master branch 
+	        # TODO : make this a module on/off
+	        # hourly checks new commits in remotes
+	        fetchUpdate=3600 
+	        remotes=()
+	        for remote in $(git remote)
+	        do
+	                if [[ ! -e $git_dir/FETCH_HEAD ]]; then
+	                        git fetch $remote >& /dev/null &
+	                else
+	                        fetchDate=$(date --utc --reference=$git_dir/FETCH_HEAD +%s)
+	                        now=$(date --utc +%s)
+	                        delta=$(( $now - $fetchDate ))
+	                        # if last update to .git/FETCH_HEAD file 
+	                        if [[ $delta -gt $fetchUpdate  ]]; then
+	                                git fetch $remote >& /dev/null &
+	                        fi
+	                fi
+	                if [[ $(git branch -a | grep $remote) != "" ]]; then
+	                        nRemoteCommit=$(git log --oneline HEAD..$remote/master | wc -l)
+	                        if [[ -f $git_dir/FETCH_HEAD && $nRemoteCommit != "0" ]]; then
+	                                remotes+=" "${remote/origin/o}:$nRemoteCommit
+	                        fi
+	                else
+	                        git fetch $remote >& /dev/null &
+	                fi
+	        done
+		fi
 
         ####  GET GIT HEX-REVISION
         if  [[ $rawhex_len -gt 0 ]] ;  then
