@@ -526,11 +526,7 @@ parse_git_status() { #{{{
                 if [[ $(git branch -a | grep $remote) != "" ]]; then
                         nRemoteCommit=$(git log --oneline HEAD..$remote/master | wc -l)
                         if [[ -f $git_dir/FETCH_HEAD && $nRemoteCommit != "0" ]]; then
-                                if [[ $remote == "origin" ]]; then
-                                        remotes+=" o:"$nRemoteCommit 
-                                else
-                                        remotes+=" "$remote:$nRemoteCommit
-                                fi
+                                remotes+=" "${remote/origin/o}:$nRemoteCommit
                         fi
                 else
                         git fetch $remote >& /dev/null &
