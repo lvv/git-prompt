@@ -54,11 +54,7 @@
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
 
-             if [[ $OSTYPE == "linux-gnu" ]] ;  then                # no linux OSs do not support extra colors
-                  hex_vcs_color=${hex_vcs_color:-dim}
-             else
-                  hex_vcs_color=${hex_vcs_color:-colors_reset}
-             fi
+                  hex_vcs_color=${hex_vcs_color:-BLACK}         # gray
 
 
         max_file_list_length=${max_file_list_length:-100}
@@ -279,7 +275,7 @@ set_shell_label() { #{{{
 
         # we don't need tty name under X11
         case $TERM in
-                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm | cygwin)  unset tty ;;
+                xterm* | rxvt* | gnome-terminal | konsole | eterm* | wterm | cygwin)  unset tty ;;
                 *);;
         esac
 
@@ -414,7 +410,7 @@ parse_git_status() { #{{{
 	added_files=()
 	modified_files=()
 	untracked_files=()
-        freshness="$dim="
+        freshness="$dim"
         unset branch status modified added clean init added mixed untracked op detached
 
 	# quoting hell
@@ -540,7 +536,7 @@ parse_git_status() { #{{{
         if  [[ $rawhex_len -gt 0 ]] ;  then
                 rawhex=`git rev-parse HEAD 2>/dev/null`
                 rawhex=${rawhex/HEAD/}
-                rawhex="$hex_vcs_color${rawhex:0:$rawhex_len}"
+                rawhex="=$hex_vcs_color${rawhex:0:$rawhex_len}"
         else
                 rawhex=""
         fi
