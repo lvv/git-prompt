@@ -54,11 +54,7 @@
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
 
-             if [[ $OSTYPE == "linux-gnu" ]] ;  then                # no linux OSs do not support extra colors
-                  hex_vcs_color=${hex_vcs_color:-dim}
-             else
-                  hex_vcs_color=${hex_vcs_color:-colors_reset}
-             fi
+                  hex_vcs_color=${hex_vcs_color:-BLACK}         # gray
 
 
         max_file_list_length=${max_file_list_length:-100}
