@@ -12,4 +12,4 @@ Screenshots and docs are at: [volnitsky.com](http://volnitsky.com/project/git-pr
   
 ### prompt-svn
 
-![prompt-svn](https://github.com/juanpabloaj/git-prompt/blob/master/screenshot-svn.png)
+![prompt-svn](https://github.com/juanpabloaj/git-prompt/raw/master/screenshot-svn.png)
