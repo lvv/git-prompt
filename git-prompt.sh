@@ -337,8 +337,6 @@ set_shell_label() {
         else
                 color_who_where=''
         fi
-
-
 parse_svn_status() {
 
         [[   -d .svn  ]] || return 1
@@ -368,7 +366,6 @@ parse_svn_status() {
         [[  -z $modified ]]   &&  [[ -z $untracked ]]  &&  clean=clean
         vcs_info=svn:r$rev
  }
-
 parse_hg_status() {
 
         # ☿
@@ -394,9 +391,6 @@ parse_hg_status() {
         [[ -z $modified ]]   &&   [[ -z $untracked ]]   &&   [[ -z $added ]]   &&   clean=clean
         vcs_info=${branch/default/D}
  }
-
-
-
 parse_git_status() {
 
         # TODO add status: LOCKED (.git/index.lock)
@@ -515,14 +509,14 @@ parse_git_status() {
 	        for remote in $(git remote)
 	        do
 	                if [[ ! -e $git_dir/FETCH_HEAD ]]; then
-	                        git fetch $remote >& /dev/null &
+	                        ( git fetch $remote >& /dev/null &)
 	                else
 	                        fetchDate=$(date --utc --reference=$git_dir/FETCH_HEAD +%s)
 	                        now=$(date --utc +%s)
 	                        delta=$(( $now - $fetchDate ))
 	                        # if last update to .git/FETCH_HEAD file 
 	                        if [[ $delta -gt $fetchUpdate  ]]; then
-	                                git fetch $remote >& /dev/null &
+	                                ( git fetch $remote >& /dev/null &)
 	                        fi
 	                fi
 	                if [[ $(git branch -a | grep $remote) != "" ]]; then
@@ -531,7 +525,7 @@ parse_git_status() {
 	                                remotes+=" "${remote/origin/o}:$nRemoteCommit
 	                        fi
 	                else
-	                        git fetch $remote >& /dev/null &
+	                        (git fetch $remote >& /dev/null &)
 	                fi
 	        done
 		fi
@@ -573,8 +567,6 @@ parse_git_status() {
 
         fi
  }
-
-
 parse_vcs_status() {
 
         unset   file_list modified_files untracked_files added_files
@@ -657,11 +649,9 @@ parse_vcs_status() {
         #above_local="${head_local+$vcs_color$head_local\n}"
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
-
 disable_set_shell_label() {
         trap - DEBUG  >& /dev/null
  }
-
 # show currently executed command in label
 enable_set_shell_label() {
         disable_set_shell_label
@@ -688,11 +678,8 @@ j (){
         done
         echo '?'
  }
-
 alias jumpstart='echo ${aj_dir_list[@]}'
-
 ###################################################################### PROMPT_COMMAND
-
 prompt_command_function() {
         rc="$?"
 
@@ -720,11 +707,7 @@ prompt_command_function() {
 
         unset head_local tail_local pwd
  }
-
         PROMPT_COMMAND=prompt_command_function
-
         enable_set_shell_label
-
         unset rc id tty modified_files file_list
-
 # vim: set ft=sh ts=8 sw=8 et:
