@@ -511,14 +511,14 @@ parse_git_status() { #{{{
 	        for remote in $(git remote)
 	        do
 	                if [[ ! -e $git_dir/FETCH_HEAD ]]; then
-	                        git fetch $remote >& /dev/null &
+	                        ( git fetch $remote >& /dev/null &)
 	                else
 	                        fetchDate=$(date --utc --reference=$git_dir/FETCH_HEAD +%s)
 	                        now=$(date --utc +%s)
 	                        delta=$(( $now - $fetchDate ))
 	                        # if last update to .git/FETCH_HEAD file 
 	                        if [[ $delta -gt $fetchUpdate  ]]; then
-	                                git fetch $remote >& /dev/null &
+	                                ( git fetch $remote >& /dev/null &)
 	                        fi
 	                fi
 	                if [[ $(git branch -a | grep $remote) != "" ]]; then
@@ -527,7 +527,7 @@ parse_git_status() { #{{{
 	                                remotes+=" "${remote/origin/o}:$nRemoteCommit
 	                        fi
 	                else
-	                        git fetch $remote >& /dev/null &
+	                        (git fetch $remote >& /dev/null &)
 	                fi
 	        done
 		fi
