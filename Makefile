@@ -1,5 +1,5 @@
 install:
-	[ -f $(HOME)/.git-prompt.conf ] || ln -v -s $(shell pwd)/git-prompt.conf $(HOME)/.git-prompt.conf 
+	[ -f $(HOME)/.git-prompt.conf ] || ln -vfn -s $(shell pwd)/git-prompt.conf $(HOME)/.git-prompt.conf 
 	@echo 
 	@echo 'add to ~/.bashrc'
 	@echo '[[ $$- == *i* ]] && . $(PWD)/git-prompt.sh'
