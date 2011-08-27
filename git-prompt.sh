@@ -222,7 +222,10 @@ cwd_truncate() {
 
 set_shell_label() {
 
-        xterm_label() { echo  -n "]2;${@}" ; }   # FIXME: replace hardcodes with terminfo codes
+        xterm_label() {
+                local args="$*"
+                echo  -n "]2;${args:0:200}" ;    # FIXME: replace hardcodes with terminfo codes
+        }   
 
         screen_label() {
                 # FIXME: run this only if screen is in xterm (how to test for this?)
