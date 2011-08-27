@@ -644,6 +644,9 @@ enable_set_shell_label() {
 	     set_shell_label $BASH_COMMAND' DEBUG  >& /dev/null
  }
 
+declare -ft disable_set_shell_label
+declare -ft enable_set_shell_label
+
 # autojump (see http://wiki.github.com/joelthelion/autojump)
 
 # TODO reverse the line order of a file
