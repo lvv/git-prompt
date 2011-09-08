@@ -229,7 +229,7 @@ set_shell_label() {
                         screen_label "$*"
                         ;;
 
-                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )
+                xterm* | rxvt* | gnome* | konsole | eterm | wterm )
                         # is there a capability which we can to test
                         # for "set term title-bar" and its escapes?
                         xterm_label  "$plain_who_where $@"
@@ -263,7 +263,7 @@ set_shell_label() {
 
         # we don't need tty name under X11
         case $TERM in
-                xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )  unset tty ;;
+                xterm* | rxvt* | gnome* | konsole | eterm | wterm )  unset tty ;;
                 *);;
         esac
 
