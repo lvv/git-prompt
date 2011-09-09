@@ -298,7 +298,11 @@ set_shell_label() { #{{{
 
         host=${HOSTNAME}
         if [[ $short_hostname = "on" ]]; then
-            host=`hostname -s`
+			if [[ "$(uname)" =~ "CYGWIN" ]]; then
+				host=`hostname`
+			else 
+				host=`hostname -s`
+			fi
         fi
         host=${host#$default_host}
         uphost=`echo ${host} | tr a-z A-Z`
