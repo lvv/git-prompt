@@ -391,7 +391,10 @@ parse_git_complete() {
                 return
         fi
 
-        complete -f -W "$(
+        # only define a git completion if none exists
+        # the one provided by the system or git itself
+        # is more elaborate than this one.
+        complete -p git 1>/dev/null 2>&1 || complete -f -W "$(
                 echo `git branch -a | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
                 echo `git remote | sed -e s/[\ \*]//g | cut -f 1 -d ' ' | uniq`; \
                 echo `git | tail -23 | head -21 | cut -d ' ' -f 4`; \
