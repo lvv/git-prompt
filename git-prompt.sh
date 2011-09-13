@@ -192,7 +192,7 @@ cwd_truncate() {
 
 		# trunc middle if over limit
                 if   [[ ${#path_middle}   -gt   $(( $cwd_middle_max + ${#elipses_marker} + 5 )) ]];   then
-			
+
 			# truncate
 			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
 
@@ -515,7 +515,7 @@ parse_git_status() {
 
         ### compose vcs_info
 
-        if [[ $init ]];  then 
+        if [[ $init ]];  then
                 vcs_info=${white}init
 
         else
@@ -663,7 +663,7 @@ disable_preexec_command_function() {
 # register a preexec hook eg to show currently executed command in label
 enable_preexec_command_function() {
         disable_preexec_command_function
-        
+
         trap '[[ -z "$COMP_LINE"  ]] && preexec_invoke_exec' DEBUG  >& /dev/null
  }
 
@@ -719,7 +719,7 @@ prompt_command_function() {
 
 timer_start() {
         local command=$1
-        # unless applying the blacklist as prefix remove pattern results 
+        # unless applying the blacklist as prefix remove pattern results
         # in and empty string (it matches)
         if [ -n "${command##+(${TIMER_BLACKLIST:-timer_blacklist})}" ] ; then
                 export TIMER_COMMAND="$1"
