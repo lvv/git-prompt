@@ -442,8 +442,8 @@ parse_git_status() {
                             s/^#	copied:[^>]*> '"$file_regex"'/ 	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
                         }
 
-                        /^# Changed but not updated:/,/^# [A-Z]/ {
-                            s/^# Changed but not updated:/modified=modified;/p
+                        /^# \(Changed but not updated\|Changes not staged for commit\):/,/^# [A-Z]/ {
+                            s/^# \(Changed but not updated\|Changes not staged for commit\):/modified=modified;/p
                             s/^#	modified:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
                             s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
                         }
