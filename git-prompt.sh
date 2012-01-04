@@ -375,8 +375,7 @@ parse_svn_status() {
 parse_hg_status() {
 
         # ☿
-
-        [[  -d ./.hg/ ]]  ||  return  1
+        hg_root=`hg root 2>/dev/null` || return 1
 
         vcs=hg
 
