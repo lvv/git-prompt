@@ -393,8 +393,13 @@ parse_hg_status() {
 
         branch=`hg branch 2> /dev/null`
 
+        [[ -f $hg_root/.hg/bookmarks.current ]] && bookmark=`cat "$hg_root/.hg/bookmarks.current"`
+
         [[ -z $modified ]]   &&   [[ -z $untracked ]]   &&   [[ -z $added ]]   &&   clean=clean
         vcs_info=${branch/default/D}
+        if [[ "$bookmark" ]] ;  then
+                vcs_info+=/$bookmark
+        fi
  }
 
 
