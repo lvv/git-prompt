@@ -465,7 +465,7 @@ parse_git_status() {
                     '
         )"
 
-        if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then
+        if  ! grep -q "^ref:" "$git_dir/HEAD"  2>/dev/null;   then
                 detached=detached
         fi
 
