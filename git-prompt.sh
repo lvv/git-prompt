@@ -23,8 +23,12 @@
         svn_module=${svn_module:-off}
         hg_module=${hg_module:-on}
         vim_module=${vim_module:-on}
+        rvm_module=${rvm_module:-off}
+        venv_module=${venv_module:-off}
+        clock_module=${clock_module:-off}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
+        clock_format=${clock_format:-%H:%M:%S}
 
 
         #### dir, rc, root color
@@ -53,6 +57,9 @@
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
+                      rvm_color=${rvm_color:-GREEN}
+                     venv_color=${venv_color:-YELLOW}
+                    clock_color=${clock_color:-WHITE}
 
                   hex_vcs_color=${hex_vcs_color:-BLACK}         # gray
 
@@ -138,6 +145,9 @@
              addmoded_vcs_color=${!addmoded_vcs_color}
              detached_vcs_color=${!detached_vcs_color}
                   hex_vcs_color=${!hex_vcs_color}
+                      rvm_color=${!rvm_color}
+                     venv_color=${!venv_color}
+                    clock_color=${!clock_color}
 
         unset PROMPT_COMMAND
 
@@ -632,6 +642,32 @@ parse_vcs_status() {
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
 
+parse_rvm_status() {
+        local gemset=$(echo $GEM_HOME | awk -F'@' '{print $2}')
+        [ "$gemset" != "" ] && gemset="@$gemset"
+        local version=$(echo $MY_RUBY_HOME | awk -F'-' '{print $2}')
+        [ "$version" == "$default_rvm_version" ] && version=""
+        rvm_info="$version$gemset"
+        [[ "$rvm_info" ]] && rvm_info="$rvm_color[$rvm_info] "
+}
+
+parse_venv_status() {
+        if [[ "$VIRTUAL_ENV" ]]; then
+                local env="$VIRTUAL_ENV"
+                local env_name=""
+                while [[ "$env" && "$env" != "/" ]]; do
+                        env_name="$(basename $env)"
+                        if [[ "${env_name:0:1}" != "." ]]; then
+                                venv_info="$venv_color[$env_name] "
+                                return 0
+                        fi
+                        env="$(dirname $env)"
+                done
+        fi
+        venv_info=""
+        return 1
+}
+
 disable_set_shell_label() {
         trap - DEBUG  >& /dev/null
  }
@@ -683,6 +719,11 @@ prompt_command_function() {
         set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
 
         parse_vcs_status
+        [[ $rvm_module = "on" ]] && type rvm >&/dev/null && parse_rvm_status
+        [[ $venv_module = "on" ]] && type virtualenv >&/dev/null && parse_venv_status
+        [[ $clock_module = "on" ]] && local clock="$clock_color$(date +$clock_format) "
+
+
 
         # autojump
         if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
@@ -693,7 +734,7 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
+        PS1="$colors_reset$clock$rc$head_local$venv_info$rvm_info$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
  }
