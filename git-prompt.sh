@@ -64,6 +64,9 @@
 
         aj_max=20
 
+        ### GNU screen marker
+        screen_marker=${screen_marker:-sCRn}
+        screen_marker="$screen_marker " # add trailing blank
 
 #####################################################################  post config
 
@@ -149,7 +152,6 @@
         fi
 
         ####################################################################  MARKERS
-        screen_marker="sCRn"
         if [[ $LC_CTYPE =~ "UTF" && $TERM != "linux" ]];  then
                 elipses_marker="…"
         else
@@ -228,7 +230,7 @@ set_shell_label() {
 
         screen_label() {
                 # FIXME: run this only if screen is in xterm (how to test for this?)
-                xterm_label  "$screen_marker  $plain_who_where $@"
+                xterm_label  "$screen_marker$plain_who_where$@"
 
                 # FIXME $STY not inherited though "su -"
                 [ "$STY" ] && screen -S $STY -X title "$*"
@@ -245,7 +247,7 @@ set_shell_label() {
                         xterm* | rxvt* | gnome-terminal | konsole | eterm | wterm )
                                 # is there a capability which we can to test
                                 # for "set term title-bar" and its escapes?
-                                xterm_label  "$plain_who_where $@"
+                                xterm_label  "$plain_who_where$@"
                                 ;;
 
                         *)
