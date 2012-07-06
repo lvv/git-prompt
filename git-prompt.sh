@@ -444,9 +444,9 @@ parse_git_status() {
         eval " $(
                 git status --porcelain 2>/dev/null |
                     sed -n '
-                        s/^[MARC]. \(.*\)/      added=added;            [[ \" ${added_files[*]} \" =~ \" \1 \" ]]       || added_files[${#added_files[@]}]=\"\1\"/p
-                        s/^.[MAU] \(.*\)/	modified=modified;      [[ \" ${modified_files[*]} \" =~ \" \1 \" ]]    || modified_files[${#modified_files[@]}]=\"\1\"/p
-                        s/^?? \(.*\)/           untracked=untracked;    [[ \" ${untracked_files[*]} \" =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\"/p
+                        s/^[MARC]. \(.*\)/      added=added;            [[ \" ${added_files[*]} \" =~  \1  ]]    || added_files[${#added_files[@]}]=\1/p
+                        s/^.[MAU] \(.*\)/	modified=modified;      [[ \" ${modified_files[*]} \" =~  \1 ]]  || modified_files[${#modified_files[@]}]=\1/p
+                        s/^?? \(.*\)/           untracked=untracked;    [[ \" ${untracked_files[*]} \" =~ \1 ]]  || untracked_files[${#untracked_files[@]}]=\1/p
                     '
         )"
 
