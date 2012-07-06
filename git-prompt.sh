@@ -201,7 +201,7 @@ cwd_truncate() {
 
 		# trunc middle if over limit
                 if   [[ ${#path_middle}   -gt   $(( $cwd_middle_max + ${#elipses_marker} + 5 )) ]];   then
-			
+
 			# truncate
 			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
 
@@ -225,7 +225,7 @@ set_shell_label() {
         xterm_label() {
                 local args="$*"
                 echo  -n "]2;${args:0:200}" ;    # FIXME: replace hardcodes with terminfo codes
-        }   
+        }
 
         screen_label() {
                 # FIXME: run this only if screen is in xterm (how to test for this?)
@@ -301,7 +301,7 @@ set_shell_label() {
         if [[ $short_hostname = "on" ]]; then
 			if [[ "$(uname)" =~ "CYGWIN" ]]; then
 				host=`hostname`
-			else 
+			else
 				host=`hostname -s`
 			fi
         fi
@@ -517,7 +517,7 @@ parse_git_status() {
 
         ### compose vcs_info
 
-        if [[ $init ]];  then 
+        if [[ $init ]];  then
                 vcs_info=${white}init
 
         else
@@ -578,7 +578,7 @@ parse_vcs_status() {
                 if [[ $vim_glob ]];  then
                     set $vim_glob
                     #vim_file=${vim_glob#.}
-                    if [[ $# > 1 ]] ; then 
+                    if [[ $# > 1 ]] ; then
                             vim_files="*"
                     else
                             vim_file=${1#.}
