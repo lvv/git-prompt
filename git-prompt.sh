@@ -1,4 +1,3 @@
-
         # don't set prompt if this is not interactive shell
         [[ $- != *i* ]]  &&  return
 
@@ -309,7 +308,7 @@ set_shell_label() {
         host_color=${uphost}_host_color
         host_color=${!host_color}
         if [[ -z $host_color && -x /usr/bin/cksum ]] ;  then
-                cksum_color_no=`echo $uphost | cksum  | awk '{print $1%7}'`
+                cksum_color_no=`echo $uphost | cksum  | awk '{print $1%6}'`
                 color_index=(green yellow blue magenta cyan white)              # FIXME:  bw,  color-256
                 host_color=${color_index[cksum_color_no]}
         fi
