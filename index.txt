@@ -108,7 +108,15 @@ Some distros also have `/etc/bashrc` or `/etc/bash/bashrc` with distro default
 prompt.
 
 
-== Config 
+//////////////////////////////
+== Git config 
+
+git config [--global] core.quotepath off
+git config [--global] --unset svn.pathnameencoding
+git config [--global] --unset i18n.logoutputencoding
+///////////////////////////////////
+
+== Git-print config 
 [[config]]
 
 Is optional.  If config file is not found then git-prompt uses defaults. 

@@ -420,7 +420,7 @@ parse_git_status() {
         freshness="$dim"
         unset branch status modified added clean init added mixed untracked op detached
 
-	# quoting hell
+	# info not in porcelain status
         eval " $(
                 git status 2>/dev/null |
                     sed -n '
@@ -431,39 +431,20 @@ parse_git_status() {
                         s/^# Your branch is ahead of .[/[:alnum:]]\+. by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
                         s/^# Your branch is behind .[/[:alnum:]]\+. by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
                         s/^# Your branch and .[/[:alnum:]]\+. have diverged.*/freshness=${YELLOW}↕/p
-
-                        /^# Changes to be committed:/,/^# [A-Z]/ {
-                            s/^# Changes to be committed:/added=added;/p
-
-                            s/^#	modified:   '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
-                            s/^#	new file:   '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
-                            s/^#	renamed:[^>]*> '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
-                            s/^#	copied:[^>]*> '"$file_regex"'/ 	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
-                        }
-
-                        /^# Changed but not updated:/,/^# [A-Z]/ {
-                            s/^# Changed but not updated:/modified=modified;/p
-                            s/^#	modified:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
-                            s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
-                        }
-
-                        /^# Changes not staged for commit:/,/^# [A-Z]/ {
-                            s/^# Changes not staged for commit:/modified=modified;/p
-                            s/^#	modified:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
-                            s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
-                        }
-
-                        /^# Unmerged paths:/,/^[^#]/ {
-                            s/^# Unmerged paths:/modified=modified;/p
-                            s/^#	both modified:\s*'"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
-                        }
-
-                        /^# Untracked files:/,/^[^#]/{
-                            s/^# Untracked files:/untracked=untracked;/p
-                            s/^#	'"$file_regex"'/		[[ \" ${untracked_files[*]} ${modified_files[*]} ${added_files[*]} \" =~ \" \1 \" ]] || untracked_files[${#untracked_files[@]}]=\"\1\"/p
-                        }
                     '
         )"
+
+	# porcelain file list
+                                                # TODO:  sed-less -- http://tldp.org/LDP/abs/html/arrays.html  -- Example 27-5
+        eval " $(
+                git status --porcelain 2>/dev/null |
+                    sed -n '
+                        s/^[MARC]. \(.*\)/      added=added;            [[ \" ${added_files[*]} \" =~ \" \1 \" ]]       || added_files[${#added_files[@]}]=\"\1\"/p
+                        s/^.[MAU] \(.*\)/	modified=modified;      [[ \" ${modified_files[*]} \" =~ \" \1 \" ]]    || modified_files[${#modified_files[@]}]=\"\1\"/p
+                        s/^?? \(.*\)/           untracked=untracked;    [[ \" ${untracked_files[*]} \" =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\"/p
+                    '
+        )"
+
 
         if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then
                 detached=detached
