@@ -149,7 +149,6 @@
         fi
 
         ####################################################################  MARKERS
-        screen_marker="sCRn"
         if [[ $LC_CTYPE =~ "UTF" && $TERM != "linux" ]];  then
                 elipses_marker="…"
         else
@@ -228,7 +227,7 @@ set_shell_label() {
 
         screen_label() {
                 # FIXME: run this only if screen is in xterm (how to test for this?)
-                xterm_label  "$screen_marker  $plain_who_where $@"
+                xterm_label  "$plain_who_where $@"
 
                 # FIXME $STY not inherited though "su -"
                 [ "$STY" ] && screen -S $STY -X title "$*"
