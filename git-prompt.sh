@@ -443,13 +443,23 @@ parse_git_status() {
         )"
 
 	# porcelain file list
-                                                # TODO:  sed-less -- http://tldp.org/LDP/abs/html/arrays.html  -- Example 27-5
+                                        # TODO:  sed-less -- http://tldp.org/LDP/abs/html/arrays.html  -- Example 27-5
+
+                                        # git bug:  (was reported to git@vger.kernel.org )
+                                        # echo 1 > "with space"
+                                        # git status --porcelain
+                                        # ?? with space                   <------------ NO QOUTES
+                                        # git add with\ space
+                                        # git status --porcelain
+                                        # A  "with space"                 <------------- WITH QOUTES
+
         eval " $(
                 git status --porcelain 2>/dev/null |
                     sed -n '
                         s/^[MARC]. \(.*\)/      added=added;            [[ \" ${added_files[*]} \" =~  \1  ]]    || added_files[${#added_files[@]}]=\1/p
                         s/^.[MAU] \(.*\)/	modified=modified;      [[ \" ${modified_files[*]} \" =~  \1 ]]  || modified_files[${#modified_files[@]}]=\1/p
-                        s/^?? \(.*\)/           untracked=untracked;    [[ \" ${untracked_files[*]} \" =~ \1 ]]  || untracked_files[${#untracked_files[@]}]=\1/p
+                        s/^?? \([a-zA-Z_.=:]*\)$/           untracked=untracked;    [[ \" ${untracked_files[*]} \" =~ \" \1 \" ]]  || untracked_files[${#untracked_files[@]}]=\"\1\"/p
+                        s/^?? \(.*\)$/           untracked=untracked;    [[ \" ${untracked_files[*]} \" =~ \" \1 \" ]]  || untracked_files[${#untracked_files[@]}]=\"\1\"/p
                     '
         )"
 
