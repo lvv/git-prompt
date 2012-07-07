@@ -422,7 +422,6 @@ parse_git_status() {
         vcs=git
 
         ##########################################################   GIT STATUS
-	file_regex='\([^/ ]*\/\{0,1\}\).*'
 	added_files=()
 	modified_files=()
 	untracked_files=()
@@ -509,7 +508,7 @@ parse_git_status() {
         fi
 
         #### branch
-        branch=${branch/master/M}
+        branch=${branch/#master/M}
 
                         # another method of above:
                         # branch=$(git symbolic-ref -q HEAD || { echo -n "detached:" ; git name-rev --name-only HEAD 2>/dev/null; } )
