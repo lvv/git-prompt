@@ -151,7 +151,7 @@
         fi
 
         ####################################################################  MARKERS
-        if [[ $LC_CTYPE =~ "UTF" && $TERM != "linux" ]];  then
+        if [[ "$LC_CTYPE $LC_ALL" =~ "UTF" && $TERM != "linux" ]];  then
                 elipses_marker="…"
         else
                 elipses_marker="..."
