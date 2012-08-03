@@ -695,7 +695,7 @@ prompt_command_function() {
         if [[ "$rc" == "0" ]]; then
                 rc=""
         else
-                rc="$rc_color$rc$colors_reset$bell "
+                rc="$rc_color[$rc]$colors_reset$bell "
         fi
 
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
