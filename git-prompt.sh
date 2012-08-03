@@ -687,10 +687,10 @@ alias jumpstart='echo ${aj_dir_list[@]}'
 
 preexec_interactive_mode=""
 prompt_command_function() {
+        rc="$?"
+
         timer_stop
         preexec_interactive_mode="yes"
-
-        rc="$?"
 
         if [[ "$rc" == "0" ]]; then
                 rc=""
