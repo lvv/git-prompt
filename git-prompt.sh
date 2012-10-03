@@ -25,7 +25,7 @@
         virtualenv_module=${virtualenv_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
-
+	head_separator=${head_separator:- }
 
         #### dir, rc, root color
         cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
@@ -624,10 +624,10 @@ parse_vcs_status() {
         fi
 
 
-        head_local="$vcs_color(${vcs_info}$vcs_color${file_list}$vcs_color)"
+        head_local="$vcs_color(${vcs_info}$vcs_color${file_list}$vcs_color)$head_separator"
 
         ### fringes
-        head_local="${head_local+$vcs_color$head_local }"
+        head_local="${head_local+$vcs_color$head_local}"
         #above_local="${head_local+$vcs_color$head_local\n}"
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
@@ -704,6 +704,7 @@ prompt_command_function() {
         # if cwd_cmd have back-slash, then assign it value to cwd
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
+	eval "${head_separator/\\/head_separator=\\\\}"
 
         PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
