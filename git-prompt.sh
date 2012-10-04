@@ -25,7 +25,8 @@
         virtualenv_module=${virtualenv_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
-
+        head_separator=${head_separator:- }
+        file_list_mode=${file_list_mode:-topdir}
 
         #### dir, rc, root color
         cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
@@ -41,9 +42,9 @@
         fi
         unset cols
 
-	#### prompt character, for root/non-root
-	prompt_char=${prompt_char:-'>'}
-	root_prompt_char=${root_prompt_char:-'>'}
+        #### prompt character, for root/non-root
+        prompt_char=${prompt_char:-'>'}
+        root_prompt_char=${root_prompt_char:-'>'}
 
         #### vcs colors
                  init_vcs_color=${init_vcs_color:-WHITE}        # initial
@@ -329,7 +330,7 @@ set_shell_label() {
 
         if [[ -n $id  || -n $host ]] ;   then
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
-                color_who_where="${id}${host:+$host_color$at$host}${tty:+ $tty}"
+                color_who_where="${id//\\/\\\\}${host:+$host_color$at$host}${tty:+ $tty}"
                 plain_who_where="${id}$at$host"
 
                 # add trailing " "
@@ -407,7 +408,19 @@ parse_hg_status() {
         fi
  }
 
+function longdir_or_filename()
+{
+        local name="${1%${1##*/}}"
+        [[ "${name:=${1##*/}}" != "/" && name="${name%?}" ]]
+        echo "$name"
+}
 
+function shortdir_or_filename()
+{
+        local name="${1%${1#*/}}"
+        [[ "${name:=${1##*/}}" != "/" && name="${name%?}" ]]
+        echo "$name"
+}
 
 parse_git_status() {
 
@@ -419,17 +432,22 @@ parse_git_status() {
 
         [[  -n ${git_dir/./} ]]   ||   return  1
 
+        # Allow per-repo configuration overrides
+        conf=${git_dir}/.git-prompt.conf;
+        [[ -r $conf ]]  && . $conf
+        unset conf
+
         vcs=git
 
         ##########################################################   GIT STATUS
-	added_files=()
-	modified_files=()
-	untracked_files=()
+        added_files=()
+        modified_files=()
+        untracked_files=()
         [[ $rawhex_len -gt 0 ]]  && freshness="$dim="
 
         unset branch status modified added clean init added mixed untracked op detached
 
-	# info not in porcelain status
+        # info not in porcelain status
         eval " $(
                 git status 2>/dev/null |
                     sed -n '
@@ -442,7 +460,7 @@ parse_git_status() {
                     '
         )"
 
-	# porcelain file list
+        # porcelain file list
                                         # TODO:  sed-less -- http://tldp.org/LDP/abs/html/arrays.html  -- Example 27-5
 
                                         # git bug:  (was reported to git@vger.kernel.org )
@@ -453,15 +471,33 @@ parse_git_status() {
                                         # git status --porcelain
                                         # A  "with space"                 <------------- WITH QOUTES
 
+        unquoted_match='\([^\"].*\)$'
+        quoted_match='\"\(.*\)\"$'
+
+        case $file_list_mode in
+                fileonly)
+                        func_match="\$(basename \"\1\")"
+                        ;;
+                fullpath)
+                        func_match="\1"
+                        ;;
+                topdir)
+                        func_match="\$(shortdir_or_filename \"\1\")"
+                        ;;
+                fulldir|*)
+                        func_match="\$(longdir_or_filename \"\1\")"
+                        ;;
+        esac
+
         eval " $(
                 git status --porcelain 2>/dev/null |
                         sed -n '
-                                s,^[MARC]. \([^\"][^/]*/\?\).*,         added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
-                                s,^[MARC]. \"\([^/]\+/\?\).*\"$,        added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
-                                s,^.[MAU] \([^\"][^/]*/\?\).*,          modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
-                                s,^.[MAU] \"\([^/]\+/\?\).*\"$,         modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
-                                s,^?? \([^\"][^/]*/\?\).*,              untracked=untracked;   [[ \" ${untracked_files[@]} \"  =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\",p
-                                s,^?? \"\([^/]\+/\?\).*\"$,             untracked=untracked;   [[ \" ${untracked_files[@]} \"  =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\",p
+                                s,^[MARC]. '$quoted_match', added=added;           [[ \" ${added_files[@]} \"     =~ \" '"$func_match"' \" ]]   || added_files[${#added_files[@]}]=\"'"$func_match"'\",p
+                                s,^[MARC]. '$unquoted_match', added=added;         [[ \" ${added_files[@]} \"     =~ \" '"$func_match"' \" ]]   || added_files[${#added_files[@]}]=\"'"$func_match"'\",p
+                                s,^.[MAU] '$quoted_match',  modified=modified;     [[ \" ${modified_files[@]} \"  =~ \" '"$func_match"' \" ]]   || modified_files[${#modified_files[@]}]=\"'"$func_match"'\",p
+                                s,^.[MAU] '$unquoted_match',  modified=modified;   [[ \" ${modified_files[@]} \"  =~ \" '"$func_match"' \" ]]   || modified_files[${#modified_files[@]}]=\"'"$func_match"'\",p
+                                s,^?? '$quoted_match',      untracked=untracked;   [[ \" ${untracked_files[@]} \" =~ \" '"$func_match"' \" ]]   || untracked_files[${#untracked_files[@]}]=\"'"$func_match"'\",p
+                                s,^?? '$unquoted_match',      untracked=untracked; [[ \" ${untracked_files[@]} \" =~ \" '"$func_match"' \" ]]   || untracked_files[${#untracked_files[@]}]=\"'"$func_match"'\",p
                         '   # |tee /dev/tty
         )"
 
@@ -624,10 +660,10 @@ parse_vcs_status() {
         fi
 
 
-        head_local="$vcs_color(${vcs_info}$vcs_color${file_list}$vcs_color)"
+        head_local="$vcs_color(${vcs_info}$vcs_color${file_list}$vcs_color)$head_separator"
 
         ### fringes
-        head_local="${head_local+$vcs_color$head_local }"
+        head_local="${head_local+$vcs_color$head_local}"
         #above_local="${head_local+$vcs_color$head_local\n}"
         #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
@@ -693,7 +729,7 @@ prompt_command_function() {
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
         set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
 
-	parse_virtualenv_status
+        parse_virtualenv_status
         parse_vcs_status
 
         # autojump
@@ -704,6 +740,7 @@ prompt_command_function() {
         # if cwd_cmd have back-slash, then assign it value to cwd
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
+        eval "${head_separator/\\/head_separator=\\\\}"
 
         PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
