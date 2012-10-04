@@ -26,6 +26,7 @@
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
         head_separator=${head_separator:- }
+        file_list_mode=${file_list_mode:-topdir}
 
         #### dir, rc, root color
         cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
@@ -407,7 +408,19 @@ parse_hg_status() {
         fi
  }
 
+function longdir_or_filename()
+{
+        local name="${1%${1##*/}}"
+        [[ "${name:=${1##*/}}" != "/" && name="${name%?}" ]]
+        echo "$name"
+}
 
+function shortdir_or_filename()
+{
+        local name="${1%${1#*/}}"
+        [[ "${name:=${1##*/}}" != "/" && name="${name%?}" ]]
+        echo "$name"
+}
 
 parse_git_status() {
 
@@ -453,15 +466,33 @@ parse_git_status() {
                                         # git status --porcelain
                                         # A  "with space"                 <------------- WITH QOUTES
 
+        unquoted_match='\([^\"].*\)$'
+        quoted_match='\"\(.*\)\"$'
+
+        case $file_list_mode in
+                fileonly)
+                        func_match="\$(basename \"\1\")"
+                        ;;
+                fullpath)
+                        func_match="\1"
+                        ;;
+                topdir)
+                        func_match="\$(shortdir_or_filename \"\1\")"
+                        ;;
+                fulldir|*)
+                        func_match="\$(longdir_or_filename \"\1\")"
+                        ;;
+        esac
+
         eval " $(
                 git status --porcelain 2>/dev/null |
                         sed -n '
-                                s,^[MARC]. \([^\"][^/]*/\?\).*,         added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
-                                s,^[MARC]. \"\([^/]\+/\?\).*\"$,        added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
-                                s,^.[MAU] \([^\"][^/]*/\?\).*,          modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
-                                s,^.[MAU] \"\([^/]\+/\?\).*\"$,         modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
-                                s,^?? \([^\"][^/]*/\?\).*,              untracked=untracked;   [[ \" ${untracked_files[@]} \"  =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\",p
-                                s,^?? \"\([^/]\+/\?\).*\"$,             untracked=untracked;   [[ \" ${untracked_files[@]} \"  =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\",p
+                                s,^[MARC]. '$quoted_match', added=added;           [[ \" ${added_files[@]} \"     =~ \" '"$func_match"' \" ]]   || added_files[${#added_files[@]}]=\"'"$func_match"'\",p
+                                s,^[MARC]. '$unquoted_match', added=added;         [[ \" ${added_files[@]} \"     =~ \" '"$func_match"' \" ]]   || added_files[${#added_files[@]}]=\"'"$func_match"'\",p
+                                s,^.[MAU] '$quoted_match',  modified=modified;     [[ \" ${modified_files[@]} \"  =~ \" '"$func_match"' \" ]]   || modified_files[${#modified_files[@]}]=\"'"$func_match"'\",p
+                                s,^.[MAU] '$unquoted_match',  modified=modified;   [[ \" ${modified_files[@]} \"  =~ \" '"$func_match"' \" ]]   || modified_files[${#modified_files[@]}]=\"'"$func_match"'\",p
+                                s,^?? '$quoted_match',      untracked=untracked;   [[ \" ${untracked_files[@]} \" =~ \" '"$func_match"' \" ]]   || untracked_files[${#untracked_files[@]}]=\"'"$func_match"'\",p
+                                s,^?? '$unquoted_match',      untracked=untracked; [[ \" ${untracked_files[@]} \" =~ \" '"$func_match"' \" ]]   || untracked_files[${#untracked_files[@]}]=\"'"$func_match"'\",p
                         '   # |tee /dev/tty
         )"
 
