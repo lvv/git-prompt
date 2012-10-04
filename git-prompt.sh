@@ -432,6 +432,11 @@ parse_git_status() {
 
         [[  -n ${git_dir/./} ]]   ||   return  1
 
+        # Allow per-repo configuration overrides
+        conf=${git_dir}/.git-prompt.conf;
+        [[ -r $conf ]]  && . $conf
+        unset conf
+
         vcs=git
 
         ##########################################################   GIT STATUS
