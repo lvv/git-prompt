@@ -25,6 +25,8 @@
         virtualenv_module=${virtualenv_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
+        cwd_remember=${cwd_remember:-off}
+        cwd_show_last_files=${cwd_show_last_files:-off}
 
 
         #### dir, rc, root color
@@ -149,6 +151,11 @@
                 PS1="\w$prompt_char "
                 return 0
         fi
+
+        #######  based on: http://matt.might.net/articles/console-hacks-exploiting-frequency/
+        #######  Change to most recently used directory
+
+        [[ $cwd_remember = "on" && -f "${HOME}/.lastdir" ]] && cd $(cat ${HOME}/.lastdir)
 
         ####################################################################  MARKERS
         if [[ "$LC_CTYPE $LC_ALL" =~ "UTF" && $TERM != "linux" ]];  then
@@ -431,7 +438,7 @@ parse_git_status() {
 
 	# info not in porcelain status
         eval " $(
-                git status 2>/dev/null |
+                git -c core.quotepath=false status 2>/dev/null |
                     sed -n '
                         s/^# On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
@@ -679,6 +686,30 @@ j (){
 
 alias jumpstart='echo ${aj_dir_list[@]}'
 
+show_last_files() {
+	# idea from http://matt.might.net/articles/console-hacks-exploiting-frequency/
+
+	local size=$(stty size)
+	local cols=${size#* }
+	local regexp="^(\[[0-9;]*m)(.*)(\[[0-9;]*m)$"	# FIXME: \033 and \x1b didn't work
+	local ls=$(ls -t --color=always | head -20)
+	local len=0
+	typeset -i len
+	local line
+	for line in $ls; do
+		local exp31='[[ "$line" =~ $regexp ]]'
+		if eval $exp31; then
+			local filename=${BASH_REMATCH[2]}
+			[ $(($len + ${#filename})) -ge "$cols" ] && break
+			echo -n " ${BASH_REMATCH[1]}$filename${BASH_REMATCH[3]}"
+			len+=${#filename}
+			len+=1
+		fi
+	done
+	tput sgr0
+	echo
+}
+
 ###################################################################### PROMPT_COMMAND
 
 prompt_command_function() {
@@ -689,6 +720,10 @@ prompt_command_function() {
         else
                 rc="$rc_color$rc$colors_reset$bell "
         fi
+
+        [[ $cwd_remember == "on" && "$PWD" != "$LASTDIR" ]] && echo $PWD > ~/.lastdir
+        [[ $cwd_show_last_files == "on" && "$PWD" != "$LASTDIR" ]] && show_last_files
+        [[ "$PWD" != "$LASTDIR" ]] && export LASTDIR="$PWD"
 
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
         set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
