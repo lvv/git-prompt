@@ -414,7 +414,7 @@ parse_git_status() {
 
 	# quoting hell
         eval " $(
-                git status 2>/dev/null |
+                git -c core.quotepath=false status 2>/dev/null |
                     sed -n '
                         s/^# On branch /branch=/p
                         s/^nothing to commit (working directory clean)/clean=clean/p
