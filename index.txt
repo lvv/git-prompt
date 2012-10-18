@@ -2,6 +2,9 @@
 
 = GIT Prompt
 
+* Repo: httpx://github.com/lvv/scc[GitHub],  httpx://bitbucket.org/lvv/scc[BitBucket] +
+* License:  httpx://www.gnu.org/licenses/gpl-3.0.html[GPL3]
+
 :v-p:		http://volnitsky.com/project
 :compact-option: compact
 
@@ -105,7 +108,19 @@ Some distros also have `/etc/bashrc` or `/etc/bash/bashrc` with distro default
 prompt.
 
 
-== Config 
+
+== GIT config 
+
+GIT-PROMPT requires following GIT's option to be set:
+
+-------------------------
+git config [--global] core.quotepath off
+git config [--global] --unset svn.pathnameencoding
+git config [--global] --unset i18n.logoutputencoding
+-----------------------------
+
+
+== GIT-PROMPT config 
 [[config]]
 
 Is optional.  If config file is not found then git-prompt uses defaults. 
@@ -159,13 +174,12 @@ dependencies are standard unix utils.
 
 == Todo
 
-* Subshells number indicator. Don't know how to do this. There is bash
-  `"\j"`, but let say I want `">>"` after path instead of `">"` when I have 2 jobs 
-  running. Running `+++`jobs | ... `+++` is extra bash fork, hate to do this. 
+* httpx://jonisalonen.com/2012/your-bash-prompt-needs-this/[]
+* httpx://tldp.org/HOWTO/Bash-Prompt-HOWTO/x810.html[Beep after long running command]
+* httpx://briancarper.net/blog/248/[Sync bash history]
 * VIM module needs to be moved out of GIT module
 * Check if the screen session is password protected and do not use
   `"screen -X"` in this case
-
 
 include::../volnitsky.com/project/howto-submit-patch.txt[]
 
@@ -183,6 +197,12 @@ time consuming ops in postconfig which is executed only once.
 - Martin httpx://github.com/jerrywho[]  <JerryWho AT gmx.de>
 - Alexander Goldstein (emacs-shell, prompt chars) httpx://github.com/alexg0[]
 - Dmitry <uok AT gmx.net> (bash completion)
+- Sergey Shepelev <temotor AT gmail.com>
+- Robert Wahler <robert AT gearheadforhire.com>
+- Gustavo Delfino <gdelfino AT gmail.com>
+- Dan Bravender <dan.bravender AT gmail.com>
+- Thomas Geffert <thomas.geffert AT arcutronix.com>
+- Tibor Simko <tibor.simko AT cern.ch>
 
 
 [bibliography]
