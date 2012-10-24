@@ -34,6 +34,8 @@
         hg_module=${hg_module:-on}
         vim_module=${vim_module:-on}
         virtualenv_module=${virtualenv_module:-on}
+        tmux_module=${tmux_module:-off}
+        tmux_tty_string=${tmux_tty_string:-"#Ip#P"}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
@@ -279,6 +281,8 @@ set_shell_label() {
                 #               # tty="${WINDOW:+s}$WINDOW${WINDOW:+-}$tty"
                 #       tty="${WINDOW:+s}$WINDOW"  # replace tty name with screen number
                 tty="$WINDOW"  # replace tty name with screen number
+        elif [[ $tmux_module == "on" && $TMUX_PANE ]]; then
+                tty=`tmux display -t $TMUX_PANE -p "$tmux_tty_string"`
         fi
 
         # we don't need tty name under X11
