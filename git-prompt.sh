@@ -430,7 +430,7 @@ parse_git_status() {
                 git status 2>/dev/null |
                     sed -n '
                         s/^# On branch /branch=/p
-                        s/^nothing to commit (working directory clean)/clean=clean/p
+                        s/^nothing to commit\(,\) \(working directory clean\)/clean=clean/p
                         s/^# Initial commit/init=init/p
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
