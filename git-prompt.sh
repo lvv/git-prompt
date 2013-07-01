@@ -430,7 +430,7 @@ parse_git_status() {
                 git status 2>/dev/null |
                     sed -n '
                         s/^# On branch /branch=/p
-                        s/^nothing to commit (working directory clean)/clean=clean/p
+                        s/^nothing to commit\(,\) \(working directory clean\)/clean=clean/p
                         s/^# Initial commit/init=init/p
 
                         /^# Changes to be committed:/,/^# [A-Z]/ {
@@ -687,15 +687,15 @@ alias jumpstart='echo ${aj_dir_list[@]}'
 
 preexec_interactive_mode=""
 prompt_command_function() {
+        rc="$?"
+
         timer_stop
         preexec_interactive_mode="yes"
-
-        rc="$?"
 
         if [[ "$rc" == "0" ]]; then
                 rc=""
         else
-                rc="$rc_color$rc$colors_reset$bell "
+                rc="$rc_color[$rc]$colors_reset$bell "
         fi
 
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
