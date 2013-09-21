@@ -151,9 +151,11 @@
         fi
 
         ####################################################################  MARKERS
-        if [[ "$LC_CTYPE $LC_ALL" =~ "UTF" && $TERM != "linux" ]];  then
+        if [[ ("$LC_CTYPE $LC_ALL" =~ "UTF" || $LANG =~ "utf") && $TERM != "linux" ]];  then
+                utf8_prompt=1
                 ellipse_marker="…"
         else
+                utf8_prompt=
                 ellipse_marker="..."
         fi
 
