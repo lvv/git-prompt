@@ -5,7 +5,7 @@
 
         #####  read config file if any.
 
-        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color
+        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color at_color
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
@@ -48,6 +48,7 @@
                 virtualenv_color=${virtualenv_color:-green}
                 user_id_color=${user_id_color:-blue}
                 root_id_color=${root_id_color:-magenta}
+                at_color=${at_color:-green}
                 jobs_color_bkg=${jobs_color:-yellow}
                 jobs_color_stop=${jobs_color:-red}
                 make_color_ok=${make_color_ok:-BLACK}
@@ -342,6 +343,7 @@ set_shell_label() {
                 host_color=${color_index[cksum_color_no]}
         fi
 
+        at_color=${!at_color}
         host_color=${!host_color}
 
         # we might already have short host name
@@ -352,7 +354,7 @@ set_shell_label() {
 
         if [[ -n $id  || -n $host ]] ;   then
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
-                color_who_where="${id}${host:+$host_color$at$host}${tty:+ $tty}"
+                color_who_where="${id}${host:+$at_color$at$host_color$host}${tty:+ $tty}"
                 plain_who_where="${id}$at$host"
 
                 # add trailing " "
