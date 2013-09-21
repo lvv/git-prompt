@@ -152,9 +152,9 @@
 
         ####################################################################  MARKERS
         if [[ "$LC_CTYPE $LC_ALL" =~ "UTF" && $TERM != "linux" ]];  then
-                elipses_marker="…"
+                ellipse_marker="…"
         else
-                elipses_marker="..."
+                ellipse_marker="..."
         fi
 
         export who_where
@@ -200,7 +200,7 @@ cwd_truncate() {
 
 
 		# trunc middle if over limit
-                if   [[ ${#path_middle}   -gt   $(( $cwd_middle_max + ${#elipses_marker} + 5 )) ]];   then
+                if   [[ ${#path_middle}   -gt   $(( $cwd_middle_max + ${#ellipse_marker} + 5 )) ]];   then
 
 			# truncate
 			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
@@ -212,7 +212,7 @@ cwd_truncate() {
 
 			# use truncated only if we cut at least 4 chars
 			if [[ $((  ${#path_middle} - ${#middle_tail}))  -gt 4  ]];  then
-				cwd=$path_head$elipses_marker$middle_tail$path_last_dir
+				cwd=$path_head$ellipse_marker$middle_tail$path_last_dir
 			fi
                 fi
         fi
@@ -619,7 +619,7 @@ parse_vcs_status() {
         if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
                 file_list=${file_list:0:$max_file_list_length}
                 if [[ $max_file_list_length -gt 0 ]]  ;  then
-                        file_list="${file_list% *} $elipses_marker"
+                        file_list="${file_list% *} $ellipse_marker"
                 fi
         fi
 
