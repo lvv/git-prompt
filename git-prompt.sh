@@ -296,7 +296,7 @@ set_shell_label() {
             # only abbreviate if the abbreviated string is actually shorter than the full one
             if [[ "$id" == "$default_user" && ${#id} -ge $((${#ellipse_marker} + 1)) ]]
             then
-                id="${id:0:1}$ellipse"
+                id="${id:0:1}$ellipse_marker"
             fi
         #else
             # keep full user name
@@ -368,7 +368,7 @@ set_shell_label() {
             # only abbreviate if the abbreviated string is actually shorter than the full one
             if [[ "$host" == "$default_host" && ${#host} -ge $((${#ellipse_marker} + 1)) ]]
             then
-                host="${host:0:1}$ellipse"
+                host="${host:0:1}$ellipse_marker"
             fi
         else
             # set upcase hostname if needed
