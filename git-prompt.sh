@@ -30,6 +30,9 @@
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
+        default_host_abbrev_mode=${default_host_abbrev_mode:-delete}
+        default_id_abbrev_mode=${default_id_abbrev_mode:-delete}
+
         #### check for acpi, make, disable corresponding module if not installed
         if [[ -z $(which acpi) && -z $(acpi -b) ]]; then
             battery_module=off
@@ -283,7 +286,21 @@ set_shell_label() {
 
 ###################################################### ID (user name)
         id=`id -un`
-        id=${id#$default_user}
+
+        # abbreviate user name if needed
+        if   [[ "$default_id_abbrev_mode" == "delete" ]]
+        then
+            id=${id#$default_user}
+        elif [[ "$default_id_abbrev_mode" == "abbrev" ]]
+        then
+            # only abbreviate if the abbreviated string is actually shorter than the full one
+            if [[ "$id" == "$default_user" && ${#id} -ge $((${#ellipse_marker} + 1)) ]]
+            then
+                id="${id:0:1}$ellipse"
+            fi
+        #else
+            # keep full user name
+        fi
 
 ########################################################### TTY
         tty=`tty`
@@ -331,7 +348,7 @@ set_shell_label() {
 				host=`hostname -s`
 			fi
         fi
-        host=${host#$default_host}
+
         uphost=`echo ${host} | tr a-z-. A-Z_`
         if [[ $upcase_hostname = "on" ]]; then
                 host=${uphost}
@@ -343,6 +360,21 @@ set_shell_label() {
                 cksum_color_no=`echo $uphost | cksum  | awk '{print $1%6}'`
                 color_index=(green yellow blue magenta cyan white)              # FIXME:  bw,  color-256
                 host_color=${color_index[cksum_color_no]}
+        fi
+
+        # abbreviate host name if needed
+        if   [[ "$default_host_abbrev_mode" == "delete" ]]
+        then
+            host=${host#$default_host}
+        elif [[ "$default_host_abbrev_mode" == "abbrev" ]]
+        then
+            # only abbreviate if the abbreviated string is actually shorter than the full one
+            if [[ "$host" == "$default_host" && ${#host} -ge $((${#ellipse_marker} + 1)) ]]
+            then
+                host="${host:0:1}$ellipse"
+            fi
+        #else
+            # keep full host name
         fi
 
         at_color=${!at_color}
@@ -368,6 +400,7 @@ set_shell_label() {
                         user_id_color=$root_id_color
                         prompt_char="$root_prompt_char"
                 fi
+
                 color_who_where="$user_id_color$color_who_where$colors_reset"
         else
                 color_who_where=''
