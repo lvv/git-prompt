@@ -431,6 +431,17 @@ parse_git_status() {
 
         unset branch status modified added clean init added mixed untracked op detached
 
+        if [[ $utf8_prompt ]]; then
+            git_up_char="↑"
+            git_dn_char="↓"
+            git_updn_char="↕"
+        else
+            git_up_char="^"
+            git_dn_char="v"
+            git_updn_char="*"
+        fi
+
+
 	# info not in porcelain status
         eval " $(
                 git status 2>/dev/null |
@@ -438,9 +449,9 @@ parse_git_status() {
                         s/^# On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
                         s/^# Initial commi.*/init=init/p
-                        s/^# Your branch is ahead of \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
-                        s/^# Your branch is behind \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
-                        s/^# Your branch and \(.\).\+\1 have diverged.*/freshness=${YELLOW}↕/p
+                        s/^# Your branch is ahead of \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${WHITE}${git_up_char}/p
+                        s/^# Your branch is behind \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${YELLOW}${git_dn_char}/p
+                        s/^# Your branch and \(.\).\+\1 have diverged.*/freshness=${YELLOW}${git_updn_char}/p
                     '
         )"
 
