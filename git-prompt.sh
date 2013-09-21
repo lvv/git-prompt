@@ -5,7 +5,7 @@
 
         #####  read config file if any.
 
-        unset make_color_ok make_color_dirty
+        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
@@ -26,10 +26,11 @@
         virtualenv_module=${virtualenv_module:-on}
         battery_module=${battery_module:-off}
         make_module=${make_module:-off}
+        jobs_module=${jobs_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
-        #### check for acpi, make disable corresponding module if not installed
+        #### check for acpi, make, disable corresponding module if not installed
         if [[ -z $(which acpi) && -z $(acpi -b) ]]; then
             battery_module=off
         fi
@@ -46,8 +47,11 @@
                 virtualenv_color=${virtualenv_color:-green}
                 user_id_color=${user_id_color:-blue}
                 root_id_color=${root_id_color:-magenta}
+                jobs_color_bkg=${jobs_color:-yellow}
+                jobs_color_stop=${jobs_color:-red}
                 make_color_ok=${make_color_ok:-BLACK}
                 make_color_dirty=${make_color_dirty:-RED}
+
         else                                            #  only B/W
                 dir_color=${dir_color:-bw_bold}
                 rc_color=${rc_color:-bw_bold}
@@ -409,6 +413,26 @@ create_battery_indicator () {
         fi
         battery_indicator="$battery_color$battery_indicator$colors_reset"
         unset battery_string battery_percent tmp
+}
+
+create_jobs_indicator() {
+        # background jobs ⚒⚑⚐⚠
+        jobs_bkg=$(jobs -r)
+        jobs_stop=$(jobs -s)
+        if [[ -n $jobs_bkg || -n $jobs_stop ]]; then
+            if [[ $utf8_prompt ]]; then
+                jobs_indicator="⚒"
+            else
+                jobs_indicator="%"
+            fi
+            if [[ -n $jobs_stop ]]; then
+                jobs_indicator="${!jobs_color_stop}$jobs_indicator"
+            else
+                jobs_indicator="${!jobs_color_bkg}$jobs_indicator"
+            fi
+        else
+            jobs_indicator=""
+        fi
 }
 
 check_make_status() {
@@ -804,6 +828,12 @@ prompt_command_function() {
              make_indicator=""
         fi
 
+        if [[ $jobs_module = "on" ]]; then
+             create_jobs_indicator
+        else
+             jobs_indicator=""
+        fi
+
         # autojump
         if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
               aj_dir_list[++aj_idx%aj_max]="$PWD"
@@ -813,7 +843,7 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$battery_indicator$dir_color$cwd$tail_local$make_indicator$dir_color$prompt_char $colors_reset"
+        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$tail_local$make_indicator$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
  }
