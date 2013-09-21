@@ -350,9 +350,6 @@ set_shell_label() {
         fi
 
         uphost=`echo ${host} | tr a-z-. A-Z_`
-        if [[ $upcase_hostname = "on" ]]; then
-                host=${uphost}
-        fi
 
         host_color=${uphost}_host_color
         host_color=${!host_color}
@@ -373,8 +370,11 @@ set_shell_label() {
             then
                 host="${host:0:1}$ellipse"
             fi
-        #else
-            # keep full host name
+        else
+            # set upcase hostname if needed
+            if [[ $upcase_hostname = "on" ]]; then
+                host=${uphost}
+            fi
         fi
 
         at_color=${!at_color}
