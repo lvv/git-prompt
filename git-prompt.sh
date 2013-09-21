@@ -23,9 +23,14 @@
         hg_module=${hg_module:-on}
         vim_module=${vim_module:-on}
         virtualenv_module=${virtualenv_module:-on}
+        battery_module=${battery_module:-off}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
+        #### check for acpi, disable corresponding module if not installed
+        if [[ -z $(which acpi) && -z $(acpi -b) ]]; then
+            battery_module=off
+        fi
 
         #### dir, rc, root color
         cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
@@ -119,6 +124,8 @@
             MAGENTA='\['`tput setaf 5; tput bold`'\]'
                CYAN='\['`tput setaf 6; tput bold`'\]'
               WHITE='\['`tput setaf 7; tput bold`'\]'
+
+              whiteonred='\['`tput setaf 7; tput setab 1; tput bold`'\]'
 
                 dim='\['`tput sgr0; tput setaf p1`'\]'  # half-bright
 
@@ -347,6 +354,54 @@ set_shell_label() {
         else
                 color_who_where=''
         fi
+
+create_battery_indicator () {
+        # if not a laptop: :
+        # if laptop on AC, not charging: ⚡ 
+        # if laptop on AC, charging: ▕⚡▏
+        # if laptop on battery: one of ▕▁▏▕▂▏▕▃▏▕▄▏▕▅▏▕▆▏▕▇▏▕█▏
+        # color: red if power < 30 %, else normal
+        battery_string=$(acpi -b)
+
+        if [[ $battery_string ]]; then
+            tmp=${battery_string%\%*}
+            battery_percent=${tmp##* }
+            if [[ "$battery_string" =~ "Discharging" ]]; then
+                if [[ $utf8_prompt ]]; then
+                    battery_diagrams=( ▕▁▏ ▕▂▏ ▕▃▏ ▕▄▏ ▕▅▏ ▕▆▏ ▕▇▏ ▕█▏ )
+                    battery_pwr_index=$(($battery_percent/13))
+                    battery_indicator=${battery_diagrams[battery_pwr_index]}
+                else
+                    battery_indicator="|$battery_percent|"
+                fi
+            elif [[ "$battery_string" =~ "Charging" ]]; then
+                if [[ $utf8_prompt ]]; then
+                    battery_indicator="▕⚡▏"
+                else
+                    battery_indicator="|^|"
+                fi
+            else
+                if [[ $utf8_prompt ]]; then
+                    battery_indicator=" ⚡ "
+                else
+                    battery_indicator=" = "
+                fi
+            fi
+
+            if [[ $battery_percent -ge 31 ]]; then
+                battery_color=$colors_reset
+            elif [[ $battery_percent -ge 11 ]]; then
+                battery_color=$RED
+            else
+                battery_color=$whiteonred
+            fi
+        else
+            battery_indicator=":"
+            battery_color=$colors_reset
+        fi
+        battery_indicator="$battery_color$battery_indicator$colors_reset"
+        unset battery_string battery_percent tmp
+}
 
 
 parse_svn_status() {
@@ -709,6 +764,12 @@ prompt_command_function() {
 	parse_virtualenv_status
         parse_vcs_status
 
+        if [[ $battery_module = "on" ]]; then
+             create_battery_indicator
+        else
+             battery_indicator=":"
+        fi
+
         # autojump
         if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
               aj_dir_list[++aj_idx%aj_max]="$PWD"
@@ -718,7 +779,7 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
+        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$battery_indicator$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
  }
