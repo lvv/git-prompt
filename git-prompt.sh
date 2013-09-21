@@ -44,6 +44,7 @@
         if [[ -n "$cols" && $cols -ge 8 ]];  then       #  if terminal supports colors
                 dir_color=${dir_color:-CYAN}
                 slash_color=${slash_color:-CYAN}
+                prompt_color=${prompt_color:-white}
                 rc_color=${rc_color:-red}
                 virtualenv_color=${virtualenv_color:-green}
                 user_id_color=${user_id_color:-blue}
@@ -307,6 +308,7 @@ set_shell_label() {
 
         dir_color=${!dir_color}
         slash_color=${!slash_color}
+        prompt_color=${!prompt_color}
         rc_color=${!rc_color}
         virtualenv_color=${!virtualenv_color}
         user_id_color=${!user_id_color}
@@ -849,7 +851,7 @@ prompt_command_function() {
 
         cwd=${cwd//\//$slash_color\/$dir_color}
 
-        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$tail_local$make_indicator$dir_color$prompt_char $colors_reset"
+        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$tail_local$make_indicator$prompt_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
  }
