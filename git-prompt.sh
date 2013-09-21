@@ -5,7 +5,7 @@
 
         #####  read config file if any.
 
-        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop
+        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
@@ -43,6 +43,7 @@
         cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
         if [[ -n "$cols" && $cols -ge 8 ]];  then       #  if terminal supports colors
                 dir_color=${dir_color:-CYAN}
+                slash_color=${slash_color:-CYAN}
                 rc_color=${rc_color:-red}
                 virtualenv_color=${virtualenv_color:-green}
                 user_id_color=${user_id_color:-blue}
@@ -304,6 +305,7 @@ set_shell_label() {
         esac
 
         dir_color=${!dir_color}
+        slash_color=${!slash_color}
         rc_color=${!rc_color}
         virtualenv_color=${!virtualenv_color}
         user_id_color=${!user_id_color}
@@ -842,6 +844,8 @@ prompt_command_function() {
         # if cwd_cmd have back-slash, then assign it value to cwd
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
+
+        cwd=${cwd//\//$slash_color\/$dir_color}
 
         PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$tail_local$make_indicator$dir_color$prompt_char $colors_reset"
 
