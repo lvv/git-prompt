@@ -5,6 +5,7 @@
 
         #####  read config file if any.
 
+        unset make_color_ok make_color_dirty
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
@@ -24,13 +25,18 @@
         vim_module=${vim_module:-on}
         virtualenv_module=${virtualenv_module:-on}
         battery_module=${battery_module:-off}
+        make_module=${make_module:-off}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
-        #### check for acpi, disable corresponding module if not installed
+        #### check for acpi, make disable corresponding module if not installed
         if [[ -z $(which acpi) && -z $(acpi -b) ]]; then
             battery_module=off
         fi
+        if [[ -z $(which make) ]]; then
+            make_module=off
+        fi
+
 
         #### dir, rc, root color
         cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
@@ -40,6 +46,8 @@
                 virtualenv_color=${virtualenv_color:-green}
                 user_id_color=${user_id_color:-blue}
                 root_id_color=${root_id_color:-magenta}
+                make_color_ok=${make_color_ok:-BLACK}
+                make_color_dirty=${make_color_dirty:-RED}
         else                                            #  only B/W
                 dir_color=${dir_color:-bw_bold}
                 rc_color=${rc_color:-bw_bold}
@@ -403,6 +411,26 @@ create_battery_indicator () {
         unset battery_string battery_percent tmp
 }
 
+check_make_status() {
+
+        if [[ -e Makefile ]]; then
+            if [[ $utf8_prompt ]]; then
+                make_indicator="⚑"
+            else
+                make_indicator="*"
+            fi
+            make -q &> /dev/null
+            myrc=$?
+            if [[ $myrc -eq 0 ]]; then
+                make_indicator="${!make_color_ok}$make_indicator"
+            else
+                make_indicator="${!make_color_dirty}$make_indicator"
+            fi
+            unset myrc
+        else
+            make_indicator=""
+        fi
+}
 
 parse_svn_status() {
 
@@ -770,6 +798,12 @@ prompt_command_function() {
              battery_indicator=":"
         fi
 
+        if [[ $make_module = "on" ]]; then
+             check_make_status
+        else
+             make_indicator=""
+        fi
+
         # autojump
         if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
               aj_dir_list[++aj_idx%aj_max]="$PWD"
@@ -779,7 +813,7 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$battery_indicator$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
+        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$battery_indicator$dir_color$cwd$tail_local$make_indicator$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
  }
