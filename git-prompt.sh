@@ -477,6 +477,8 @@ create_jobs_indicator() {
 
 check_make_status() {
 
+        [[ $make_ignore_dir_list =~ $PWD ]] && return
+
         if [[ -e Makefile ]]; then
             if [[ $utf8_prompt ]]; then
                 make_indicator="⚑"
