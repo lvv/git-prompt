@@ -857,19 +857,19 @@ prompt_command_function() {
 	parse_virtualenv_status
         parse_vcs_status
 
-        if [[ $battery_module = "on" ]]; then
+        if [[ $battery_module == "on" ]]; then
              create_battery_indicator
         else
              battery_indicator=":"
         fi
 
-        if [[ $make_module = "on" ]]; then
+        if [[ $make_module == "on" ]]; then
              check_make_status
         else
              make_indicator=""
         fi
 
-        if [[ $jobs_module = "on" ]]; then
+        if [[ $jobs_module == "on" ]]; then
              create_jobs_indicator
         else
              jobs_indicator=""
