@@ -1,0 +1,131 @@
+
+###  GIT-PROMPT.SH CONFIG
+###
+###    lines commented-out with single '#' are default values
+###    lines commented-out with double '##' are examples
+###
+###    NOTE: this is bash syntax - no spaces around "="
+
+###########################################################
+
+# error_bell=off                # sound terminal bell when command return code is not zero. (use setterm to set pitch and duration)
+max_file_list_length=30         # in characters
+count_only=on                   # off - display file list; on - display file count
+# rawhex_len=5                  # length of git rawhex revision id display (use 0 to hide it)
+
+############################################################   MODULES
+
+# git_module=on
+# svn_module=off
+# hg_module=on
+vim_module=off
+virtualenv_module=off
+battery_module=on
+make_module=on
+# jobs_module=on
+rc_module=on
+
+### order of modules
+prompt_modules_order="RC VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE PROMPT"
+
+###########################################################   DEFAULT OBJECTS
+###  Default user and hostname can be abbreviated or suppressed.
+###  Valid settings:
+###   * keep   - display fully
+###   * abbrev - abbreviate to first character
+###   * delete - do not display at all
+
+default_host_abbrev_mode=abbrev
+default_id_abbrev_mode=abbrev
+
+###  Examples:
+
+default_user=kikuchiyo
+default_host=aryabhata                   # remote host is always shown
+## default_domain="lvvnet"      
+
+###########################################################   Current Working Dir display
+#  cwd_cmd='\w'                 # display full path
+## cwd_cmd='\W'                 # display only last dir of path
+cwd_cmd='cwd_truncate $(($COLUMNS/4))'    # display only last N chars of path
+
+###########################################################   ETC
+
+#  Some don't like hostname in uppercase
+#  upcase_hostname=on # =off
+#  Some don't like long hostname
+#  short_hostname=off # =on
+
+#  Do not do VCS parsing for listed directories
+#  useful for directories for which it is difficult to maintain .gitignore so
+#  they are always dirty  (ex: home, /etc) or directory with huge repo (ex: linux src)
+## vcs_ignore_dir_list=" /etc $HOME /usr/src/linux.git "
+
+#  Do not check make status for listed directories
+#  useful for large projects where make -q would take several seconds
+make_ignore_dir_list=" /etc $HOME /usr/src/linux.git "
+
+### Display revision number for Mercurial repositories
+### valid options:
+###  * num  - display local revision number
+###  * id   - display global revision id (hex string, truncated to rawhex_len characters
+###  * none - do not display at all
+hg_revision_display=num
+
+###########################################################   COLOR 
+
+###  directory, exit code, root color 
+
+#        cols=`tput colors`
+#        if [[ -n "$cols" && $cols -ge 8 ]];  then                              #  if terminal supports colors
+               dir_color=BLUE
+               slash_color=CYAN
+               prompt_color=colors_reset
+               rc_color=red
+               virtualenv_color=green
+               user_id_color=GREEN
+               root_id_color=magenta
+               make_color_ok=BLACK
+               make_color_dirty=RED
+               jobs_color_bkg=yellow
+               jobs_color_stop=red
+               at_color=green
+
+# else                                          #  B/W terminal
+        #       dir_color=bw_bold
+        #       rc_color=bw_bold
+# fi
+
+### prompt character for root/non-root, default '>' for both
+#	prompt_char='>'
+#	root_prompt_char='>'
+	prompt_char='$'
+##	prompt_char='➔'
+	root_prompt_char='#'
+
+#####  Per host color
+
+### Per host color.  If not set, color will be derived from hostname checksum).
+### Variable name is uppercase-short-hostname with appended "_host_color"
+### Example per-host-color config:  
+
+##          TASHA_host_color=cyan
+##             AL_host_color=green
+##            AHP_host_color=white
+        ARYABHATA_host_color=green
+        PALATABLA_host_color=cyan
+
+#####  VCS (version control system)  state colors
+
+#                init_vcs_color=WHITE     # initial
+#               clean_vcs_color=blue      # nothing to commit (working directory clean)
+#            modified_vcs_color=red       # Changed but not updated:
+#               added_vcs_color=green     # Changes to be committed:
+#               mixed_vcs_color=yellow    # 
+#           untracked_vcs_color=BLUE      # Untracked files:
+#                  op_vcs_color=MAGENTA
+#            detached_vcs_color=RED
+#                 hex_vcs_color=white	  # git revision id:  bright black (makes gray)
+
+
+# :vim:ft=sh ts=8 sw=8 et:
