@@ -438,6 +438,11 @@ create_battery_indicator () {
         # if laptop on AC, charging: ▕⚡▏
         # if laptop on battery: one of ▕▁▏▕▂▏▕▃▏▕▄▏▕▅▏▕▆▏▕▇▏▕█▏
         # color: red if power < 30 %, else normal
+
+        local battery_string
+        local battery_percent
+        local battery_color
+        local tmp
         battery_string=$(acpi -b)
 
         if [[ $battery_string ]]; then
@@ -477,13 +482,12 @@ create_battery_indicator () {
             battery_color=$colors_reset
         fi
         battery_indicator="$battery_color$battery_indicator$colors_reset"
-        unset battery_string battery_percent tmp
 }
 
 create_jobs_indicator() {
         # background jobs ⚒⚑⚐⚠
-        jobs_bkg=$(jobs -r)
-        jobs_stop=$(jobs -s)
+        local jobs_bkg=$(jobs -r)
+        local jobs_stop=$(jobs -s)
         if [[ -n $jobs_bkg || -n $jobs_stop ]]; then
             if [[ $utf8_prompt ]]; then
                 jobs_indicator="⚒"
@@ -504,6 +508,7 @@ check_make_status() {
 
         [[ $make_ignore_dir_list =~ $PWD ]] && return
 
+        local myrc
         if [[ -e Makefile ]]; then
             if [[ $utf8_prompt ]]; then
                 make_indicator="⚑"
@@ -517,7 +522,6 @@ check_make_status() {
             else
                 make_indicator="${!make_color_dirty}$make_indicator"
             fi
-            unset myrc
         else
             make_indicator=""
         fi
@@ -948,7 +952,7 @@ prompt_command_function() {
         # old static string with default order left here for reference
         ###PS1="$colors_reset$rc$virtualenv_string$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
 
-        unset head_local pwd raw_rc space
+        unset head_local raw_rc
  }
 
         PROMPT_COMMAND=prompt_command_function
