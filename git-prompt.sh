@@ -89,6 +89,8 @@
         upcase_hostname=${upcase_hostname:-on}
         count_only=${count_only:-off}
         rawhex_len=${rawhex_len:-5}
+        hg_revision_display=${hg_revision_display:-none}
+
 
         aj_max=20
 
@@ -575,10 +577,31 @@ parse_hg_status() {
         [[ -f $hg_root/.hg/bookmarks.current ]] && bookmark=`cat "$hg_root/.hg/bookmarks.current"`
 
         [[ -z $modified ]]   &&   [[ -z $untracked ]]   &&   [[ -z $added ]]   &&   clean=clean
+
         vcs_info=${branch/default/D}
         if [[ "$bookmark" ]] ;  then
                 vcs_info+=/$bookmark
         fi
+
+        local hg_vcs_char
+        if [[ $utf8_prompt ]]; then
+            hg_vcs_char="☿"
+        else
+            hg_vcs_char=":"
+        fi
+
+        local hg_revision
+        case $hg_revision_display in
+            id)    hg_revision=$(hg id -i)
+                   hg_revision="$hex_vcs_color$hg_vcs_char${hg_revision:0:$rawhex_len}"
+                   ;;
+            num)   hg_revision=$(hg id -n)
+                   hg_revision="$hex_vcs_color$hg_vcs_char$hg_revision"
+                   ;;
+            *)     hg_revision="" ;;
+        esac
+
+        vcs_info+=$hg_revision
  }
 
 
