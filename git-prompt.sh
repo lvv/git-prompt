@@ -590,7 +590,7 @@ parse_git_status() {
 
 	# info not in porcelain status
         eval " $(
-                git status 2>/dev/null |
+                LANG=C git status 2>/dev/null |
                     sed -n '
                         s/^# On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
@@ -613,7 +613,7 @@ parse_git_status() {
                                         # A  "with space"                 <------------- WITH QOUTES
 
         eval " $(
-                git status --porcelain 2>/dev/null |
+                LANG=C git status --porcelain 2>/dev/null |
                         sed -n '
                                 s,^[MARC]. \([^\"][^/]*/\?\).*,         added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
                                 s,^[MARC]. \"\([^/]\+/\?\).*\"$,        added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
