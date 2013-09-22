@@ -790,8 +790,6 @@ parse_vcs_status() {
 
         ### fringes
         head_local="${head_local+$vcs_color$head_local }"
-        #above_local="${head_local+$vcs_color$head_local\n}"
-        #tail_local="${tail_local+$vcs_color $tail_local}${dir_color}"
  }
 
 parse_virtualenv_status() {
@@ -888,9 +886,9 @@ prompt_command_function() {
 
         cwd=${cwd//\//$slash_color\/$dir_color}
 
-        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$tail_local$make_indicator$prompt_color$prompt_char $colors_reset"
+        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
 
-        unset head_local tail_local pwd raw_rc
+        unset head_local pwd raw_rc
  }
 
         PROMPT_COMMAND=prompt_command_function
