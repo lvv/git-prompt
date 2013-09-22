@@ -27,6 +27,7 @@
         battery_module=${battery_module:-off}
         make_module=${make_module:-off}
         jobs_module=${jobs_module:-on}
+        rc_module=${rc_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
@@ -843,7 +844,7 @@ alias jumpstart='echo ${aj_dir_list[@]}'
 prompt_command_function() {
         rc="$?"
 
-        if [[ "$rc" == "0" ]]; then
+        if [[ "$rc_module" != "on" || "$rc" == "0" ]]; then
                 rc=""
         else
                 rc="$rc_color$rc$colors_reset$bell "
