@@ -524,6 +524,11 @@ check_make_status() {
 }
 
 parse_svn_status() {
+        # FIXME: SVN >= 1.7 uses a single .svn dir in the repository toplevel dir (like hg or git)
+        # instead of a .svn in each tracked dir, so the method below will not work!
+        # Unfortunately there is no easy fix, because svn doesn't have the equivalent of "hg root"
+        # or "git rev-parse", not to mention that it's possible to just check out a subdirectory of a repo,
+        # and different levels of a directory tree can belong to different checkouts.
 
         [[   -d .svn  ]] || return 1
 
