@@ -842,13 +842,14 @@ alias jumpstart='echo ${aj_dir_list[@]}'
 ###################################################################### PROMPT_COMMAND
 
 prompt_command_function() {
-        rc="$?"
+        raw_rc="$?"
 
-        if [[ "$rc_module" != "on" || "$rc" == "0" ]]; then
+        if [[ "$rc_module" != "on" || "$raw_rc" == "0" || "$previous_rc" == "$raw_rc" ]]; then
                 rc=""
         else
-                rc="$rc_color$rc$colors_reset$bell "
+                rc="$rc_color$raw_rc$colors_reset$bell "
         fi
+        previous_rc="$raw_rc"
 
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
         set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
@@ -887,7 +888,7 @@ prompt_command_function() {
 
         PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$tail_local$make_indicator$prompt_color$prompt_char $colors_reset"
 
-        unset head_local tail_local pwd
+        unset head_local tail_local pwd raw_rc
  }
 
         PROMPT_COMMAND=prompt_command_function
