@@ -798,8 +798,10 @@ parse_virtualenv_status() {
     [[ $virtualenv_module = "on" ]] || return 1
 
     if [[ -n "$VIRTUAL_ENV" ]] ; then
-	virtualenv=`basename $VIRTUAL_ENV`
-	rc="$rc $virtualenv_color<$virtualenv> "
+        virtualenv=`basename $VIRTUAL_ENV`
+        virtualenv_string=" $virtualenv_color<$virtualenv> "
+    else
+        virtualenv_string=""
     fi
  }
 
@@ -886,7 +888,7 @@ prompt_command_function() {
 
         cwd=${cwd//\//$slash_color\/$dir_color}
 
-        PS1="$colors_reset$rc$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
+        PS1="$colors_reset$rc$virtualenv_string$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
 
         unset head_local pwd raw_rc
  }
