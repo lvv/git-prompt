@@ -34,6 +34,8 @@
         default_host_abbrev_mode=${default_host_abbrev_mode:-delete}
         default_id_abbrev_mode=${default_id_abbrev_mode:-delete}
 
+        prompt_modules_order=${prompt_modules_order:-RC VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE PROMPT}
+
         #### check for acpi, make, disable corresponding module if not installed
         if [[ -z $(which acpi) && -z $(acpi -b) ]]; then
             battery_module=off
@@ -167,6 +169,31 @@
                   hex_vcs_color=${!hex_vcs_color}
 
         unset PROMPT_COMMAND
+
+        # assemble prompt command string based on the module order specified above
+
+        # RC, VIRTUALENV and VCS has to be flanked by spaces on either side
+        # except if they are at the start or end of the sequence.
+        # excess spaces (which may occur if some of the modules produce empty output)
+        # will be trimmed at runtime, in the prompt_command_function.
+
+        prompt_command_string=$(echo $prompt_modules_order |
+            sed '
+                s/RC/\$space\$rc\$space/;
+                s/VIRTUALENV/\$space\$virtualenv_string\$space/;
+                s/VCS/\$space\$head_local\$space/;
+                s/WHO_WHERE/\$color_who_where\$colors_reset/;
+                s/JOBS/\$jobs_indicator/;
+                s/BATTERY/\$battery_indicator/;
+                s/CWD/\$dir_color\$cwd/;
+                s/MAKE/\$make_indicator/;
+                s/PROMPT/\$prompt_color\$prompt_char/;
+                s/ //g;
+                s/\$space\$space/\$space/g;
+                s/^\$space//;
+                s/\$space$//;
+                s/\$space/ /g;
+                ')
 
         #######  work around for MC bug.
         #######  specifically exclude emacs, want full when running inside emacs
@@ -391,10 +418,6 @@ set_shell_label() {
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
                 color_who_where="${id//\\/\\\\}${host:+$at_color$at$host_color$host}${tty:+ $tty}"
                 plain_who_where="${id}$at$host"
-
-                # add trailing " "
-                color_who_where="$color_who_where "
-                plain_who_where="$plain_who_where "
 
                 # if root then make it root_color
                 if [ "$id" == "root" ]  ; then
@@ -789,7 +812,7 @@ parse_vcs_status() {
         head_local="$vcs_color(${vcs_info}$vcs_color${file_list}$vcs_color)"
 
         ### fringes
-        head_local="${head_local+$vcs_color$head_local }"
+        #head_local="${head_local+$vcs_color$head_local }"
  }
 
 parse_virtualenv_status() {
@@ -799,7 +822,7 @@ parse_virtualenv_status() {
 
     if [[ -n "$VIRTUAL_ENV" ]] ; then
         virtualenv=`basename $VIRTUAL_ENV`
-        virtualenv_string=" $virtualenv_color<$virtualenv> "
+        virtualenv_string="$virtualenv_color<$virtualenv>"
     else
         virtualenv_string=""
     fi
@@ -849,7 +872,7 @@ prompt_command_function() {
         if [[ "$rc_module" != "on" || "$raw_rc" == "0" || "$previous_rc" == "$raw_rc" ]]; then
                 rc=""
         else
-                rc="$rc_color$raw_rc$colors_reset$bell "
+                rc="$rc_color$raw_rc$colors_reset$bell"
         fi
         previous_rc="$raw_rc"
 
@@ -888,9 +911,16 @@ prompt_command_function() {
 
         cwd=${cwd//\//$slash_color\/$dir_color}
 
-        PS1="$colors_reset$rc$virtualenv_string$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
+        # in effect, echo collapses spaces inside the string and removes them from the start/end
+        local prompt_command_string_l
+        prompt_command_string_l=$(eval echo $prompt_command_string)
+        prompt_command_string_l="PS1=\"\$colors_reset$prompt_command_string_l \$colors_reset\""
+        eval $prompt_command_string_l
 
-        unset head_local pwd raw_rc
+        # old static string with default order left here for reference
+        ###PS1="$colors_reset$rc$virtualenv_string$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
+
+        unset head_local pwd raw_rc space
  }
 
         PROMPT_COMMAND=prompt_command_function
