@@ -13,8 +13,8 @@
 
 image:screenshot-prompt-basic.png[basic usage]
 
-Digit [red]*1* on 3rd line is `false(1)` exit code. Also on non-zero exit code
-terminal bell is sounded.  Bell is turned off by default (to set softer
+Digit [red]*1* on the 3rd line is a `false(1)` exit code. Also on a non-zero exit code
+the terminal bell is sounded.  The bell is turned off by default (to set softer
 terminal bell use `setterm`).
 
 
@@ -40,8 +40,8 @@ image:screenshot-prompt-git.png[git module screenshot]
 ==  Subversion/SVN 
 image:screenshot-svn.png[svn module screenshot]
 
-SVN module disabled by default because even on moderate sized working
-directories there is noticeable delay for prompt display.  SVN is slower than
+SVN module is disabled by default because even on moderate sized working
+directories there is a noticeable delay for prompt display.  SVN is slower than
 GIT.  Enable if needed in <<config,config>> 
 
 ==  Mercurial/HG
@@ -57,16 +57,16 @@ HG module was developed by Lee Nussbaum `<wln AT scrunch.org>`.
 == Labels
 
 Labels are visual cues to help figure out what terminal is running what command.
-It is generalization of xterm-title but differ from xterm-title that it
+It is a generalization of xterm-title but it differ from xterm-title in that it
 can be displayed in other places (on Screen(1) windows titles for example).
-Also label can display currently executed command (when bash prompt obviously
-is not displayed). Because labels have less space then prompt, instead of full path
-only last dir is shown.
-On screenshot below labels are in red ovals.
+Additionally, the label can display currently executed command (when bash prompt obviously
+is not displayed). Because such labels have less space than the prompt, instead of the full path
+only the bottommost directory is shown.
+On screenshot below the labels are highlighted with red ovals.
 
 image:screenshot-labels.png["labels screenshot", width="300", link="screenshot-labels.png"]
 
-The `screen(1)` status line at bottom of smaller gnome-terminal is displayed with
+The `screen(1)` status line at the bottom of the smaller gnome-terminal is displayed with
 following line in `~/.screenrc`:
 
 ---------
@@ -76,11 +76,11 @@ caption always "%{= kw}%-w%{= bw}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c"
 
 == Simple AutoJump
 
-AutoJump is python script from Joel Schaerer providing shortcuts for jumping
-to directories you once visited.  Git-prompt have built-in, simplified
+AutoJump is a python script from Joel Schaerer providing shortcuts for jumping
+to directories you once visited.  Git-prompt has a built-in, simplified version of
 autojump. It is only about 10 lines of bash code (vs original 100+ python
-LOC), there is no database. It remembers only directories from current
-session. It selects not most frequent dir, but last visited. Matches are done
+LOC), there is no database. It remembers only directories from the current
+session. It selects not the most frequent dir, but the last visited. Matches are done
 from beginning of of dir name (not path name).
 
 -----------------
@@ -103,7 +103,7 @@ Download  link:git-prompt.sh[] or get it with GIT:
   git clone git://github.com/lvv/git-prompt.git
 ---------------
 
-Put following command at the end of your profile (`~/.bash_profile` or `~/.profile`) 
+Put the following command at the end of your profile (`~/.bash_profile` or `~/.profile`) 
 
 --------------------
   [[ $- == *i* ]]   &&   . /path/to/git-prompt.sh
@@ -129,15 +129,15 @@ git config [--global] --unset i18n.logoutputencoding
 == GIT-PROMPT config 
 [[config]]
 
-Is optional.  If config file is not found then git-prompt uses defaults. 
+Optional.  If no config file is found then git-prompt uses defaults. 
 Defaults are listed in example `git-prompt.conf`.  Git-prompt looks (in listed order)
-for config file in following locations:
+for the config file in the following locations:
 
 * `/etc/git-prompt.conf`
 * `~/.git-prompt.conf`
 
 Copy example config `git-prompt.conf` 
-to any of above locations and customize as needed.
+to any of the above locations and customize as needed.
 
 
 == Limitations
@@ -145,6 +145,9 @@ to any of above locations and customize as needed.
 * cd-ing into something like linux kernel git working directory for the 1st
   time (with cold cache) might take up to 10 seconds (that is how long `git status` executes).
   Use `vcs_ignore_dir_list` in config if you want to ingnore such dirs.
+* Similarly, the make module may induce a noticeable delay in directories with a large and 
+  complex Makefile (because it has to run `make -q' to figure out its build status).
+  Use `make_ignore_dir_list` in config to ingnore such dirs.
 * Because you will be always reminded about dirty repo (not checked-in files),
   you will maintain `.gitignore` and commit more often.
 * This prompt is most useful if your screen have enough width.
@@ -171,11 +174,14 @@ dependencies are standard unix utils.
 * locale  (glibc)
 * id   (core utils)
 * cksum (core utils)
+* awk
 
 * git  (optional)
 * svn  (optional)
 * hg   (optional)
 
+* make (optional)
+* acpi (optional, for battery module)
 
 == Todo
 
@@ -206,7 +212,7 @@ time consuming ops in postconfig which is executed only once.
 - Dan Bravender <dan.bravender AT gmail.com>
 - Thomas Geffert <thomas.geffert AT arcutronix.com>
 - Tibor Simko <tibor.simko AT cern.ch>
-
+- Peter Juhasz httpx://github.com/pjuhasz[]
 
 [bibliography]
 .References
