@@ -47,6 +47,12 @@ GIT.  Enable if needed in <<config,config>>
 ==  Mercurial/HG
 HG module was developed by Lee Nussbaum `<wln AT scrunch.org>`.
 
+== Additional features
+
+* Battery status (for laptops)
+* Background jobs indicator
+* Makefile status check
+* Order of prompt elements can be changed 
 
 == Labels
 
