@@ -34,7 +34,7 @@
         default_host_abbrev_mode=${default_host_abbrev_mode:-delete}
         default_id_abbrev_mode=${default_id_abbrev_mode:-delete}
 
-        prompt_modules_order=${prompt_modules_order:-RC VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE PROMPT}
+        prompt_modules_order=${prompt_modules_order:-RC VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE}
 
         #### check for acpi, make, disable corresponding module if not installed
         if [[ -z $(which acpi) && -z $(acpi -b) ]]; then
@@ -189,7 +189,6 @@
                 s/BATTERY/\$battery_indicator/;
                 s/CWD/\$dir_color\$cwd/;
                 s/MAKE/\$make_indicator/;
-                s/PROMPT/\$prompt_color\$prompt_char/;
                 s/ //g;
                 s/\$space\$space/\$space/g;
                 s/^\$space//;
@@ -947,7 +946,7 @@ prompt_command_function() {
         # in effect, echo collapses spaces inside the string and removes them from the start/end
         local prompt_command_string_l
         prompt_command_string_l=$(eval echo $prompt_command_string)
-        prompt_command_string_l="PS1=\"\$colors_reset$prompt_command_string_l \$colors_reset\""
+        prompt_command_string_l="PS1=\"\$colors_reset$prompt_command_string_l$prompt_color$prompt_char \$colors_reset\""
         eval $prompt_command_string_l
 
         # old static string with default order left here for reference
