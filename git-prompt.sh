@@ -5,7 +5,7 @@
 
         #####  read config file if any.
 
-        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color at_color
+        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color at_color at_color_remote
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
@@ -56,6 +56,7 @@
                 user_id_color=${user_id_color:-blue}
                 root_id_color=${root_id_color:-magenta}
                 at_color=${at_color:-green}
+                at_color_remote=${at_color_remote:-RED}
                 jobs_color_bkg=${jobs_color:-yellow}
                 jobs_color_stop=${jobs_color:-red}
                 make_color_ok=${make_color_ok:-BLACK}
@@ -371,6 +372,7 @@ set_shell_label() {
         
         if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} ]]; then
             probably_ssh_session=1
+            at_color=$at_color_remote
         else
             probably_ssh_session=
         fi

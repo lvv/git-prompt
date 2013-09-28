@@ -90,6 +90,7 @@ hg_revision_display=num
                jobs_color_bkg=yellow
                jobs_color_stop=red
                at_color=green
+               at_color_remote=RED
 
 # else                                          #  B/W terminal
         #       dir_color=bw_bold
