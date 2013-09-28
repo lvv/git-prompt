@@ -370,7 +370,7 @@ set_shell_label() {
         #then
         
         if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} ]]; then
-            probably_ssh_session=1 
+            probably_ssh_session=1
         else
             probably_ssh_session=
         fi
@@ -396,10 +396,10 @@ set_shell_label() {
 
         # abbreviate host name if needed
         # disregard setting and display full host if session is remote
-        if   [[ "$default_host_abbrev_mode" == "delete" && !$probably_ssh_session ]]
+        if   [[ "$default_host_abbrev_mode" == "delete" && -z $probably_ssh_session ]]
         then
             host=${host#$default_host}
-        elif [[ "$default_host_abbrev_mode" == "abbrev" && !$probably_ssh_session ]]
+        elif [[ "$default_host_abbrev_mode" == "abbrev" && -z $probably_ssh_session ]]
         then
             # only abbreviate if the abbreviated string is actually shorter than the full one
             if [[ "$host" == "$default_host" && ${#host} -ge $((${#ellipse_marker} + 1)) ]]
