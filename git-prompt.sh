@@ -37,7 +37,7 @@
         prompt_modules_order=${prompt_modules_order:-RC VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE}
 
         #### check for acpi, make, disable corresponding module if not installed
-        if [[ -z $(which acpi) && -z $(acpi -b) ]]; then
+        if [[ -z $(which acpi) || -z $(acpi -b) ]]; then
             battery_module=off
         fi
         if [[ -z $(which make) ]]; then
