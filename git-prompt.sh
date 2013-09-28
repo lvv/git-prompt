@@ -281,7 +281,7 @@ set_shell_label() {
 
         xterm_label() {
                 local args="$*"
-                echo  -n "]2;${args:0:200}" ;    # FIXME: replace hardcodes with terminfo codes
+                printf "\033]0;%s\033\\" "${args:0:200}"
         }
 
         screen_label() {
