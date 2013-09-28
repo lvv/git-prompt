@@ -206,12 +206,14 @@
         fi
 
         ####################################################################  MARKERS
+        ellipse_marker_utf8="…"
+        ellipse_marker_plain="..."
         if [[ ("$LC_CTYPE $LC_ALL $LANG" =~ "UTF" || $LANG =~ "utf") && $TERM != "linux" ]];  then
                 utf8_prompt=1
-                ellipse_marker="…"
+                ellipse_marker=$ellipse_marker_utf8
         else
                 utf8_prompt=
-                ellipse_marker="..."
+                ellipse_marker=$ellipse_marker_plain
         fi
 
         export who_where
@@ -285,8 +287,13 @@ set_shell_label() {
         }
 
         screen_label() {
+		local param
+		param="$plain_who_where $@"
+		# workaround screen UTF-8 bug
+		param=${param//$ellipse_marker/$ellipse_marker_plain}
+
                 # FIXME: run this only if screen is in xterm (how to test for this?)
-                xterm_label  "$plain_who_where $@"
+                xterm_label  "$param"
 
                 # FIXME $STY not inherited though "su -"
                 [ "$STY" ] && screen -S $STY -X title "$*"
