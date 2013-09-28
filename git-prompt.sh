@@ -368,6 +368,12 @@ set_shell_label() {
         ## is sshd our parent?
         # if    { for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd && echo == REMOTE ==; }
         #then
+        
+        if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} ]]; then
+            probably_ssh_session=1 
+        else
+            probably_ssh_session=
+        fi
 
         host=${HOSTNAME}
         if [[ $short_hostname = "on" ]]; then
@@ -389,10 +395,11 @@ set_shell_label() {
         fi
 
         # abbreviate host name if needed
-        if   [[ "$default_host_abbrev_mode" == "delete" ]]
+        # disregard setting and display full host if session is remote
+        if   [[ "$default_host_abbrev_mode" == "delete" && !$probably_ssh_session ]]
         then
             host=${host#$default_host}
-        elif [[ "$default_host_abbrev_mode" == "abbrev" ]]
+        elif [[ "$default_host_abbrev_mode" == "abbrev" && !$probably_ssh_session ]]
         then
             # only abbreviate if the abbreviated string is actually shorter than the full one
             if [[ "$host" == "$default_host" && ${#host} -ge $((${#ellipse_marker} + 1)) ]]
@@ -411,6 +418,8 @@ set_shell_label() {
 
         # we might already have short host name
         host=${host%.$default_domain}
+
+        unset probably_ssh_session
 
 #################################################################### WHO_WHERE
         #  [[user@]host[-tty]]
