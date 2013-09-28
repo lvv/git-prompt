@@ -52,7 +52,7 @@ cwd_cmd='cwd_truncate $(($COLUMNS/4))'    # display only last N chars of path
 ###########################################################   ETC
 
 #  Some don't like hostname in uppercase
-#  upcase_hostname=on # =off
+upcase_hostname=off # =off
 #  Some don't like long hostname
 #  short_hostname=off # =on
 
