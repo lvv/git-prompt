@@ -336,7 +336,7 @@ set_shell_label() {
         tty=`echo $tty | sed "s:/dev/pts/:p:; s:/dev/tty::" `           # RH tty devs
         tty=`echo $tty | sed "s:/dev/vc/:vc:" `                         # gentoo tty devs
 
-        if [[ "$TERM" = "screen" ]] ;  then
+        if [[ "$TERM" =~ "screen" ]] ;  then
 
                 #       [ "$WINDOW" = "" ] && WINDOW="?"
                 #
