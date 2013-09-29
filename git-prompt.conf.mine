@@ -16,7 +16,7 @@ count_only=on                   # off - display file list; on - display file cou
 ############################################################   MODULES
 
 # git_module=on
-# svn_module=off
+svn_module=on
 # hg_module=on
 vim_module=off
 virtualenv_module=off
@@ -122,8 +122,8 @@ hg_revision_display=num
 #               clean_vcs_color=blue      # nothing to commit (working directory clean)
 #            modified_vcs_color=red       # Changed but not updated:
 #               added_vcs_color=green     # Changes to be committed:
-#               mixed_vcs_color=yellow    # 
 #           untracked_vcs_color=BLUE      # Untracked files:
+#             deleted_vcs_color=yellow    # Deleted files:
 #                  op_vcs_color=MAGENTA
 #            detached_vcs_color=RED
 #                 hex_vcs_color=white	  # git revision id:  bright black (makes gray)

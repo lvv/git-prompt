@@ -7,7 +7,7 @@
 
         unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color at_color at_color_remote
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
-        unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
+        unset modified_vcs_color added_vcs_color untracked_vcs_color deleted_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
 
         conf=git-prompt.conf;                   [[ -r $conf ]]  && . $conf
@@ -77,8 +77,8 @@
                 clean_vcs_color=${clean_vcs_color:-blue}        # nothing to commit (working directory clean)
              modified_vcs_color=${modified_vcs_color:-red}      # Changed but not updated:
                 added_vcs_color=${added_vcs_color:-green}       # Changes to be committed:
-             addmoded_vcs_color=${addmoded_vcs_color:-yellow}
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
+              deleted_vcs_color=${deleted_vcs_color:-yellow}    # Deleted files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
 
@@ -160,15 +160,15 @@
         bell="\[`eval ${!error_bell} tput bel`\]"
         colors_reset='\['`tput sgr0`'\]'
 
-        # replace symbolic colors names to raw treminfo strings
+        # replace symbolic colors names to raw terminfo strings
                  init_vcs_color=${!init_vcs_color}
              modified_vcs_color=${!modified_vcs_color}
             untracked_vcs_color=${!untracked_vcs_color}
                 clean_vcs_color=${!clean_vcs_color}
                 added_vcs_color=${!added_vcs_color}
                    op_vcs_color=${!op_vcs_color}
-             addmoded_vcs_color=${!addmoded_vcs_color}
              detached_vcs_color=${!detached_vcs_color}
+              deleted_vcs_color=${!deleted_vcs_color}
                   hex_vcs_color=${!hex_vcs_color}
 
         unset PROMPT_COMMAND
@@ -566,17 +566,20 @@ parse_svn_status() {
         `
         ### get status
 
-        unset status modified added clean init added mixed untracked op detached
+        unset status modified added clean init deleted untracked op detached
         eval `svn status 2>/dev/null |
                 sed -n '
-                    s/^A...    \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}]=\"\1\";/p
-                    s/^M...    \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}]=\"\1\";/p
-                    s/^\?...    \([^.].*\)/untracked=untracked;  untracked_files[${#untracked_files[@]}]=\"\1\";/p
+                    s/^A...    \([^.].*\)/added=added;         added_files[${#added_files[@]}]=\"\1\";/p
+                    s/^M...    \([^.].*\)/modified=modified;   modified_files[${#modified_files[@]}]=\"\1\";/p
+                    s/^R...    \([^.].*\)/added=added;/p
+                    s/^D...    \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
+                    s/^\!...   \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
+                    s/^\?...   \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\"\1\";/p
                 '
         `
         # TODO branch detection if standard repo layout
 
-        [[  -z $modified ]]   &&  [[ -z $untracked ]]  &&  clean=clean
+        [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && [[ -z $deleted ]] && clean=clean
         vcs_info=svn:r$rev
  }
 
@@ -588,22 +591,22 @@ parse_hg_status() {
         vcs=hg
 
         ### get status
-        unset status modified added clean init added mixed untracked op detached
+        unset status modified added clean init deleted untracked op detached
 
         eval `hg status 2>/dev/null |
                 sed -n '
-                        s/^M \([^.].*\)/modified=modified; modified_files[${#modified_files[@]}]=\"\1\";/p
-                        s/^A \([^.].*\)/added=added; added_files[${#added_files[@]}]=\"\1\";/p
-                        s/^R \([^.].*\)/added=added;/p
-                        s/^! \([^.].*\)/modified=modified;/p
-                        s/^? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\\"\1\\";/p
+                        s/^M \([^.].*\)/modified=modified;    modified_files[${#modified_files[@]}]=\"\1\";/p
+                        s/^A \([^.].*\)/added=added;          added_files[${#added_files[@]}]=\"\1\";/p
+                        s/^R \([^.].*\)/deleted=deleted;      deleted_files[${#deleted_files[@]}]=\"\1\";/p
+                        s/^\! \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
+                        s/^\? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\\"\1\\";/p
         '`
 
         branch=`hg branch 2> /dev/null`
 
         [[ -f $hg_root/.hg/bookmarks.current ]] && bookmark=`cat "$hg_root/.hg/bookmarks.current"`
 
-        [[ -z $modified ]]   &&   [[ -z $untracked ]]   &&   [[ -z $added ]]   &&   clean=clean
+        [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && [[ -z $deleted ]] && clean=clean
 
         vcs_info=${branch/default/D}
         if [[ "$bookmark" ]] ;  then
@@ -651,7 +654,7 @@ parse_git_status() {
 	untracked_files=()
         [[ $rawhex_len -gt 0 ]]  && freshness="$dim="
 
-        unset branch status modified added clean init added mixed untracked op detached
+        unset branch status modified added clean init deleted untracked op detached
 
         if [[ $utf8_prompt ]]; then
             git_up_char="↑"
@@ -787,15 +790,13 @@ parse_git_status() {
 
 parse_vcs_status() {
 
-        unset   file_list modified_files untracked_files added_files
+        unset   file_list modified_files untracked_files added_files deleted_files
         unset   vcs vcs_info
-        unset   status modified untracked added init detached
-        unset   file_list modified_files untracked_files added_files
+        unset   status modified untracked added init detached deleted
 
         [[ $vcs_ignore_dir_list =~ $PWD ]] && return
 
         eval   $PARSE_VCS_STATUS
-
 
         ### status:  choose primary (for branch color)
         unset status
@@ -804,6 +805,7 @@ parse_vcs_status() {
         status=${status:-$clean}
         status=${status:-$modified}
         status=${status:-$added}
+        status=${status:-$deleted}
         status=${status:-$untracked}
         status=${status:-$init}
                                 # at least one should be set
@@ -842,16 +844,18 @@ parse_vcs_status() {
         unset file_list
         if [[ $count_only = "on" ]] ; then
                 [[ ${added_files[0]}     ]]  &&  file_list+=" "${added_vcs_color}+${#added_files[@]}
+                [[ ${deleted_files[0]}   ]]  &&  file_list+=" "${deleted_vcs_color}-${#deleted_files[@]}
                 [[ ${modified_files[0]}  ]]  &&  file_list+=" "${modified_vcs_color}*${#modified_files[@]}
                 [[ ${untracked_files[0]} ]]  &&  file_list+=" "${untracked_vcs_color}?${#untracked_files[@]}
         else
                 [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
+                [[ ${deleted_files[0]}   ]]  &&  file_list+=" "$deleted_vcs_color${deleted_files[@]}
                 [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
                 [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
         fi
         [[ ${vim_files}          ]]  &&  file_list+=" "${MAGENTA}vim:${vim_files}
 
-        if [[ ${#file_list} -gt $max_file_list_length ]]  ;  then
+        if [[ $count_only != "on" && ${#file_list} -gt $max_file_list_length ]]  ;  then
                 file_list=${file_list:0:$max_file_list_length}
                 if [[ $max_file_list_length -gt 0 ]]  ;  then
                         file_list="${file_list% *} $ellipse_marker"
