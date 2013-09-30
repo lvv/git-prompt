@@ -37,13 +37,12 @@
         prompt_modules_order=${prompt_modules_order:-RC VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE}
 
         #### check for acpi, make, disable corresponding module if not installed
-        if [[ -z $(which acpi) || -z $(acpi -b) ]]; then
+        if [[ -z $(which acpi 2> /dev/null) || -z $(acpi -b) ]]; then
             battery_module=off
         fi
-        if [[ -z $(which make) ]]; then
+        if [[ -z $(which make 2> /dev/null) ]]; then
             make_module=off
         fi
-
 
         #### dir, rc, root color
         cols=`tput colors`                              # in emacs shell-mode tput colors returns -1
