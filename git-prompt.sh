@@ -196,14 +196,6 @@
                 s/\$space/ /g;
                 ')
 
-        #######  work around for MC bug.
-        #######  specifically exclude emacs, want full when running inside emacs
-        if   [[ -z "$TERM"   ||  ("$TERM" = "dumb" && -z "$INSIDE_EMACS")  ||  -n "$MC_SID" ]];   then
-                unset PROMPT_COMMAND
-                PS1="\w$prompt_char "
-                return 0
-        fi
-
         ####################################################################  MARKERS
         ellipse_marker_utf8="…"
         ellipse_marker_plain="..."
@@ -447,6 +439,24 @@ set_shell_label() {
         else
                 color_who_where=''
         fi
+
+        # There are at least two separate problems with mc:
+        # it clobbers $PROMPT_COLOR, so none of the dynamically generated 
+        # components can work,
+        # and it swallows escape sequences, so colors don't work either.
+        # Here we try to salvage some of the functionality for shells within mc.
+        #
+        # specifically exclude emacs, want full when running inside emacs
+        if [[ -z "$TERM" || ("$TERM" = "dumb" && -z "$INSIDE_EMACS") || -n "$MC_SID" ]]; then
+            unset PROMPT_COMMAND
+            if [[ -n $id  || -n $host ]] ;   then
+                PS1="$color_who_where:\w$prompt_char "
+            else
+                PS1="\w$prompt_char "
+            fi
+            return 0
+        fi
+
 
 create_battery_indicator () {
         # if not a laptop: :
