@@ -511,9 +511,9 @@ create_jobs_indicator() {
                 jobs_indicator="%"
             fi
             if [[ -n $jobs_stop ]]; then
-                jobs_indicator="${!jobs_color_stop}$jobs_indicator"
+                jobs_indicator="${!jobs_color_stop}$jobs_indicator$colors_reset"
             else
-                jobs_indicator="${!jobs_color_bkg}$jobs_indicator"
+                jobs_indicator="${!jobs_color_bkg}$jobs_indicator$colors_reset"
             fi
         else
             jobs_indicator=""
