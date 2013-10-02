@@ -635,6 +635,7 @@ parse_hg_status() {
                    hg_revision="$hex_vcs_color$hg_vcs_char${hg_revision:0:$rawhex_len}"
                    ;;
             num)   hg_revision=$(hg id -n)
+                   hg_vcs_char="#"
                    hg_revision="$hex_vcs_color$hg_vcs_char$hg_revision"
                    ;;
             *)     hg_revision="" ;;
