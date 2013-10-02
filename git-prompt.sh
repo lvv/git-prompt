@@ -611,6 +611,9 @@ parse_hg_status() {
                         s/^\? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\\"\1\\";/p
         '`
 
+        local branch
+        local bookmark
+
         branch=`hg branch 2> /dev/null`
 
         [[ -f $hg_root/.hg/bookmarks.current ]] && bookmark=`cat "$hg_root/.hg/bookmarks.current"`
