@@ -72,6 +72,9 @@ make_ignore_dir_list=" /etc $HOME /usr/src/linux.git "
 ###  * none - do not display at all
 hg_revision_display=num
 
+### Check for and display multiple hg heads
+# hg_multiple_heads_display=on
+
 ###########################################################   COLOR 
 
 ###  directory, exit code, root color 

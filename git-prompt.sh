@@ -90,6 +90,7 @@
         count_only=${count_only:-off}
         rawhex_len=${rawhex_len:-5}
         hg_revision_display=${hg_revision_display:-none}
+        hg_multiple_heads_display=${hg_multiple_heads_display:-on}
 
 
         aj_max=20
@@ -623,6 +624,17 @@ parse_hg_status() {
         vcs_info=${branch/default/D}
         if [[ "$bookmark" ]] ;  then
                 vcs_info+=/$bookmark
+        fi
+
+        if [[ $hg_multiple_heads_display == "on" ]]; then
+            local hg_heads
+            hg_heads=$(hg heads --template '{rev}\n' $branch | wc -l)
+
+            if [[ hg_heads -gt 1 ]]; then
+                detached=detached
+                local excl_mark='!'
+                vcs_info="$detached_vcs_color$hg_heads$excl_mark$vcs_info"
+            fi
         fi
 
         local hg_vcs_char
