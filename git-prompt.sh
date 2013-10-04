@@ -104,6 +104,22 @@
         [[ $svn_module = "on" ]]   &&   type svn >&/dev/null   &&   PARSE_VCS_STATUS+="${PARSE_VCS_STATUS+||}parse_svn_status"
         [[ $hg_module  = "on" ]]   &&   type hg  >&/dev/null   &&   PARSE_VCS_STATUS+="${PARSE_VCS_STATUS+||}parse_hg_status"
                                                                     PARSE_VCS_STATUS+="${PARSE_VCS_STATUS+||}return"
+
+        ### determining svn version information
+        ### In svn versions 1.7 and above there is only a single .svn directory
+        ### in the repository root, while before there was a .svn in every subdirectory.
+        ### Here we determine and save svn version information 
+        ### and use the appropriate method in the runtime module
+        if [[ $PARSE_VCS_STATUS =~ "svn" ]]; then
+            svn_version_str=$(svn --version 2> /dev/null | head -1 | sed -ne 's/.* \([0-9]\)\.\([0-9]\{1,2\}\).*/\1\2/p')
+            if [[ svn_version_str > 16 ]]; then
+                svn_use_info=1
+            else
+                svn_use_info=
+            fi
+            unset svn_version_str
+        fi
+
         ################# terminfo colors-16
         #
         #       black?    0 8
@@ -556,19 +572,24 @@ check_make_status() {
 }
 
 parse_svn_status() {
-        # FIXME: SVN >= 1.7 uses a single .svn dir in the repository toplevel dir (like hg or git)
-        # instead of a .svn in each tracked dir, so the method below will not work!
-        # Unfortunately there is no easy fix, because svn doesn't have the equivalent of "hg root"
-        # or "git rev-parse", not to mention that it's possible to just check out a subdirectory of a repo,
-        # and different levels of a directory tree can belong to different checkouts.
+        local svn_info_str
+        local myrc
 
-        [[   -d .svn  ]] || return 1
+        if [[ -n $use_svn_info ]]; then
+            svn_info_str=$(svn info 2> /dev/null)
+            myrc=$?
+           [[ $myrc -ne 0 ]] || return 1
+        else
+           [[ -d .svn ]]     || return 1
+
+           svn_info_str=$(svn info 2> /dev/null)
+        fi
 
         vcs=svn
 
         ### get rev
         eval `
-            svn info |
+            printf "%s" "$svn_info_str" |
                 sed -n "
                     s@^URL[^/]*//@repo_dir=@p
                     s/^Revision: /rev=/p
@@ -583,14 +604,14 @@ parse_svn_status() {
                     s/^M...    \([^.].*\)/modified=modified;   modified_files[${#modified_files[@]}]=\"\1\";/p
                     s/^R...    \([^.].*\)/added=added;/p
                     s/^D...    \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
-                    s/^\!...   \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
-                    s/^\?...   \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\"\1\";/p
+                    s/^\!...    \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
+                    s/^\?...    \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\"\1\";/p
                 '
         `
         # TODO branch detection if standard repo layout
 
         [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && [[ -z $deleted ]] && clean=clean
-        vcs_info=svn:r$rev
+        vcs_info=r$rev
  }
 
 parse_hg_status() {
