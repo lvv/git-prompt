@@ -112,7 +112,7 @@
         ### and use the appropriate method in the runtime module
         if [[ $PARSE_VCS_STATUS =~ "svn" ]]; then
             svn_version_str=$(svn --version 2> /dev/null | head -1 | sed -ne 's/.* \([0-9]\)\.\([0-9]\{1,2\}\).*/\1\2/p')
-            if [[ svn_version_str > 16 ]]; then
+            if [[ $svn_version_str > 16 ]]; then
                 svn_use_info=1
             else
                 svn_use_info=
@@ -575,10 +575,10 @@ parse_svn_status() {
         local svn_info_str
         local myrc
 
-        if [[ -n $use_svn_info ]]; then
+        if [[ -n $svn_use_info ]]; then
             svn_info_str=$(svn info 2> /dev/null)
             myrc=$?
-           [[ $myrc -ne 0 ]] || return 1
+           [[ $myrc -eq 0 ]] || return 1
         else
            [[ -d .svn ]]     || return 1
 
