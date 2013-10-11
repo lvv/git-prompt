@@ -651,7 +651,7 @@ parse_hg_status() {
             local hg_heads
             hg_heads=$(hg heads --template '{rev}\n' $branch | wc -l)
 
-            if [[ hg_heads -gt 1 ]]; then
+            if [[ $hg_heads -gt 1 ]]; then
                 detached=detached
                 local excl_mark='!'
                 vcs_info="$detached_vcs_color$hg_heads$excl_mark$vcs_info"
@@ -659,10 +659,21 @@ parse_hg_status() {
         fi
 
         local hg_vcs_char
+        local hg_up_char
         if [[ $utf8_prompt ]]; then
             hg_vcs_char="☿"
+            hg_up_char="↑"
         else
             hg_vcs_char=":"
+            hg_up_char="^"
+        fi
+
+        local hg_tags
+        local tip_regex
+        hg_tags=$(hg id -t)
+        tip_regex=\\btip\\b
+        if [[ ! $hg_tags =~ $tip_regex ]]; then
+            vcs_info+="$WHITE$hg_up_char"
         fi
 
         local hg_revision
