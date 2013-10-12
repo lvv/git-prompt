@@ -633,8 +633,7 @@ parse_hg_status() {
                         s/^\? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\\"\1\\";/p
         '`
 
-        local branch
-        local bookmark
+        local branch bookmark
 
         branch=`hg branch 2> /dev/null`
 
@@ -658,37 +657,40 @@ parse_hg_status() {
             fi
         fi
 
-        local hg_vcs_char
-        local hg_up_char
+        local hg_vcs_char hg_up_char
         if [[ $utf8_prompt ]]; then
             hg_vcs_char="☿"
-            hg_up_char="↑"
+            hg_up_char="▲"
         else
             hg_vcs_char=":"
             hg_up_char="^"
         fi
 
-        local hg_tags
-        local tip_regex
-        hg_tags=$(hg id -t)
+        # get the local rev number, global rev hash and tag in one go from hg id's output
+        # if tag does not contain "tip", the working dir is not up to date
+        local id_str re num rev tags tip_regex not_uptodate
+        id_str=$(hg id -nit)
+        re="^([^ ]+) ([^ ]+) ?(.*)$"
+        [[ $id_str =~ $re ]] && rev="${BASH_REMATCH[1]}" && num="${BASH_REMATCH[2]}" && tags="${BASH_REMATCH[3]}"
+
         tip_regex=\\btip\\b
-        if [[ ! $hg_tags =~ $tip_regex ]]; then
-            vcs_info+="$WHITE$hg_up_char"
+        if [[ ! $tags =~ $tip_regex ]]; then
+            not_uptodate="$YELLOW$hg_up_char"
         fi
 
         local hg_revision
         case $hg_revision_display in
-            id)    hg_revision=$(hg id -i)
+            id)    hg_revision=$rev
                    hg_revision="$hex_vcs_color$hg_vcs_char${hg_revision:0:$rawhex_len}"
                    ;;
-            num)   hg_revision=$(hg id -n)
+            num)   hg_revision=$num
                    hg_vcs_char="#"
                    hg_revision="$hex_vcs_color$hg_vcs_char$hg_revision"
                    ;;
             *)     hg_revision="" ;;
         esac
 
-        vcs_info+=$hg_revision
+        vcs_info+=$hg_revision$not_uptodate
  }
 
 
