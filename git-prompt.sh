@@ -1043,9 +1043,38 @@ prompt_command_function() {
         unset head_local raw_rc
  }
 
+# provide functions to turn the fancy prompt functions on and off
+# off: return to old (distro default) prompt
+# OFF: plain $
+# idea taken from liquidprompt: https://github.com/nojhan/liquidprompt
+prompt_on() {
+        if [[ -z $GIT_PROMPT_ON ]]; then
+            OLD_PS1="$PS1"
+            OLD_PROMPT_COMMAND="$PROMPT_COMMAND"
+        fi
+
         PROMPT_COMMAND=prompt_command_function
 
         enable_set_shell_label
+
+        GIT_PROMPT_ON=1
+}
+
+prompt_off() {
+        PROMPT_COMMAND="$OLD_PROMPT_COMMAND"
+        PS1="$OLD_PS1"
+
+        disable_set_shell_label
+}
+
+prompt_OFF() {
+        PROMPT_COMMAND="$OLD_PROMPT_COMMAND"
+        PS1="\$ "
+
+        disable_set_shell_label
+}
+
+        prompt_on
 
         unset rc id tty modified_files file_list
 
