@@ -5,7 +5,7 @@
 
         #####  read config file if any.
 
-        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color at_color at_color_remote
+        unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color slash_color_readonly at_color at_color_remote
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color untracked_vcs_color deleted_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
@@ -49,6 +49,7 @@
         if [[ -n "$cols" && $cols -ge 8 ]];  then       #  if terminal supports colors
                 dir_color=${dir_color:-CYAN}
                 slash_color=${slash_color:-CYAN}
+                slash_color_readonly=${slash_color_readonly:-MAGENTA}
                 prompt_color=${prompt_color:-white}
                 rc_color=${rc_color:-red}
                 virtualenv_color=${virtualenv_color:-green}
@@ -370,6 +371,7 @@ set_shell_label() {
 
         dir_color=${!dir_color}
         slash_color=${!slash_color}
+        slash_color_readonly=${!slash_color_readonly}
         prompt_color=${!prompt_color}
         rc_color=${!rc_color}
         virtualenv_color=${!virtualenv_color}
@@ -992,7 +994,7 @@ prompt_command_function() {
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
         set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
 
-	parse_virtualenv_status
+        parse_virtualenv_status
         parse_vcs_status
 
         if [[ $battery_module == "on" ]]; then
@@ -1022,7 +1024,12 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        cwd=${cwd//\//$slash_color\/$dir_color}
+
+        if [[ -w "$PWD" ]]; then
+            cwd=${cwd//\//$slash_color\/$dir_color}
+        else
+            cwd=${cwd//\//$slash_color_readonly\/$dir_color}
+        fi
 
         # in effect, echo collapses spaces inside the string and removes them from the start/end
         local prompt_command_string_l

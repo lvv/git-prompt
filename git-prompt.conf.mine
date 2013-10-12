@@ -83,6 +83,7 @@ hg_revision_display=num
 #        if [[ -n "$cols" && $cols -ge 8 ]];  then                              #  if terminal supports colors
                dir_color=BLUE
                slash_color=CYAN
+               slash_color_readonly=MAGENTA
                prompt_color=colors_reset
                rc_color=red
                virtualenv_color=green
