@@ -662,7 +662,8 @@ parse_hg_status() {
         local hg_vcs_char hg_up_char
         if [[ $utf8_prompt ]]; then
             hg_vcs_char="☿"
-            hg_up_char="▲"
+            hg_up_char="⬆"
+
         else
             hg_vcs_char=":"
             hg_up_char="^"
