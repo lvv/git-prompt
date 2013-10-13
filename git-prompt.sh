@@ -648,7 +648,7 @@ parse_svn_status() {
 
         case $svn_method in
             svnversion)  rev=$(svnversion)
-                         [[ "$rev" == "exported" ]] && return 1
+                         [[ "$rev" == "exported" || "$rev" =~ "Unversioned" ]] && return 1
                          ;;
 
             info)        svn_info_str=$(svn info 2> /dev/null)
