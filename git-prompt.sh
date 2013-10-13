@@ -79,6 +79,7 @@
                 added_vcs_color=${added_vcs_color:-green}       # Changes to be committed:
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
               deleted_vcs_color=${deleted_vcs_color:-yellow}    # Deleted files:
+           conflicted_vcs_color=${conflicted_vcs_color:-CYAN}    # Conflicted files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
 
@@ -185,6 +186,7 @@
 
         # replace symbolic colors names to raw terminfo strings
                  init_vcs_color=${!init_vcs_color}
+           conflicted_vcs_color=${!conflicted_vcs_color}
              modified_vcs_color=${!modified_vcs_color}
             untracked_vcs_color=${!untracked_vcs_color}
                 clean_vcs_color=${!clean_vcs_color}
@@ -616,20 +618,27 @@ parse_svn_status() {
 
         ### get status
 
-        unset status modified added clean init deleted untracked op detached
+        unset status modified added clean init deleted untracked conflicted op detached
         eval `svn status 2>/dev/null |
                 sed -n '
-                    s/^A...    \([^.].*\)/added=added;         added_files[${#added_files[@]}]=\"\1\";/p
-                    s/^M...    \([^.].*\)/modified=modified;   modified_files[${#modified_files[@]}]=\"\1\";/p
+                    s/^A...    \([^.].*\)/added=added;           added_files[${#added_files[@]}]=\"\1\";/p
+                    s/^M...    \([^.].*\)/modified=modified;     modified_files[${#modified_files[@]}]=\"\1\";/p
                     s/^R...    \([^.].*\)/added=added;/p
-                    s/^D...    \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
-                    s/^\!...    \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
-                    s/^\?...    \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\"\1\";/p
+                    s/^D...    \([^.].*\)/deleted=deleted;       deleted_files[${#deleted_files[@]}]=\"\1\";/p
+                    s/^C...    \([^.].*\)/conflicted=conflicted; conflicted_files[${#conflicted_files[@]}]=\"\1\";/p
+                    s/^\!...    \([^.].*\)/deleted=deleted;      deleted_files[${#deleted_files[@]}]=\"\1\";/p
+                    s/^\?...    \([^.].*\)/untracked=untracked;  untracked_files[${#untracked_files[@]}]=\"\1\";/p
                 '
         `
         # TODO branch detection if standard repo layout
 
-        [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && [[ -z $deleted ]] && clean=clean
+        [[ -z $modified   ]] && \
+        [[ -z $untracked  ]] && \
+        [[ -z $added      ]] && \
+        [[ -z $deleted    ]] && \
+        [[ -z $conflicted ]] && \
+        clean=clean
+
         vcs_info=r$hex_vcs_color$rev
  }
 
@@ -869,9 +878,9 @@ parse_git_status() {
 
 parse_vcs_status() {
 
-        unset   file_list modified_files untracked_files added_files deleted_files
+        unset   file_list modified_files untracked_files added_files deleted_files conflicted_files
         unset   vcs vcs_info
-        unset   status modified untracked added init detached deleted
+        unset   status modified untracked added init detached deleted conflicted
 
         [[ $vcs_ignore_dir_list =~ $PWD ]] && return
 
@@ -882,6 +891,7 @@ parse_vcs_status() {
         status=${op:+op}
         status=${status:-$detached}
         status=${status:-$clean}
+        status=${status:-$conflicted}
         status=${status:-$modified}
         status=${status:-$added}
         status=${status:-$deleted}
@@ -921,16 +931,19 @@ parse_vcs_status() {
 
         ### file list
         unset file_list
+        local excl_mark='!'
         if [[ $count_only = "on" ]] ; then
-                [[ ${added_files[0]}     ]]  &&  file_list+=" "${added_vcs_color}+${#added_files[@]}
-                [[ ${deleted_files[0]}   ]]  &&  file_list+=" "${deleted_vcs_color}-${#deleted_files[@]}
-                [[ ${modified_files[0]}  ]]  &&  file_list+=" "${modified_vcs_color}*${#modified_files[@]}
-                [[ ${untracked_files[0]} ]]  &&  file_list+=" "${untracked_vcs_color}?${#untracked_files[@]}
+                [[ ${added_files[0]}      ]]  &&  file_list+=" "${added_vcs_color}+${#added_files[@]}
+                [[ ${deleted_files[0]}    ]]  &&  file_list+=" "${deleted_vcs_color}-${#deleted_files[@]}
+                [[ ${modified_files[0]}   ]]  &&  file_list+=" "${modified_vcs_color}*${#modified_files[@]}
+                [[ ${untracked_files[0]}  ]]  &&  file_list+=" "${untracked_vcs_color}?${#untracked_files[@]}
+                [[ ${conflicted_files[0]} ]]  &&  file_list+=" ${conflicted_vcs_color}${excl_mark}${#conflicted_files[@]}"
         else
-                [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
-                [[ ${deleted_files[0]}   ]]  &&  file_list+=" "$deleted_vcs_color${deleted_files[@]}
-                [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
-                [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
+                [[ ${added_files[0]}      ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
+                [[ ${deleted_files[0]}    ]]  &&  file_list+=" "$deleted_vcs_color${deleted_files[@]}
+                [[ ${modified_files[0]}   ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
+                [[ ${untracked_files[0]}  ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
+                [[ ${conflicted_files[0]} ]]  &&  file_list+=" "$conflicted_vcs_color${conflicted_files[@]}
         fi
         [[ ${vim_files}          ]]  &&  file_list+=" "${MAGENTA}vim:${vim_files}
 
