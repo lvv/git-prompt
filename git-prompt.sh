@@ -654,11 +654,11 @@ parse_hg_status() {
 
         eval `hg status 2>/dev/null |
                 sed -n '
-                        s/^M \([^.].*\)/modified=modified;    modified_files[${#modified_files[@]}]=\"\1\";/p
-                        s/^A \([^.].*\)/added=added;          added_files[${#added_files[@]}]=\"\1\";/p
-                        s/^R \([^.].*\)/deleted=deleted;      deleted_files[${#deleted_files[@]}]=\"\1\";/p
-                        s/^\! \([^.].*\)/deleted=deleted;     deleted_files[${#deleted_files[@]}]=\"\1\";/p
-                        s/^\? \([^.].*\)/untracked=untracked; untracked_files[${#untracked_files[@]}]=\\"\1\\";/p
+                        s/^M \([^.].*\)/modified=modified;     modified_files+=(\"\1\");/p
+                        s/^A \([^.].*\)/added=added;              added_files+=(\"\1\");/p
+                        s/^R \([^.].*\)/deleted=deleted;        deleted_files+=(\"\1\");/p
+                        s/^\! \([^.].*\)/deleted=deleted;       deleted_files+=(\"\1\");/p
+                        s/^\? \([^.].*\)/untracked=untracked; untracked_files+=(\"\1\");/p
         '`
 
         local branch bookmark
@@ -887,6 +887,7 @@ parse_vcs_status() {
         unset   file_list modified_files untracked_files added_files deleted_files conflicted_files
         unset   vcs vcs_info
         unset   status modified untracked added init detached deleted conflicted
+        declare -a file_list modified_files untracked_files added_files deleted_files conflicted_files
 
         [[ $vcs_ignore_dir_list =~ $PWD ]] && return
 
