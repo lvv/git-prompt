@@ -25,9 +25,11 @@ make_module=on
 # jobs_module=on
 rc_module=on
 command_time_module=on
+load_module=on
+
 
 ### order of modules
-prompt_modules_order="RC CTIME VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE"
+prompt_modules_order="RC LOAD CTIME VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE"
 
 ###########################################################   DEFAULT OBJECTS
 ###  Default user and hostname can be abbreviated or suppressed.

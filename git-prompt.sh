@@ -30,13 +30,14 @@
         jobs_module=${jobs_module:-on}
         rc_module=${rc_module:-on}
         command_time_module=${command_time_module:-on}
+        load_module=${load_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
         default_host_abbrev_mode=${default_host_abbrev_mode:-delete}
         default_id_abbrev_mode=${default_id_abbrev_mode:-delete}
 
-        prompt_modules_order=${prompt_modules_order:-RC CTIME VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE}
+        prompt_modules_order=${prompt_modules_order:-RC LOAD CTIME VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE}
 
         #### check for acpi, make, disable corresponding module if not installed
         if [[ -z $(which acpi 2> /dev/null) || -z $(acpi -b) ]]; then
@@ -205,7 +206,7 @@
 
         # assemble prompt command string based on the module order specified above
 
-        # RC, CTIME, VIRTUALENV and VCS has to be flanked by spaces on either side
+        # RC, LOAD, CTIME, VIRTUALENV and VCS has to be flanked by spaces on either side
         # except if they are at the start or end of the sequence.
         # excess spaces (which may occur if some of the modules produce empty output)
         # will be trimmed at runtime, in the prompt_command_function.
@@ -213,6 +214,7 @@
         prompt_command_string=$(echo $prompt_modules_order |
             sed '
                 s/RC/\$space\$rc\$space/;
+                s/LOAD/$space$load_indicator$space/;
                 s/CTIME/$space$command_time$space/;
                 s/VIRTUALENV/\$space\$virtualenv_string\$space/;
                 s/VCS/\$space\$head_local\$space/;
@@ -595,6 +597,39 @@ meas_command_time() {
             fi
         fi
         unset _gp_timestamp
+}
+
+# TODO make this more configurable
+create_load_indicator () {
+        local load_color load_value load_str load_mark i j
+        local -a load_colors load_thresholds
+        load_colors=(BLACK red RED whiteonred)
+        load_thresholds=(100 200 300 400)
+
+        load_str=$(uptime)
+        load_str=${load_str:45:4}
+        load_value=${load_str/\./}
+        load_value=${load_value#0}
+
+        if [[ $load_value -lt ${load_thresholds[0]} ]]; then 
+            load_indicator=""
+            return
+        fi
+
+        for ((i = ${#load_thresholds[@]} ; i > 0 ; i--)); do
+            j=$((i-1))
+            if [[ $load_value -gt ${load_thresholds[$j]} ]]; then 
+                load_color=${!load_colors[$j]}
+                break
+            fi
+        done
+
+        if [[ $utf8_prompt ]]; then
+            load_mark="☢"
+        else
+            load_mark="L"
+        fi
+        load_indicator="$load_color$load_mark$load_str$colors_reset"
 }
 
 parse_svn_status() {
@@ -1075,6 +1110,12 @@ prompt_command_function() {
              command_time=""
         fi
 
+        if [[ $load_module == "on" ]]; then
+             create_load_indicator
+        else
+             load_indicator=""
+        fi
+
         # autojump
         if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
               aj_dir_list[++aj_idx%aj_max]="$PWD"
@@ -1100,7 +1141,7 @@ prompt_command_function() {
         # old static string with default order left here for reference
         ###PS1="$colors_reset$rc$virtualenv_string$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
 
-        unset head_local raw_rc jobs_indicator virtualenv_string make_indicator battery_indicator command_time
+        unset head_local raw_rc jobs_indicator virtualenv_string make_indicator battery_indicator command_time load_indicator
  }
 
 # provide functions to turn the fancy prompt functions on and off
