@@ -639,7 +639,7 @@ parse_svn_status() {
         [[ -z $conflicted ]] && \
         clean=clean
 
-        vcs_info=r$hex_vcs_color$rev
+        vcs_info=r$hex_vcs_color$rev$colors_reset
  }
 
 parse_hg_status() {
