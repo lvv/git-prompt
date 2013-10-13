@@ -737,9 +737,7 @@ parse_git_status() {
         vcs=git
 
         ##########################################################   GIT STATUS
-	added_files=()
-	modified_files=()
-	untracked_files=()
+
         [[ $rawhex_len -gt 0 ]]  && freshness="$dim="
 
         unset branch status modified added clean init deleted untracked op detached
@@ -782,18 +780,18 @@ parse_git_status() {
         eval " $(
                 LANG=C git status --porcelain 2>/dev/null |
                         sed -n '
-                                s,^U. \([^\"][^/]*/\?\).*,         conflicted=conflicted; [[ \" ${conflicted_files[@]} \" =~ \" \1 \" ]]   || conflicted_files[${#conflicted_files[@]}]=\"\1\",p
-                                s,^U. \"\([^/]\+/\?\).*\"$,        conflicted=conflicted; [[ \" ${conflicted_files[@]} \" =~ \" \1 \" ]]   || conflicted_files[${#conflicted_files[@]}]=\"\1\",p
-                                s,^.U \([^\"][^/]*/\?\).*,         conflicted=conflicted; [[ \" ${conflicted_files[@]} \" =~ \" \1 \" ]]   || conflicted_files[${#conflicted_files[@]}]=\"\1\",p
-                                s,^.U \"\([^/]\+/\?\).*\"$,        conflicted=conflicted; [[ \" ${conflicted_files[@]} \" =~ \" \1 \" ]]   || conflicted_files[${#conflicted_files[@]}]=\"\1\",p
-                                s,^D. \([^\"][^/]*/\?\).*,         deleted=deleted;       [[ \" ${deleted_files[@]} \"    =~ \" \1 \" ]]   || deleted_files[${#conflicted_files[@]}]=\"\1\",p
-                                s,^D. \"\([^/]\+/\?\).*\"$,        deleted=deleted;       [[ \" ${deleted_files[@]} \"    =~ \" \1 \" ]]   || deleted_files[${#conflicted_files[@]}]=\"\1\",p
-                                s,^[MARC]. \([^\"][^/]*/\?\).*,    added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
-                                s,^[MARC]. \"\([^/]\+/\?\).*\"$,   added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
-                                s,^.[MA] \([^\"][^/]*/\?\).*,      modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
-                                s,^.[MA] \"\([^/]\+/\?\).*\"$,     modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
-                                s,^?? \([^\"][^/]*/\?\).*,         untracked=untracked;   [[ \" ${untracked_files[@]} \"  =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\",p
-                                s,^?? \"\([^/]\+/\?\).*\"$,        untracked=untracked;   [[ \" ${untracked_files[@]} \"  =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\",p
+                                s,^U. \([^\"][^/]*/\?\).*,         conflicted=conflicted;  conflicted_files+=(\"\1\"),p
+                                s,^U. \"\([^/]\+/\?\).*\"$,        conflicted=conflicted;  conflicted_files+=(\"\1\"),p
+                                s,^.U \([^\"][^/]*/\?\).*,         conflicted=conflicted;  conflicted_files+=(\"\1\"),p
+                                s,^.U \"\([^/]\+/\?\).*\"$,        conflicted=conflicted;  conflicted_files+=(\"\1\"),p
+                                s,^D. \([^\"][^/]*/\?\).*,         deleted=deleted;           deleted_files+=(\"\1\"),p
+                                s,^D. \"\([^/]\+/\?\).*\"$,        deleted=deleted;           deleted_files+=(\"\1\"),p
+                                s,^[MARC]. \([^\"][^/]*/\?\).*,    added=added;                 added_files+=(\"\1\"),p
+                                s,^[MARC]. \"\([^/]\+/\?\).*\"$,   added=added;                 added_files+=(\"\1\"),p
+                                s,^.[MA] \([^\"][^/]*/\?\).*,      modified=modified;        modified_files+=(\"\1\"),p
+                                s,^.[MA] \"\([^/]\+/\?\).*\"$,     modified=modified;        modified_files+=(\"\1\"),p
+                                s,^?? \([^\"][^/]*/\?\).*,         untracked=untracked;     untracked_files+=(\"\1\"),p
+                                s,^?? \"\([^/]\+/\?\).*\"$,        untracked=untracked;     untracked_files+=(\"\1\"),p
                         '   # |tee /dev/tty
         )"
 
