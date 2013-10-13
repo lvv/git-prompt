@@ -1061,11 +1061,11 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-
+        local slash='/'
         if [[ -w "$PWD" ]]; then
-            cwd=${cwd//\//$slash_color\/$dir_color}
+            cwd="${cwd//$slash/$slash_color$slash$dir_color}"
         else
-            cwd=${cwd//\//$slash_color_readonly\/$dir_color}
+            cwd="${cwd//$slash/$slash_color_readonly$slash$dir_color}"
         fi
 
         # in effect, echo collapses spaces inside the string and removes them from the start/end
