@@ -601,7 +601,7 @@ meas_command_time() {
 
 # TODO make this more configurable
 create_load_indicator () {
-        local load_color load_value load_str load_mark i j
+        local load_color load_value load_str load_bar load_mark i j
         local -a load_colors load_thresholds
         load_colors=(BLACK red RED whiteonred)
         load_thresholds=(100 200 300 400)
@@ -625,6 +625,14 @@ create_load_indicator () {
 
         if [[ $utf8_prompt ]]; then
             load_mark="☢"
+            local load_int=$((load_value / 100 - 1))
+            local load_frac=$((load_value % 100))
+            load_frac=$((load_frac / 13))
+            local -a load_chars=( " " "▏" "▎" "▍" "▌" "▋" "▊" "▉" "█" )
+            
+            printf -v load_str "%${load_int}s"
+            load_str=${load_str// /█} 
+            load_str+=${load_chars[$load_frac]}
         else
             load_mark="L"
         fi
