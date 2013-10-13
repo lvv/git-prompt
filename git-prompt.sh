@@ -606,10 +606,9 @@ create_load_indicator () {
         load_colors=(BLACK red RED whiteonred)
         load_thresholds=(100 200 300 400)
 
-        load_str=$(uptime)
-        load_str=${load_str:45:4}
+        load_str=$(uptime | sed -ne 's/.* load average: \([0-9]\.[0-9]\{1,2\}\).*/\1/p')
         load_value=${load_str/\./}
-        load_value=${load_value#0}
+        load_value=${load_value##0}
 
         if [[ $load_value -lt ${load_thresholds[0]} ]]; then 
             load_indicator=""
