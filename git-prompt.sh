@@ -466,7 +466,7 @@ set_shell_label() {
         fi
 
         # There are at least two separate problems with mc:
-        # it clobbers $PROMPT_COLOR, so none of the dynamically generated 
+        # it clobbers $PROMPT_COMMAND, so none of the dynamically generated
         # components can work,
         # and it swallows escape sequences, so colors don't work either.
         # Here we try to salvage some of the functionality for shells within mc.
