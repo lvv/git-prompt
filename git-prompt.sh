@@ -621,13 +621,13 @@ parse_svn_status() {
         unset status modified added clean init deleted untracked conflicted op detached
         eval `svn status 2>/dev/null |
                 sed -n '
-                    s/^A...    \([^.].*\)/added=added;           added_files[${#added_files[@]}]=\"\1\";/p
-                    s/^M...    \([^.].*\)/modified=modified;     modified_files[${#modified_files[@]}]=\"\1\";/p
+                    s/^A...    \([^.].*\)/added=added;                added_files+=(\"\1\");/p
+                    s/^M...    \([^.].*\)/modified=modified;       modified_files+=(\"\1\");/p
                     s/^R...    \([^.].*\)/added=added;/p
-                    s/^D...    \([^.].*\)/deleted=deleted;       deleted_files[${#deleted_files[@]}]=\"\1\";/p
-                    s/^C...    \([^.].*\)/conflicted=conflicted; conflicted_files[${#conflicted_files[@]}]=\"\1\";/p
-                    s/^\!...    \([^.].*\)/deleted=deleted;      deleted_files[${#deleted_files[@]}]=\"\1\";/p
-                    s/^\?...    \([^.].*\)/untracked=untracked;  untracked_files[${#untracked_files[@]}]=\"\1\";/p
+                    s/^D...    \([^.].*\)/deleted=deleted;          deleted_files+=(\"\1\");/p
+                    s/^C...    \([^.].*\)/conflicted=conflicted; conflicted_files+=(\"\1\");/p
+                    s/^\!...    \([^.].*\)/deleted=deleted;         deleted_files+=(\"\1\");/p
+                    s/^\?...    \([^.].*\)/untracked=untracked;   untracked_files+=(\"\1\");/p
                 '
         `
         # TODO branch detection if standard repo layout
