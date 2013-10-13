@@ -111,12 +111,18 @@
         ### in the repository root, while before there was a .svn in every subdirectory.
         ### Here we determine and save svn version information 
         ### and use the appropriate method in the runtime module
+        ### However, if the "svnversion" utility is installed, 
+        ### we use its output instead.
         if [[ $PARSE_VCS_STATUS =~ "svn" ]]; then
+            unset svn_method
+            type svnversion >&/dev/null && svn_method="svnversion"
             svn_version_str=$(svn --version 2> /dev/null | head -1 | sed -ne 's/.* \([0-9]\)\.\([0-9]\{1,2\}\).*/\1\2/p')
-            if [[ $svn_version_str > 16 ]]; then
-                svn_use_info=1
-            else
-                svn_use_info=
+            if [[ "$svn_method" != "svnversion" ]]; then
+                if [[ $svn_version_str > 16 ]]; then
+                    svn_method="info"
+                else
+                    svn_method="dotsvn"
+                fi
             fi
             unset svn_version_str
         fi
@@ -574,29 +580,40 @@ check_make_status() {
 }
 
 parse_svn_status() {
-        local svn_info_str
-        local myrc
+        local svn_info_str myrc rev
 
-        if [[ -n $svn_use_info ]]; then
-            svn_info_str=$(svn info 2> /dev/null)
-            myrc=$?
-           [[ $myrc -eq 0 ]] || return 1
-        else
-           [[ -d .svn ]]     || return 1
+        extract_rev() {
+			local lrev
+            eval `
+                printf "%s" "$1" |
+                    sed -n "
+                        s/^Revision: /lrev=/p
+                    "
+            `
+            echo -n $lrev
+        }
 
-           svn_info_str=$(svn info 2> /dev/null)
-        fi
+        case $svn_method in
+            svnversion)  rev=$(svnversion)
+                         [[ "$rev" == "exported" ]] && return 1
+                         ;;
+
+            info)        svn_info_str=$(svn info 2> /dev/null)
+                         myrc=$?
+                         [[ $myrc -eq 0 ]]          || return 1
+                         rev=$(extract_rev "$svn_info_str")
+                         ;;
+
+            dotsvn)      [[ -d .svn ]]              || return 1
+                         svn_info_str=$(svn info 2> /dev/null)
+                         rev=$(extract_rev "$svn_info_str")
+                         ;;
+
+            *)           return 1
+        esac
 
         vcs=svn
 
-        ### get rev
-        eval `
-            printf "%s" "$svn_info_str" |
-                sed -n "
-                    s@^URL[^/]*//@repo_dir=@p
-                    s/^Revision: /rev=/p
-                "
-        `
         ### get status
 
         unset status modified added clean init deleted untracked op detached
@@ -613,7 +630,7 @@ parse_svn_status() {
         # TODO branch detection if standard repo layout
 
         [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && [[ -z $deleted ]] && clean=clean
-        vcs_info=r$rev
+        vcs_info=r$hex_vcs_color$rev
  }
 
 parse_hg_status() {
