@@ -933,17 +933,18 @@ parse_vcs_status() {
         unset file_list
         local excl_mark='!'
         if [[ $count_only = "on" ]] ; then
-                [[ ${added_files[0]}      ]]  &&  file_list+=" "${added_vcs_color}+${#added_files[@]}
-                [[ ${deleted_files[0]}    ]]  &&  file_list+=" "${deleted_vcs_color}-${#deleted_files[@]}
-                [[ ${modified_files[0]}   ]]  &&  file_list+=" "${modified_vcs_color}*${#modified_files[@]}
-                [[ ${untracked_files[0]}  ]]  &&  file_list+=" "${untracked_vcs_color}?${#untracked_files[@]}
                 [[ ${conflicted_files[0]} ]]  &&  file_list+=" ${conflicted_vcs_color}${excl_mark}${#conflicted_files[@]}"
+                [[ ${modified_files[0]}   ]]  &&  file_list+=" "${modified_vcs_color}*${#modified_files[@]}
+                [[ ${deleted_files[0]}    ]]  &&  file_list+=" "${deleted_vcs_color}-${#deleted_files[@]}
+                [[ ${added_files[0]}      ]]  &&  file_list+=" "${added_vcs_color}+${#added_files[@]}
+                [[ ${untracked_files[0]}  ]]  &&  file_list+=" "${untracked_vcs_color}?${#untracked_files[@]}
         else
-                [[ ${added_files[0]}      ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
-                [[ ${deleted_files[0]}    ]]  &&  file_list+=" "$deleted_vcs_color${deleted_files[@]}
-                [[ ${modified_files[0]}   ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
-                [[ ${untracked_files[0]}  ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
                 [[ ${conflicted_files[0]} ]]  &&  file_list+=" "$conflicted_vcs_color${conflicted_files[@]}
+                [[ ${modified_files[0]}   ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
+                [[ ${deleted_files[0]}    ]]  &&  file_list+=" "$deleted_vcs_color${deleted_files[@]}
+                [[ ${added_files[0]}      ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
+                [[ ${untracked_files[0]}  ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
+
         fi
         [[ ${vim_files}          ]]  &&  file_list+=" "${MAGENTA}vim:${vim_files}
 
