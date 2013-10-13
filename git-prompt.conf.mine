@@ -24,9 +24,10 @@ battery_module=on
 make_module=on
 # jobs_module=on
 rc_module=on
+command_time_module=on
 
 ### order of modules
-prompt_modules_order="RC VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE"
+prompt_modules_order="RC CTIME VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE"
 
 ###########################################################   DEFAULT OBJECTS
 ###  Default user and hostname can be abbreviated or suppressed.
@@ -74,6 +75,9 @@ hg_revision_display=num
 
 ### Check for and display multiple hg heads
 # hg_multiple_heads_display=on
+
+### Display elapsed time used by long-running command if it's above this threshold:
+# command_time_threshold=15
 
 ###########################################################   COLOR 
 

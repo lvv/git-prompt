@@ -6,6 +6,7 @@
         #####  read config file if any.
 
         unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color slash_color_readonly at_color at_color_remote
+        unset command_time_color
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color untracked_vcs_color deleted_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
@@ -28,13 +29,14 @@
         make_module=${make_module:-off}
         jobs_module=${jobs_module:-on}
         rc_module=${rc_module:-on}
+        command_time_module=${command_time_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
         default_host_abbrev_mode=${default_host_abbrev_mode:-delete}
         default_id_abbrev_mode=${default_id_abbrev_mode:-delete}
 
-        prompt_modules_order=${prompt_modules_order:-RC VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE}
+        prompt_modules_order=${prompt_modules_order:-RC CTIME VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE}
 
         #### check for acpi, make, disable corresponding module if not installed
         if [[ -z $(which acpi 2> /dev/null) || -z $(acpi -b) ]]; then
@@ -61,6 +63,7 @@
                 jobs_color_stop=${jobs_color:-red}
                 make_color_ok=${make_color_ok:-BLACK}
                 make_color_dirty=${make_color_dirty:-RED}
+                command_time_color=${command_time_color:-YELLOW}
 
         else                                            #  only B/W
                 dir_color=${dir_color:-bw_bold}
@@ -93,6 +96,8 @@
         rawhex_len=${rawhex_len:-5}
         hg_revision_display=${hg_revision_display:-none}
         hg_multiple_heads_display=${hg_multiple_heads_display:-on}
+        command_time_threshold=${command_time_threshold:-15}
+
 
 
         aj_max=20
@@ -200,7 +205,7 @@
 
         # assemble prompt command string based on the module order specified above
 
-        # RC, VIRTUALENV and VCS has to be flanked by spaces on either side
+        # RC, CTIME, VIRTUALENV and VCS has to be flanked by spaces on either side
         # except if they are at the start or end of the sequence.
         # excess spaces (which may occur if some of the modules produce empty output)
         # will be trimmed at runtime, in the prompt_command_function.
@@ -208,6 +213,7 @@
         prompt_command_string=$(echo $prompt_modules_order |
             sed '
                 s/RC/\$space\$rc\$space/;
+                s/CTIME/$space$command_time$space/;
                 s/VIRTUALENV/\$space\$virtualenv_string\$space/;
                 s/VCS/\$space\$head_local\$space/;
                 s/WHO_WHERE/\$color_who_where\$colors_reset/;
@@ -579,6 +585,16 @@ check_make_status() {
         else
             make_indicator=""
         fi
+}
+
+meas_command_time() {
+        if [[ ${_gp_timestamp} ]]; then
+            local elapsed_time=$(($SECONDS - ${_gp_timestamp}))
+            if [[ $elapsed_time -gt $command_time_threshold ]]; then
+                command_time="${!command_time_color}${elapsed_time}s$colors_reset"
+            fi
+        fi
+        unset _gp_timestamp
 }
 
 parse_svn_status() {
@@ -988,8 +1004,9 @@ disable_set_shell_label() {
 enable_set_shell_label() {
         disable_set_shell_label
 	# check for BASH_SOURCE being empty, no point running set_shell_label on every line of .bashrc
-        trap '[[ -z "$BASH_SOURCE" && ($BASH_COMMAND != prompt_command_function) ]] &&
-	     set_shell_label $BASH_COMMAND' DEBUG  >& /dev/null
+	# also set up timer here for command_time module
+        trap '[[ -z "$BASH_SOURCE" && ($BASH_COMMAND != prompt_command_function) ]] && set_shell_label $BASH_COMMAND; 
+	        _gp_timestamp=${_gp_timestamp:-$SECONDS}' DEBUG  >& /dev/null
  }
 
 declare -ft disable_set_shell_label
@@ -1052,6 +1069,12 @@ prompt_command_function() {
              jobs_indicator=""
         fi
 
+        if [[ $command_time_module == "on" ]]; then
+             meas_command_time
+        else
+             command_time=""
+        fi
+
         # autojump
         if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
               aj_dir_list[++aj_idx%aj_max]="$PWD"
@@ -1077,7 +1100,7 @@ prompt_command_function() {
         # old static string with default order left here for reference
         ###PS1="$colors_reset$rc$virtualenv_string$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
 
-        unset head_local raw_rc
+        unset head_local raw_rc jobs_indicator virtualenv_string make_indicator battery_indicator command_time
  }
 
 # provide functions to turn the fancy prompt functions on and off
