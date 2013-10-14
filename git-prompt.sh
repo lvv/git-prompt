@@ -99,6 +99,13 @@
         hg_multiple_heads_display=${hg_multiple_heads_display:-on}
         command_time_threshold=${command_time_threshold:-15}
 
+        if [[ -z "$load_colors" ]]; then
+            load_colors=(BLACK red RED whiteonred)
+        fi
+        if [[ -z "$load_thresholds" ]]; then
+            load_thresholds=(100 200 300 400)
+        fi
+        load_display_style=${load_display_style:-bar}
 
 
         aj_max=20
@@ -599,12 +606,8 @@ meas_command_time() {
         unset _gp_timestamp
 }
 
-# TODO make this more configurable
 create_load_indicator () {
         local load_color load_value load_str load_bar load_mark i j
-        local -a load_colors load_thresholds
-        load_colors=(BLACK red RED whiteonred)
-        load_thresholds=(100 200 300 400)
 
         load_str=$(uptime | sed -ne 's/.* load average: \([0-9]\.[0-9]\{1,2\}\).*/\1/p')
         load_value=${load_str/\./}
@@ -625,17 +628,22 @@ create_load_indicator () {
 
         if [[ $utf8_prompt ]]; then
             load_mark="☢"
-            local load_int=$((load_value / 100 - 1))
-            local load_frac=$((load_value % 100))
-            load_frac=$((load_frac / 13))
-            local -a load_chars=( " " "▏" "▎" "▍" "▌" "▋" "▊" "▉" "█" )
+            if [[ $load_display_style == "bar" ]]; then
+                local load_int=$((load_value / 100 - 1))
+                local load_frac=$((load_value % 100))
+                load_frac=$((load_frac / 12))
+                local -a load_chars=( " " "▏" "▎" "▍" "▌" "▋" "▊" "▉" "█" )
             
-            printf -v load_str "%${load_int}s"
-            load_str=${load_str// /█} 
-            load_str+=${load_chars[$load_frac]}
+                printf -v load_str "%${load_int}s"
+                load_str=${load_str// /█} 
+                load_str+=${load_chars[$load_frac]}
+            fi
         else
             load_mark="L"
         fi
+
+        if [[ $load_display_style == "markonly" ]]; then load_str= ; fi
+
         load_indicator="$load_color$load_mark$load_str$colors_reset"
 }
 

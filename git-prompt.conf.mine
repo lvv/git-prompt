@@ -81,6 +81,18 @@ hg_revision_display=num
 ### Display elapsed time used by long-running command if it's above this threshold:
 # command_time_threshold=15
 
+### Colors and color change thresholds for load display.
+### If the load is under the first value in the list, the display is supressed.
+# load_colors=(BLACK red RED whiteonred)
+# load_thresholds=(100 200 300 400)
+
+### Display style for load
+### valid options:
+###  * markonly         # only display the mark, supress the value
+###  * numeric          # display mark and numeric value
+###  * bar              # display mark and unicode bar chart
+# load_display_style=bar
+
 ###########################################################   COLOR 
 
 ###  directory, exit code, root color 
