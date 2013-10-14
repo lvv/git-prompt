@@ -608,7 +608,7 @@ create_load_indicator () {
 
         load_str=$(uptime | sed -ne 's/.* load average: \([0-9]\.[0-9]\{1,2\}\).*/\1/p')
         load_value=${load_str/\./}
-        load_value=${load_value##0}
+        load_value=${load_value##0*}
 
         if [[ $load_value -lt ${load_thresholds[0]} ]]; then 
             load_indicator=""
