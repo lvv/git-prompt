@@ -72,9 +72,9 @@
         fi
         unset cols
 
-	#### prompt character, for root/non-root
-	prompt_char=${prompt_char:-'>'}
-	root_prompt_char=${root_prompt_char:-'>'}
+        #### prompt character, for root/non-root
+        prompt_char=${prompt_char:-'>'}
+        root_prompt_char=${root_prompt_char:-'>'}
 
         #### vcs colors
                  init_vcs_color=${init_vcs_color:-WHITE}        # initial
@@ -83,7 +83,7 @@
                 added_vcs_color=${added_vcs_color:-green}       # Changes to be committed:
             untracked_vcs_color=${untracked_vcs_color:-BLUE}    # Untracked files:
               deleted_vcs_color=${deleted_vcs_color:-yellow}    # Deleted files:
-           conflicted_vcs_color=${conflicted_vcs_color:-CYAN}    # Conflicted files:
+           conflicted_vcs_color=${conflicted_vcs_color:-CYAN}   # Conflicted files:
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
 
@@ -186,7 +186,7 @@
                CYAN='\['`tput setaf 6; tput bold`'\]'
               WHITE='\['`tput setaf 7; tput bold`'\]'
 
-              whiteonred='\['`tput setaf 7; tput setab 1; tput bold`'\]'
+         whiteonred='\['`tput setaf 7; tput setab 1; tput bold`'\]'
 
                 dim='\['`tput sgr0; tput setaf p1`'\]'  # half-bright
 
