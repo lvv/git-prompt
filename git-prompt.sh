@@ -613,7 +613,7 @@ create_load_indicator () {
         load_value=${load_str/\./}
         load_value=$((10#$load_value))
 
-        if [[ $load_value -lt ${load_thresholds[0]} ]]; then 
+        if [[ $load_value -le ${load_thresholds[0]} ]]; then
             load_indicator=""
             return
         fi
