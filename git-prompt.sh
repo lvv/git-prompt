@@ -687,15 +687,22 @@ parse_svn_status() {
         unset status modified added clean init deleted untracked conflicted op detached
         eval `svn status 2>/dev/null |
                 sed -n '
-                    s/^A...    \([^.].*\)/added=added;                added_files+=(\"\1\");/p
-                    s/^M...    \([^.].*\)/modified=modified;       modified_files+=(\"\1\");/p
-                    s/^R...    \([^.].*\)/added=added;/p
-                    s/^D...    \([^.].*\)/deleted=deleted;          deleted_files+=(\"\1\");/p
-                    s/^C...    \([^.].*\)/conflicted=conflicted; conflicted_files+=(\"\1\");/p
-                    s/^\!...    \([^.].*\)/deleted=deleted;         deleted_files+=(\"\1\");/p
-                    s/^\?...    \([^.].*\)/untracked=untracked;   untracked_files+=(\"\1\");/p
+                    s/^A...    \([^.].*\)/        added_files+=(\"\1\");/p
+                    s/^M...    \([^.].*\)/     modified_files+=(\"\1\");/p
+                    s/^R...    \([^.].*\)/               added=added;/p
+                    s/^D...    \([^.].*\)/      deleted_files+=(\"\1\");/p
+                    s/^C...    \([^.].*\)/   conflicted_files+=(\"\1\");/p
+                    s/^\!...    \([^.].*\)/     deleted_files+=(\"\1\");/p
+                    s/^\?...    \([^.].*\)/   untracked_files+=(\"\1\");/p
                 '
         `
+
+          modified=${modified_files[0]:+modified}
+             added=${added_files[0]:+added}
+           deleted=${deleted_files[0]:+deleted}
+         untracked=${untracked_files[0]:+untracked}
+        conflicted=${conflicted_files[0]:+conflicted}
+
         # TODO branch detection if standard repo layout
 
         [[ -z $modified   ]] && \
@@ -720,12 +727,30 @@ parse_hg_status() {
 
         eval `hg status 2>/dev/null |
                 sed -n '
-                        s/^M \([^.].*\)/modified=modified;     modified_files+=(\"\1\");/p
-                        s/^A \([^.].*\)/added=added;              added_files+=(\"\1\");/p
-                        s/^R \([^.].*\)/deleted=deleted;        deleted_files+=(\"\1\");/p
-                        s/^\! \([^.].*\)/deleted=deleted;       deleted_files+=(\"\1\");/p
-                        s/^\? \([^.].*\)/untracked=untracked; untracked_files+=(\"\1\");/p
+                        s/^M \([^.].*\)/     modified_files+=(\"\1\");/p
+                        s/^A \([^.].*\)/        added_files+=(\"\1\");/p
+                        s/^R \([^.].*\)/      deleted_files+=(\"\1\");/p
+                        s/^\! \([^.].*\)/     deleted_files+=(\"\1\");/p
+                        s/^\? \([^.].*\)/   untracked_files+=(\"\1\");/p
         '`
+
+### EXPERIMENTAL: it is actually faster, especially for many files
+#        eval `hg status 2>/dev/null |
+#                perl -lne '
+#                        push @{$x{substr($_,0,1)}}, substr($_,2);
+#                        END {
+#                            print qq/modified_files=(/,  (map {qq/ "$_" /} @{$x{M}}),             q/);/;
+#                            print qq/added_files=(/,     (map {qq/ "$_" /} @{$x{A}}),             q/);/; 
+#                            print qq/deleted_files=(/,   (map {qq/ "$_" /} @{$x{R}}, @{$x{"!"}}), q/);/;
+#                            print qq/untracked_files=(/, (map {qq/ "$_" /} @{$x{"?"}}),           q/);/;
+#                        }
+#        '`
+
+
+         modified=${modified_files[0]:+modified}
+            added=${added_files[0]:+added}
+          deleted=${deleted_files[0]:+deleted}
+        untracked=${untracked_files[0]:+untracked}
 
         local branch bookmark
 
@@ -846,20 +871,26 @@ parse_git_status() {
         eval " $(
                 LANG=C git status --porcelain 2>/dev/null |
                         sed -n '
-                                s,^U. \([^\"][^/]*/\?\).*,         conflicted=conflicted;  conflicted_files+=(\"\1\"),p
-                                s,^U. \"\([^/]\+/\?\).*\"$,        conflicted=conflicted;  conflicted_files+=(\"\1\"),p
-                                s,^.U \([^\"][^/]*/\?\).*,         conflicted=conflicted;  conflicted_files+=(\"\1\"),p
-                                s,^.U \"\([^/]\+/\?\).*\"$,        conflicted=conflicted;  conflicted_files+=(\"\1\"),p
-                                s,^D. \([^\"][^/]*/\?\).*,         deleted=deleted;           deleted_files+=(\"\1\"),p
-                                s,^D. \"\([^/]\+/\?\).*\"$,        deleted=deleted;           deleted_files+=(\"\1\"),p
-                                s,^[MARC]. \([^\"][^/]*/\?\).*,    added=added;                 added_files+=(\"\1\"),p
-                                s,^[MARC]. \"\([^/]\+/\?\).*\"$,   added=added;                 added_files+=(\"\1\"),p
-                                s,^.[MA] \([^\"][^/]*/\?\).*,      modified=modified;        modified_files+=(\"\1\"),p
-                                s,^.[MA] \"\([^/]\+/\?\).*\"$,     modified=modified;        modified_files+=(\"\1\"),p
-                                s,^?? \([^\"][^/]*/\?\).*,         untracked=untracked;     untracked_files+=(\"\1\"),p
-                                s,^?? \"\([^/]\+/\?\).*\"$,        untracked=untracked;     untracked_files+=(\"\1\"),p
+                                s,^U. \([^\"][^/]*/\?\).*,         conflicted_files+=(\"\1\"),p
+                                s,^U. \"\([^/]\+/\?\).*\"$,        conflicted_files+=(\"\1\"),p
+                                s,^.U \([^\"][^/]*/\?\).*,         conflicted_files+=(\"\1\"),p
+                                s,^.U \"\([^/]\+/\?\).*\"$,        conflicted_files+=(\"\1\"),p
+                                s,^D. \([^\"][^/]*/\?\).*,            deleted_files+=(\"\1\"),p
+                                s,^D. \"\([^/]\+/\?\).*\"$,           deleted_files+=(\"\1\"),p
+                                s,^[MARC]. \([^\"][^/]*/\?\).*,         added_files+=(\"\1\"),p
+                                s,^[MARC]. \"\([^/]\+/\?\).*\"$,        added_files+=(\"\1\"),p
+                                s,^.[MA] \([^\"][^/]*/\?\).*,        modified_files+=(\"\1\"),p
+                                s,^.[MA] \"\([^/]\+/\?\).*\"$,       modified_files+=(\"\1\"),p
+                                s,^?? \([^\"][^/]*/\?\).*,          untracked_files+=(\"\1\"),p
+                                s,^?? \"\([^/]\+/\?\).*\"$,         untracked_files+=(\"\1\"),p
                         '   # |tee /dev/tty
         )"
+
+          modified=${modified_files[0]:+modified}
+             added=${added_files[0]:+added}
+           deleted=${deleted_files[0]:+deleted}
+         untracked=${untracked_files[0]:+untracked}
+        conflicted=${conflicted_files[0]:+conflicted}
 
         if  ! grep -q "^ref:" "$git_dir/HEAD"  2>/dev/null;   then
                 detached=detached
