@@ -837,10 +837,12 @@ parse_git_status() {
             git_up_char="↑"
             git_dn_char="↓"
             git_updn_char="↕"
+            git_stash_char="☡";
         else
             git_up_char="^"
             git_dn_char="v"
             git_updn_char="*"
+            git_stash_char="$"
         fi
 
 
@@ -954,6 +956,10 @@ parse_git_status() {
                         # branch=$(git symbolic-ref -q HEAD || { echo -n "detached:" ; git name-rev --name-only HEAD 2>/dev/null; } )
                         # branch=${branch#refs/heads/}
 
+        ### stash
+        local stash_num
+        stash_num=$(git stash list 2>/dev/null | wc -l)
+
         ### compose vcs_info
 
         if [[ $init ]];  then
@@ -973,6 +979,9 @@ parse_git_status() {
                 fi
                 vcs_info="$branch$freshness$rawhex"
 
+                if [[ $stash_num -gt 0 ]]; then
+                    vcs_info+="${white}$git_stash_char$stash_num"
+                fi
         fi
  }
 
