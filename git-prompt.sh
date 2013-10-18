@@ -628,8 +628,8 @@ create_clock() {
             # U+1F550 (ONE OCLOCK) .. U+1F55B (TWELVE OCLOCK), for the plain hours
             # U+1F55C (ONE-THIRTY) .. U+1F567 (TWELVE-THIRTY), for the thirties
             local clockfaces=(🕧 🕐 🕜 🕑 🕝 🕒 🕞 🕓 🕟 🕔 🕠 🕕 🕡 🕖 🕢 🕗 🕣 🕘 🕤 🕙 🕥 🕚 🕦 🕛)
-            time_of_day=$((${current_time} - ${_gp_clock_timestamp_midnight}))
-            index=$(( (($time_of_day - 4500) % 43200) / 1800 ))
+            time_of_day=$(( (${current_time} - ${_gp_clock_timestamp_midnight}) % 86400 ))
+            index=$(( (($time_of_day - 900) % 43200) / 1800 ))
             clock_indicator="${!clock_color}${clockfaces[$index]}${colors_reset}"
         else
             clock_indicator="${!clock_color}\t${colors_reset}"
