@@ -26,10 +26,11 @@ make_module=on
 rc_module=on
 command_time_module=on
 load_module=on
+clock_module=on
 
 
 ### order of modules
-prompt_modules_order="RC LOAD CTIME VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE"
+prompt_modules_order="RC LOAD CLOCK CTIME VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE"
 
 ###########################################################   DEFAULT OBJECTS
 ###  Default user and hostname can be abbreviated or suppressed.
@@ -93,6 +94,14 @@ hg_revision_display=num
 ###  * bar              # display mark and unicode bar chart
 # load_display_style=bar
 
+### Clock options
+### Display style - analog or digital
+clock_style=analog
+
+### Alert interval, in minutes
+### if 0, clock is always shown, otherwise it's displayed only every x minutes
+clock_alert_interval=30
+
 ###########################################################   COLOR 
 
 ###  directory, exit code, root color 
@@ -113,6 +122,7 @@ hg_revision_display=num
                jobs_color_stop=red
                at_color=green
                at_color_remote=RED
+               clock_color=WHITE
 
 # else                                          #  B/W terminal
         #       dir_color=bw_bold

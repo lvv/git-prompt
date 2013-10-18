@@ -6,7 +6,7 @@
         #####  read config file if any.
 
         unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color slash_color_readonly at_color at_color_remote
-        unset command_time_color
+        unset command_time_color clock_color
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color untracked_vcs_color deleted_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
@@ -31,6 +31,7 @@
         rc_module=${rc_module:-on}
         command_time_module=${command_time_module:-on}
         load_module=${load_module:-on}
+        clock_module=${clock_module:-off}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
@@ -65,6 +66,7 @@
                 make_color_ok=${make_color_ok:-BLACK}
                 make_color_dirty=${make_color_dirty:-RED}
                 command_time_color=${command_time_color:-YELLOW}
+                clock_color=${clock_color:-BLACK}
 
         else                                            #  only B/W
                 dir_color=${dir_color:-bw_bold}
@@ -98,6 +100,8 @@
         hg_revision_display=${hg_revision_display:-none}
         hg_multiple_heads_display=${hg_multiple_heads_display:-on}
         command_time_threshold=${command_time_threshold:-15}
+        clock_style=${clock_style:-analog}
+        clock_alert_interval=${clock_alert_interval:-30}
 
         if [[ -z "$load_colors" ]]; then
             load_colors=(BLACK red RED whiteonred)
@@ -213,7 +217,7 @@
 
         # assemble prompt command string based on the module order specified above
 
-        # RC, LOAD, CTIME, VIRTUALENV and VCS has to be flanked by spaces on either side
+        # RC, LOAD, CLOCK, CTIME, VIRTUALENV and VCS has to be flanked by spaces on either side
         # except if they are at the start or end of the sequence.
         # excess spaces (which may occur if some of the modules produce empty output)
         # will be trimmed at runtime, in the prompt_command_function.
@@ -222,6 +226,7 @@
             sed '
                 s/RC/\$space\$rc\$space/;
                 s/LOAD/$space$load_indicator$space/;
+                s/CLOCK/$space$clock_indicator$space/;
                 s/CTIME/$space$command_time$space/;
                 s/VIRTUALENV/\$space\$virtualenv_string\$space/;
                 s/VCS/\$space\$head_local\$space/;
@@ -236,6 +241,11 @@
                 s/\$space$//;
                 s/\$space/ /g;
                 ')
+
+        # save startup and midnight timestamp for clock
+        _gp_clock_timestamp_start=$(date +%s)
+        _gp_clock_timestamp_midnight=$(date -d 0:0 +%s)
+        _gp_clock_timestamp_last=${_gp_clock_timestamp_start}
 
         ####################################################################  MARKERS
         ellipse_marker_utf8="…"
@@ -604,6 +614,31 @@ meas_command_time() {
             fi
         fi
         unset _gp_timestamp
+}
+
+create_clock() {
+        clock_indicator=""
+
+        # this contrived calculation is done to avoid calling `date` every time
+        local current_time time_of_day index
+        current_time=$(($SECONDS + ${_gp_clock_timestamp_start}))
+
+        if [[ $clock_alert_interval -gt 0 ]]; then
+            [[ $(( ($current_time - ${_gp_clock_timestamp_last})/(60 * $clock_alert_interval) )) -eq 0 ]] && return
+        fi
+
+        if [[ $clock_style == "analog" ]]; then
+            # unicode clock face characters
+            # U+1F550 (ONE OCLOCK) .. U+1F55B (TWELVE OCLOCK), for the plain hours
+            # U+1F55C (ONE-THIRTY) .. U+1F567 (TWELVE-THIRTY), for the thirties
+            local clockfaces=(🕧 🕐 🕜 🕑 🕝 🕒 🕞 🕓 🕟 🕔 🕠 🕕 🕡 🕖 🕢 🕗 🕣 🕘 🕤 🕙 🕥 🕚 🕦 🕛)
+            time_of_day=$((${current_time} - ${_gp_clock_timestamp_midnight}))
+            index=$(( (($time_of_day - 900) % 43200) / 1800 ))
+            clock_indicator="${!clock_color}${clockfaces[$index]}${colors_reset}"
+        else
+            clock_indicator="${!clock_color}\t${colors_reset}"
+        fi 
+        _gp_clock_timestamp_last=$current_time
 }
 
 create_load_indicator () {
@@ -1169,6 +1204,12 @@ prompt_command_function() {
              create_load_indicator
         else
              load_indicator=""
+        fi
+
+        if [[ $clock_module == "on" ]]; then
+             create_clock
+        else
+             clock_indicator=""
         fi
 
         # autojump
