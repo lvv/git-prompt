@@ -627,7 +627,7 @@ create_clock() {
             [[ $(( ($current_time - ${_gp_clock_timestamp_last})/(60 * $clock_alert_interval) )) -eq 0 ]] && return
         fi
 
-        if [[ $clock_style == "analog" ]]; then
+        if [[ $clock_style == "analog" && $utf8_prompt ]]; then
             # unicode clock face characters
             # U+1F550 (ONE OCLOCK) .. U+1F55B (TWELVE OCLOCK), for the plain hours
             # U+1F55C (ONE-THIRTY) .. U+1F567 (TWELVE-THIRTY), for the thirties
