@@ -681,17 +681,6 @@ create_load_indicator () {
 parse_svn_status() {
         local svn_info_str myrc rev
 
-        extract_rev() {
-			local lrev
-            eval `
-                printf "%s" "$1" |
-                    sed -n "
-                        s/^Revision: /lrev=/p
-                    "
-            `
-            echo -n $lrev
-        }
-
         case $svn_method in
             svnversion)  rev=$(svnversion)
                          [[ "$rev" == "exported" || "$rev" =~ "Unversioned" ]] && return 1
@@ -700,12 +689,14 @@ parse_svn_status() {
             info)        svn_info_str=$(svn info 2> /dev/null)
                          myrc=$?
                          [[ $myrc -eq 0 ]]          || return 1
-                         rev=$(extract_rev "$svn_info_str")
+                         rev=${svn_info_str##*Revision: }
+                         rev=${rev%%[[:space:]]*}
                          ;;
 
             dotsvn)      [[ -d .svn ]]              || return 1
                          svn_info_str=$(svn info 2> /dev/null)
-                         rev=$(extract_rev "$svn_info_str")
+                         rev=${svn_info_str##*Revision: }
+                         rev=${rev%%[[:space:]]*}
                          ;;
 
             *)           return 1
@@ -819,10 +810,12 @@ parse_hg_status() {
 
         # get the local rev number, global rev hash and tag in one go from hg id's output
         # if tag does not contain "tip", the working dir is not up to date
-        local id_str re num rev tags tip_regex not_uptodate
-        id_str=$(hg id -nit)
-        re="^([^ ]+) ([^ ]+) ?(.*)$"
-        [[ $id_str =~ $re ]] && rev="${BASH_REMATCH[1]}" && num="${BASH_REMATCH[2]}" && tags="${BASH_REMATCH[3]}"
+        local num rev tags tip_regex not_uptodate
+        local -a id_array
+        id_array=($(hg id -nit))
+        rev="${id_array[0]}"
+        num="${id_array[1]}"
+        tags="${id_array[2]}"
 
         tip_regex=\\btip\\b
         if [[ ! $tags =~ $tip_regex ]]; then
