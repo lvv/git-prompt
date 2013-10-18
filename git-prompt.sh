@@ -515,10 +515,8 @@ create_battery_indicator () {
         # if laptop on battery: one of ▕▁▏▕▂▏▕▃▏▕▄▏▕▅▏▕▆▏▕▇▏▕█▏
         # color: red if power < 30 %, else normal
 
-        local battery_string
-        local battery_percent
-        local battery_color
-        local tmp
+        local battery_string battery_percent battery_color battery_pwr_index tmp
+        local -a battery_diagrams
         battery_string=$(acpi -b)
 
         if [[ $battery_string ]]; then
@@ -1107,7 +1105,7 @@ parse_vcs_status() {
  }
 
 parse_virtualenv_status() {
-    unset virtualenv
+    local virtualenv
 
     [[ $virtualenv_module = "on" ]] || return 1
 
@@ -1235,7 +1233,7 @@ prompt_command_function() {
         # old static string with default order left here for reference
         ###PS1="$colors_reset$rc$virtualenv_string$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
 
-        unset head_local raw_rc jobs_indicator virtualenv_string make_indicator battery_indicator command_time load_indicator
+        unset head_local raw_rc jobs_indicator virtualenv_string make_indicator battery_indicator command_time load_indicator clock_indicator
  }
 
 # provide functions to turn the fancy prompt functions on and off
