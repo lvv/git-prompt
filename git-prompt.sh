@@ -103,10 +103,8 @@
         clock_style=${clock_style:-analog}
         clock_alert_interval=${clock_alert_interval:-30}
 
-        if [[ -z "$load_colors" ]]; then
+        if [[ -z "$load_colors" || -z "$load_thresholds" || ${#load_colors[@]} -ne ${#load_thresholds[@]} ]]; then
             load_colors=(BLACK red RED whiteonred)
-        fi
-        if [[ -z "$load_thresholds" ]]; then
             load_thresholds=(100 200 300 400)
         fi
         load_display_style=${load_display_style:-bar}
