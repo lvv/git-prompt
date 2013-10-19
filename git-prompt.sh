@@ -666,7 +666,7 @@ create_load_indicator () {
                 local -a load_chars=( " " "▏" "▎" "▍" "▌" "▋" "▊" "▉" "█" )
             
                 printf -v load_str "%${load_int}s"
-                load_str=${load_str// /█} 
+                load_str=${load_str// /◙}
                 load_str+=${load_chars[$load_frac]}
             fi
         else
