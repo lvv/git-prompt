@@ -740,7 +740,29 @@ parse_svn_status() {
 parse_hg_status() {
 
         # ☿
-        hg_root=`hg root 2>/dev/null` || return 1
+        # Get all information we need in one go from hg log's output
+        # if we're not in a hg directory, this takes exactly the same time as 'hg root' would do,
+        # and if we're in a hg dir, we don't have to call 'hg branch' and 'hg id' separately.
+        local id_str
+        id_str=$(hg log --follow -l 1 --template '{rev}\x1f{node}\x1f{tags}\x1f{branch}\x1f{bookmarks}' 2> /dev/null) || return 1
+
+        # This contrived way is necessary because branch names and tags can contain spaces.
+        # The ASCII "Unit separator" \x1f was chosen as a "safe" separator character
+        # because it was intended for exactly this purpose.
+        # Nowadays nobody knows that such a character exists at all :)
+        local oldIFS
+        oldIFS="$IFS"
+        IFS=$'\x1f'
+        local -a id_array
+        id_array=($id_str)
+        IFS="$oldIFS"
+
+        local branch bookmark num rev tags tip_regex not_uptodate
+             num="${id_array[0]}"
+             rev="${id_array[1]}"
+            tags="${id_array[2]}"
+          branch="${id_array[3]}"
+        bookmark="${id_array[4]}"
 
         vcs=hg
 
@@ -774,12 +796,6 @@ parse_hg_status() {
           deleted=${deleted_files[0]:+deleted}
         untracked=${untracked_files[0]:+untracked}
 
-        local branch bookmark
-
-        branch=`hg branch 2> /dev/null`
-
-        [[ -f $hg_root/.hg/bookmarks.current ]] && bookmark=`cat "$hg_root/.hg/bookmarks.current"`
-
         [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && [[ -z $deleted ]] && clean=clean
 
         vcs_info=${branch/default/D}
@@ -802,20 +818,10 @@ parse_hg_status() {
         if [[ $utf8_prompt ]]; then
             hg_vcs_char="☿"
             hg_up_char="⬆"
-
         else
             hg_vcs_char=":"
             hg_up_char="^"
         fi
-
-        # get the local rev number, global rev hash and tag in one go from hg id's output
-        # if tag does not contain "tip", the working dir is not up to date
-        local num rev tags tip_regex not_uptodate
-        local -a id_array
-        id_array=($(hg id -nit))
-        rev="${id_array[0]}"
-        num="${id_array[1]}"
-        tags="${id_array[2]}"
 
         tip_regex=\\btip\\b
         if [[ ! $tags =~ $tip_regex ]]; then
