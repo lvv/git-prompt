@@ -322,40 +322,44 @@ cwd_truncate() {
 set_shell_label() {
 
         xterm_label() {
-                local args="$*"
-                printf "\033]0;%s\033\\" "${args:0:200}"
+            local args="$*"
+            printf "\033]0;%s\033\\" "${args:0:200}"
         }
 
         screen_label() {
-		local param
-		param="$plain_who_where $@"
-		# workaround screen UTF-8 bug
-		param=${param//$ellipse_marker/$ellipse_marker_plain}
+            local param full
+            full="$plain_who_where $@"
+            param="$*"
 
-                # FIXME: run this only if screen is in xterm (how to test for this?)
-                xterm_label  "$param"
+            # FIXME $STY not inherited though "su -"
+            if [[ "$STY" ]]; then
+                # workaround screen UTF-8 bug
+                param=${param//$ellipse_marker/$ellipse_marker_plain}
+                full=${full//$ellipse_marker/$ellipse_marker_plain}
+            fi
 
-                # FIXME $STY not inherited though "su -"
-                [ "$STY" ] && screen -S $STY -X title "$*"
+            # FIXME: run this only if screen is in xterm (how to test for this?)
+            xterm_label "$full"
+
+            printf "\033k%s\033\\" "$param"
         }
-        if [[ -n "$STY" ]]; then
-                screen_label "$*"
+
+        if [[ -n "$STY" || -n "$TMUX" ]]; then
+            screen_label "$*"
         else
-                case $TERM in
+            case $TERM in
+                screen*)
+                         screen_label "$*"
+                         ;;
 
-                        screen*)
-                                screen_label "$*"
-                                ;;
+                xterm* | rxvt* | gnome-* | konsole | eterm | wterm )
+                         # is there a capability which we can to test
+                         # for "set term title-bar" and its escapes?
+                         xterm_label  "$plain_who_where $@"
+                         ;;
 
-                        xterm* | rxvt* | gnome-* | konsole | eterm | wterm )
-                                # is there a capability which we can to test
-                                # for "set term title-bar" and its escapes?
-                                xterm_label  "$plain_who_where $@"
-                                ;;
-
-                        *)
-                                ;;
-                esac
+                *)       ;;
+            esac
         fi
  }
 
