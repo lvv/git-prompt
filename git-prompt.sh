@@ -388,20 +388,20 @@ set_shell_label() {
         tty=`echo $tty | sed "s:/dev/pts/:p:; s:/dev/tty::" `           # RH tty devs
         tty=`echo $tty | sed "s:/dev/vc/:vc:" `                         # gentoo tty devs
 
+        # replace tty name with screen number
+        # however, "screen" as $TERM may also mean tmux
         if [[ "$TERM" =~ "screen" ]] ;  then
-
-                #       [ "$WINDOW" = "" ] && WINDOW="?"
-                #
-                #               # if under screen then make tty name look like s1-p2
-                #               # tty="${WINDOW:+s}$WINDOW${WINDOW:+-}$tty"
-                #       tty="${WINDOW:+s}$WINDOW"  # replace tty name with screen number
-                tty="$WINDOW"  # replace tty name with screen number
+            if [[ "$STY" ]]; then
+                tty="$WINDOW"
+            elif [[ "$TMUX" ]]; then
+                tty=$(tmux display-message -p "#I")
+            fi
         fi
 
         # we don't need tty name under X11
         case $TERM in
-                xterm* | rxvt* | gnome-terminal | konsole | eterm* | wterm | cygwin)  unset tty ;;
-                *);;
+            xterm* | rxvt* | gnome-terminal | konsole | eterm* | wterm | cygwin)  unset tty ;;
+            *);;
         esac
 
         dir_color=${!dir_color}
