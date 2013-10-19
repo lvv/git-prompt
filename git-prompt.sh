@@ -396,6 +396,17 @@ set_shell_label() {
             elif [[ "$TMUX" ]]; then
                 tty=$(tmux display-message -p "#I")
             fi
+
+            # replace tty number with circled numbers
+            if [[ $utf8_prompt ]]; then
+                declare -a circled_digits=(⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳)
+                if [[ "$tty" -ge 0 && "$tty" -le 20 ]]; then
+                    tty="${circled_digits[$tty]} "
+                fi
+                unset circled_digits
+            else
+                tty=" $tty"
+            fi
         fi
 
         # we don't need tty name under X11
@@ -480,7 +491,7 @@ set_shell_label() {
 
         if [[ -n $id  || -n $host ]] ;   then
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
-                color_who_where="${id//\\/\\\\}${host:+$at_color$at$host_color$host}${tty:+ $tty}"
+                color_who_where="${id//\\/\\\\}${host:+$at_color$at$host_color$host}${tty:+$tty}"
                 plain_who_where="${id}$at$host"
 
                 # if root then make it root_color
