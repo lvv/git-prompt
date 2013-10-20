@@ -338,6 +338,10 @@ set_shell_label() {
                 full=${full//$ellipse_marker/$ellipse_marker_plain}
             fi
 
+            if [[ "$TMUX" ]]; then
+                full="$plain_who_where|${_gp_tmux_session} $@"
+            fi
+
             # FIXME: run this only if screen is in xterm (how to test for this?)
             xterm_label "$full"
 
@@ -395,6 +399,8 @@ set_shell_label() {
                 tty="$WINDOW"
             elif [[ "$TMUX" ]]; then
                 tty=$(tmux display-message -p "#I")
+                # also save tmux session name so that we can include it in the window title
+                _gp_tmux_session=$(tmux display-message -p "#S")
             fi
 
             # replace tty number with circled numbers
