@@ -655,7 +655,13 @@ create_clock() {
 create_load_indicator () {
         local load_color load_value load_str load_bar load_mark i j
 
-        load_str=$(uptime | sed -ne 's/.* load average: \([0-9]\.[0-9]\{1,2\}\).*/\1/p')
+        if [[ "$OSTYPE" =~ "linux" ]]; then
+            local eol
+            read load_str eol < /proc/loadavg
+            load_str=${load_str## *}
+        else
+            load_str=$(uptime | sed -ne 's/.* load average: \([0-9]\.[0-9]\{1,2\}\).*/\1/p')
+        fi
         load_value=${load_str/\./}
         load_value=$((10#$load_value))
 
