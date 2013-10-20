@@ -339,7 +339,7 @@ set_shell_label() {
             fi
 
             if [[ "$TMUX" ]]; then
-                full="$plain_who_where|${_gp_tmux_session} $@"
+                full="$plain_who_where${_gp_tmux_session:+|${_gp_tmux_session}} $@"
             fi
 
             # FIXME: run this only if screen is in xterm (how to test for this?)
