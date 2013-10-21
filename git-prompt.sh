@@ -345,6 +345,11 @@ set_shell_label() {
             # FIXME: run this only if screen is in xterm (how to test for this?)
             xterm_label "$full"
 
+            # display host name in window title if remote shell
+            if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} ]]; then
+                param="@$host:$param"
+            fi
+
             printf "\033k%s\033\\" "$param"
         }
 
