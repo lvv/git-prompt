@@ -825,6 +825,9 @@ parse_hg_status() {
 
         [[ -z $modified ]] && [[ -z $untracked ]] && [[ -z $added ]] && [[ -z $deleted ]] && clean=clean
 
+        # older versions of hg log --template '{branch}' report empty if branch is default
+        [[ -z $branch ]] && branch=default
+
         vcs_info=${branch/default/D}
         if [[ "$bookmark" ]] ;  then
                 vcs_info+=/$bookmark
