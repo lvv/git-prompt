@@ -401,11 +401,13 @@ set_shell_label() {
                 tty=$(tmux display-message -p "#I")
                 # also save tmux session name so that we can include it in the window title
                 _gp_tmux_session=$(tmux display-message -p "#S")
+            else
+                tty=
             fi
 
             # if we start an ssh connection from within a screen/tmux session,
             # the "screen" $TERM setting tends to be preserved.
-            # In this case we don't want a tty (it would be a misleading "0"),
+            # In this case we don't want the tty displayed (it would be a misleading "0"),
             # unless there is an actual screen/tmux session on the server too.
             if [[ -n "$tty" ]]; then
                 # replace tty number with circled numbers
