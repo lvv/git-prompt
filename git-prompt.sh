@@ -403,15 +403,21 @@ set_shell_label() {
                 _gp_tmux_session=$(tmux display-message -p "#S")
             fi
 
-            # replace tty number with circled numbers
-            if [[ $utf8_prompt ]]; then
-                declare -a circled_digits=(⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳)
-                if [[ "$tty" -ge 0 && "$tty" -le 20 ]]; then
-                    tty="${circled_digits[$tty]} "
+            # if we start an ssh connection from within a screen/tmux session,
+            # the "screen" $TERM setting tends to be preserved.
+            # In this case we don't want a tty (it would be a misleading "0"),
+            # unless there is an actual screen/tmux session on the server too.
+            if [[ -n "$tty" ]]; then
+                # replace tty number with circled numbers
+                if [[ $utf8_prompt ]]; then
+                    declare -a circled_digits=(⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳)
+                    if [[ "$tty" -ge 0 && "$tty" -le 20 ]]; then
+                        tty="${circled_digits[$tty]} "
+                    fi
+                    unset circled_digits
+                else
+                    tty=" $tty"
                 fi
-                unset circled_digits
-            else
-                tty=" $tty"
             fi
         fi
 
