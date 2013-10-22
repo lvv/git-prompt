@@ -1208,8 +1208,10 @@ prompt_command_function() {
         fi
         previous_rc="$raw_rc"
 
-        cwd=${PWD/$HOME/\~}                     # substitute  "~"
-        set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
+        local slash='/'
+        cwd=${PWD/$HOME/\~}                           # substitute  "~"
+        cwd="${cwd##[/~]*/}/"                         # default label - path last dir
+        set_shell_label "${cwd/$slash$slash/$slash}"  # remove // if root dir
 
         parse_virtualenv_status
         parse_vcs_status
@@ -1259,7 +1261,6 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        local slash='/'
         if [[ -w "$PWD" ]]; then
             cwd="${cwd//$slash/$slash_color$slash$dir_color}"
         else
