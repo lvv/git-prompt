@@ -320,16 +320,16 @@ cwd_truncate() {
 
 
 set_shell_label() {
+        local param full
+        full="$plain_who_where $@"
+        short="$*"
 
         xterm_label() {
-            local args="$*"
-            printf "\033]0;%s\033\\" "${args:0:200}"
+             local args="$*"
+             printf "\033]0;%s\033\\" "${args:0:200}"
         }
 
         screen_label() {
-            local param full
-            full="$plain_who_where $@"
-            param="$*"
 
             # FIXME $STY not inherited though "su -"
             if [[ "$STY" ]]; then
@@ -345,26 +345,29 @@ set_shell_label() {
             # FIXME: run this only if screen is in xterm (how to test for this?)
             xterm_label "$full"
 
-            # display host name in window title if remote shell
-            if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} || -n ${SSH_CONNECTION} ]]; then
-                param="@$host:$param"
-            fi
-
-            printf "\033k%s\033\\" "$param"
+            printf "\033k%s\033\\" "$short"
         }
 
         if [[ -n "$STY" || -n "$TMUX" ]]; then
-            screen_label "$*"
+            # in this case, do not prepend host name, 
+            # because screen/tmux statusbar should display it only once -
+            # displaying it in every window name would waste space
+            screen_label "$short"
         else
             case $TERM in
                 screen*)
-                         screen_label "$*"
+                         # display host name in window title if we're inside screen or tmux locally,
+                         # and ssh'd to a remote server
+                         if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} || -n ${SSH_CONNECTION} ]]; then
+                             short="@$host:$short"
+                         fi
+                         screen_label "$short"
                          ;;
 
                 xterm* | rxvt* | gnome-* | konsole | eterm | wterm )
                          # is there a capability which we can to test
                          # for "set term title-bar" and its escapes?
-                         xterm_label  "$plain_who_where $@"
+                         xterm_label "$full"
                          ;;
 
                 *)       ;;
