@@ -346,7 +346,7 @@ set_shell_label() {
             xterm_label "$full"
 
             # display host name in window title if remote shell
-            if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} ]]; then
+            if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} || -n ${SSH_CONNECTION} ]]; then
                 param="@$host:$param"
             fi
 
@@ -452,7 +452,7 @@ set_shell_label() {
         # if    { for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd && echo == REMOTE ==; }
         #then
         
-        if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} ]]; then
+        if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} || -n ${SSH_CONNECTION} ]]; then
             probably_ssh_session=1
             at_color=$at_color_remote
         else
