@@ -334,7 +334,7 @@ set_shell_label() {
             # FIXME $STY not inherited though "su -"
             if [[ "$STY" ]]; then
                 # workaround screen UTF-8 bug
-                param=${param//$ellipse_marker/$ellipse_marker_plain}
+                short=${param//$ellipse_marker/$ellipse_marker_plain}
                 full=${full//$ellipse_marker/$ellipse_marker_plain}
             fi
 
