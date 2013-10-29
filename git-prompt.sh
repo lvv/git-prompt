@@ -378,6 +378,7 @@ set_shell_label() {
     export -f set_shell_label
 
 ###################################################### ID (user name)
+_gp_get_id() {
         id=`id -un`
 
         # abbreviate user name if needed
@@ -394,21 +395,38 @@ set_shell_label() {
         #else
             # keep full user name
         fi
+}
+
+_gp_get_id
 
 ########################################################### TTY
-        tty=`tty`
-        tty=`echo $tty | sed "s:/dev/pts/:p:; s:/dev/tty::" `           # RH tty devs
-        tty=`echo $tty | sed "s:/dev/vc/:vc:" `                         # gentoo tty devs
+_gp_get_tty() {
+        local tty
+        tty=$(tty)
+        tty=${tty/\/dev\/pts\//p}   # RH tty devs
+        tty=${tty/\/dev\/tty/}
+        tty=${tty/\/dev\/vc\//vc}   # gentoo tty devs
 
         # replace tty name with screen number
         # however, "screen" as $TERM may also mean tmux
         if [[ "$TERM" =~ "screen" ]] ;  then
             if [[ "$STY" ]]; then
                 tty="$WINDOW"
-            elif [[ "$TMUX" ]]; then
-                tty=$(tmux display-message -p "#I")
-                # also save tmux session name so that we can include it in the window title
-                _gp_tmux_session=$(tmux display-message -p "#S")
+            elif [[ -n $TMUX && -n $TMUX_PANE ]]; then
+                # get tmux session name so that we can include it in the window title
+                # and window number, to display it in the prompt
+                # TODO configurable prompt marker
+                # we have to do it like this, because session name may contain spaces
+                local sep tmux_info oldIFS
+                sep=$'\x1f'
+                tmux_info=$(tmux display-message -t $TMUX_PANE -p "#S${sep}#I" 2> /dev/null)
+                oldIFS="$IFS"
+                IFS="$sep"
+                local -a tmux_array
+                tmux_array=($tmux_info)
+                IFS="$oldIFS"
+                _gp_tmux_session=${tmux_array[0]}
+                tty=${tmux_array[1]}
             else
                 tty=
             fi
@@ -420,11 +438,10 @@ set_shell_label() {
             if [[ -n "$tty" ]]; then
                 # replace tty number with circled numbers
                 if [[ $utf8_prompt ]]; then
-                    declare -a circled_digits=(⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳)
+                    local -a circled_digits=(⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳)
                     if [[ "$tty" -ge 0 && "$tty" -le 20 ]]; then
                         tty="${circled_digits[$tty]} "
                     fi
-                    unset circled_digits
                 else
                     tty=" $tty"
                 fi
@@ -433,9 +450,14 @@ set_shell_label() {
 
         # we don't need tty name under X11
         case $TERM in
-            xterm* | rxvt* | gnome-terminal | konsole | eterm* | wterm | cygwin)  unset tty ;;
+            xterm* | rxvt* | gnome-terminal | konsole | eterm* | wterm | cygwin)  tty= ;;
             *);;
         esac
+
+        _gp_tty="$tty"
+}
+
+_gp_get_tty
 
         dir_color=${!dir_color}
         slash_color=${!slash_color}
@@ -513,7 +535,7 @@ set_shell_label() {
 
         if [[ -n $id  || -n $host ]] ;   then
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
-                color_who_where="${id//\\/\\\\}${host:+$at_color$at$host_color$host}${tty:+$tty}"
+                color_who_where="${id//\\/\\\\}${host:+$at_color$at$host_color$host}${_gp_tty:+$_gp_tty}"
                 plain_who_where="${id}$at$host"
 
                 # if root then make it root_color
@@ -1315,6 +1337,6 @@ prompt_OFF() {
 
         prompt_on
 
-        unset rc id tty modified_files file_list
+        unset rc id _gp_tty modified_files file_list
 
 # vim: set ft=sh ts=8 sw=8 et:
