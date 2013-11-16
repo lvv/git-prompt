@@ -212,6 +212,18 @@
               deleted_vcs_color=${!deleted_vcs_color}
                   hex_vcs_color=${!hex_vcs_color}
 
+                      dir_color=${!dir_color}
+                    slash_color=${!slash_color}
+           slash_color_readonly=${!slash_color_readonly}
+                   prompt_color=${!prompt_color}
+                       rc_color=${!rc_color}
+               virtualenv_color=${!virtualenv_color}
+                  user_id_color=${!user_id_color}
+                  root_id_color=${!root_id_color}
+                       at_color=${!at_color}
+                at_color_remote=${!at_color_remote}
+
+
         unset PROMPT_COMMAND
 
         # assemble prompt command string based on the module order specified above
@@ -465,15 +477,6 @@ _gp_get_tty() {
 
 _gp_get_tty
 
-        dir_color=${!dir_color}
-        slash_color=${!slash_color}
-        slash_color_readonly=${!slash_color_readonly}
-        prompt_color=${!prompt_color}
-        rc_color=${!rc_color}
-        virtualenv_color=${!virtualenv_color}
-        user_id_color=${!user_id_color}
-        root_id_color=${!root_id_color}
-
         ########################################################### HOST
         ### we don't display home host/domain  $SSH_* set by SSHD or keychain
 
@@ -486,9 +489,10 @@ _gp_get_tty
 _gp_get_host() {
         if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} || -n ${SSH_CONNECTION} ]]; then
             probably_ssh_session=1
-            at_color=$at_color_remote
+            at_color_cur=$at_color_remote
         else
             probably_ssh_session=
+            at_color_cur=$at_color
         fi
 
         host=${HOSTNAME}
@@ -529,11 +533,10 @@ _gp_get_host() {
             fi
         fi
 
-        at_color=${!at_color}
         host_color=${!host_color}
 
         # we might already have short host name
-        host=${host%.$default_domain}
+        [[ -n $default_domain ]] && host=${host%.$default_domain}
 
         unset probably_ssh_session
 }
@@ -546,7 +549,7 @@ _gp_get_host
 _gp_set_who_where() {
         if [[ -n $id  || -n $host ]] ;   then
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
-                color_who_where="${id//\\/\\\\}${host:+$at_color$at$host_color$host}${_gp_tty:+$_gp_tty}"
+                color_who_where="${id//\\/\\\\}${host:+$at_color_cur$at$host_color$host}${_gp_tty:+$_gp_tty}"
                 plain_who_where="${id}$at$host"
 
                 # if root then make it root_color
