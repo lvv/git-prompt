@@ -102,6 +102,7 @@
         command_time_threshold=${command_time_threshold:-15}
         clock_style=${clock_style:-analog}
         clock_alert_interval=${clock_alert_interval:-30}
+        enable_utf8=${enable_utf8:-on}
 
         if [[ -z "$load_colors" || -z "$load_thresholds" || ${#load_colors[@]} -ne ${#load_thresholds[@]} ]]; then
             load_colors=(BLACK red RED whiteonred)
@@ -248,15 +249,20 @@
         ####################################################################  MARKERS
         ellipse_marker_utf8="…"
         ellipse_marker_plain="..."
-        if [[ ("$LC_CTYPE $LC_ALL $LANG" =~ "UTF" || $LANG =~ "utf") && $TERM != "linux" ]];  then
+
+_gp_check_utf8() {
+        if [[ $enable_utf8 == "on" && ("$LC_CTYPE $LC_ALL $LANG" =~ "UTF" || $LANG =~ "utf") && $TERM != "linux" ]];  then
                 utf8_prompt=1
                 ellipse_marker=$ellipse_marker_utf8
         else
                 utf8_prompt=
                 ellipse_marker=$ellipse_marker_plain
         fi
+}
 
-        export who_where
+_gp_check_utf8
+
+export who_where
 
 
 cwd_truncate() {
@@ -476,7 +482,8 @@ _gp_get_tty
         ## is sshd our parent?
         # if    { for ((pid=$$; $pid != 1 ; pid=`ps h -o pid --ppid $pid`)); do ps h -o command -p $pid; done | grep -q sshd && echo == REMOTE ==; }
         #then
-        
+
+_gp_get_host() {
         if [[ -n ${SSH_CLIENT} || -n ${SSH2_CLIENT} || -n ${SSH_CONNECTION} ]]; then
             probably_ssh_session=1
             at_color=$at_color_remote
@@ -529,10 +536,14 @@ _gp_get_tty
         host=${host%.$default_domain}
 
         unset probably_ssh_session
+}
+
+_gp_get_host
 
 #################################################################### WHO_WHERE
         #  [[user@]host[-tty]]
 
+_gp_set_who_where() {
         if [[ -n $id  || -n $host ]] ;   then
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
                 color_who_where="${id//\\/\\\\}${host:+$at_color$at$host_color$host}${_gp_tty:+$_gp_tty}"
@@ -565,7 +576,9 @@ _gp_get_tty
             fi
             return 0
         fi
+}
 
+_gp_set_who_where
 
 create_battery_indicator () {
         # if not a laptop: :
@@ -1334,6 +1347,25 @@ prompt_OFF() {
 
         disable_set_shell_label
 }
+
+prompt_disable_utf8() {
+        enable_utf8="off"
+        _gp_check_utf8
+        _gp_get_id
+        _gp_get_tty
+        _gp_get_host
+        _gp_set_who_where
+}
+
+prompt_enable_utf8() {
+        enable_utf8="on"
+        _gp_check_utf8
+        _gp_get_id
+        _gp_get_tty
+        _gp_get_host
+        _gp_set_who_where
+}
+
 
         prompt_on
 
