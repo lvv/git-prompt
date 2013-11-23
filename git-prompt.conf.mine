@@ -9,29 +9,29 @@
 ###########################################################
 
 # error_bell=off                # sound terminal bell when command return code is not zero. (use setterm to set pitch and duration)
-# max_file_list_length=100      # in characters
-# count_only=off                # off - display file list; on - display file count
+max_file_list_length=30         # in characters
+count_only=on                   # off - display file list; on - display file count
 # rawhex_len=5                  # length of git rawhex revision id display (use 0 to hide it)
 # enable_utf8=on                # use utf8 characters in prompt
 
 ############################################################   MODULES
 
 # git_module=on
-# svn_module=off
+svn_module=on
 # hg_module=on
-# vim_module=on
-# virtualenv_module=on
-# battery_module=off
-# make_module=off
+vim_module=off
+virtualenv_module=off
+battery_module=on
+make_module=on
 # jobs_module=on
-# rc_module=on
-# command_time_module=on
-# clock_module=off
-# load_module=on
+rc_module=on
+command_time_module=on
+load_module=on
+clock_module=on
 
 
-### Order of modules
-# prompt_modules_order="RC LOAD CLOCK CTIME VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE"
+### order of modules
+prompt_modules_order="RC LOAD CLOCK CTIME VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE"
 
 ###########################################################   DEFAULT OBJECTS
 ###  Default user and hostname can be abbreviated or suppressed.
@@ -40,24 +40,24 @@
 ###   * abbrev - abbreviate to first character
 ###   * delete - do not display at all
 
-# default_host_abbrev_mode=delete
-# default_id_abbrev_mode=delete
+default_host_abbrev_mode=abbrev
+default_id_abbrev_mode=abbrev
 
 ###  Examples:
 
-## default_user=lvv             
-## default_host="ahp"                   # remote host is always shown
+default_user=kikuchiyo
+default_host=aryabhata                   # remote host is always shown
 ## default_domain="lvvnet"      
 
 ###########################################################   Current Working Dir display
 #  cwd_cmd='\w'                 # display full path
 ## cwd_cmd='\W'                 # display only last dir of path
-## cwd_cmd='cwd_truncate 40'    # display only last N chars of path
+cwd_cmd='cwd_truncate $(($COLUMNS/4))'    # display only last N chars of path
 
 ###########################################################   ETC
 
 #  Some don't like hostname in uppercase
-#  upcase_hostname=on # =off
+upcase_hostname=off # =off
 #  Some don't like long hostname
 #  short_hostname=off # =on
 
@@ -68,14 +68,14 @@
 
 #  Do not check make status for listed directories
 #  useful for large projects where make -q would take several seconds
-## make_ignore_dir_list=" /etc $HOME /usr/src/linux.git "
+make_ignore_dir_list=" /etc $HOME /usr/src/linux.git "
 
 ### Display revision number for Mercurial repositories
 ### valid options:
 ###  * num  - display local revision number
 ###  * id   - display global revision id (hex string, truncated to rawhex_len characters
 ###  * none - do not display at all
-# hg_revision_display=none
+hg_revision_display=num
 
 ### Check for and display multiple hg heads
 # hg_multiple_heads_display=on
@@ -97,14 +97,13 @@
 ###  * bar              # display mark and unicode bar chart
 # load_display_style=bar
 
-
 ### Clock options
 ### Display style - analog or digital
-# clock_style=analog
+clock_style=analog
 
 ### Alert interval, in minutes
 ### if 0, clock is always shown, otherwise it's displayed only every x minutes
-# clock_alert_interval=30
+clock_alert_interval=30
 
 ###########################################################   COLOR 
 
@@ -112,21 +111,22 @@
 
 #        cols=`tput colors`
 #        if [[ -n "$cols" && $cols -ge 8 ]];  then                              #  if terminal supports colors
-        #       dir_color=CYAN
-        #       slash_color=BLUE
-        #       slash_color_readonly=MAGENTA
-        #       prompt_color=white
-        #       rc_color=red
-        #       virtualenv_color=green
-        #       user_id_color=blue
-        #       root_id_color=magenta
-        #       make_color_ok=BLACK
-        #       make_color_dirty=RED
-        #       jobs_color_bkg=yellow
-        #       jobs_color_stop=red
-        #       at_color=green
-        #       at_color_remote=RED
-        #       clock_color=BLACK
+               dir_color=BLUE
+               slash_color=CYAN
+               slash_color_readonly=MAGENTA
+               prompt_color=colors_reset
+               rc_color=red
+               virtualenv_color=green
+               user_id_color=GREEN
+               root_id_color=magenta
+               make_color_ok=BLACK
+               make_color_dirty=RED
+               jobs_color_bkg=yellow
+               jobs_color_stop=red
+               at_color=green
+               at_color_remote=RED
+               clock_color=WHITE
+
 # else                                          #  B/W terminal
         #       dir_color=bw_bold
         #       rc_color=bw_bold
@@ -135,9 +135,9 @@
 ### prompt character for root/non-root, default '>' for both
 #	prompt_char='>'
 #	root_prompt_char='>'
-##	prompt_char='$'
+	prompt_char='$'
 ##	prompt_char='➔'
-##	root_prompt_char='#'
+	root_prompt_char='#'
 
 #####  Per host color
 
@@ -148,7 +148,8 @@
 ##          TASHA_host_color=cyan
 ##             AL_host_color=green
 ##            AHP_host_color=white
-
+        ARYABHATA_host_color=green
+        PALATABLA_host_color=cyan
 
 #####  VCS (version control system)  state colors
 
@@ -161,7 +162,7 @@
 #          conflicted_vcs_color=CYAN      # Conflicted files:
 #                  op_vcs_color=MAGENTA
 #            detached_vcs_color=RED
-#                 hex_vcs_color=BLACK	  # git revision id:  bright black (makes gray)
+#                 hex_vcs_color=white	  # git revision id:  bright black (makes gray)
 
 
 # :vim:ft=sh ts=8 sw=8 et:
