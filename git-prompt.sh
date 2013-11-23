@@ -763,8 +763,9 @@ parse_svn_status() {
         local svn_info_str myrc rev
 
         case $svn_method in
-            svnversion)  rev=$(svnversion)
-                         [[ "$rev" == "exported" || "$rev" =~ "Unversioned" ]] && return 1
+            svnversion)  rev=$(svnversion 2> /dev/null)
+                         myrc=$?
+                         [[ $myrc -ne 0 || "$rev" == "exported" || "$rev" =~ "Unversioned" ]] && return 1
                          ;;
 
             info)        svn_info_str=$(svn info 2> /dev/null)
@@ -776,6 +777,8 @@ parse_svn_status() {
 
             dotsvn)      [[ -d .svn ]]              || return 1
                          svn_info_str=$(svn info 2> /dev/null)
+                         myrc=$?
+                         [[ $myrc -eq 0 ]]          || return 1
                          rev=${svn_info_str##*Revision: }
                          rev=${rev%%[[:space:]]*}
                          ;;
