@@ -1,13 +1,18 @@
         # don't set prompt if this is not interactive shell
         [[ $- != *i* ]]  &&  return
 
+        # clear vars from previous invocation
+        unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
+        unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
+        unset rawhex_len
+
+        # work around for conflict with vte.sh
+        unset VTE_VERSION
+
 ###################################################################   CONFIG
 
         #####  read config file if any.
 
-        unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
-        unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
-        unset rawhex_len
 
         conf=git-prompt.conf;                   [[ -r $conf ]]  && . $conf
         conf=/etc/git-prompt.conf;              [[ -r $conf ]]  && . $conf
@@ -428,6 +433,9 @@ parse_git_status() {
         [[ $rawhex_len -gt 0 ]]  && freshness="$dim="
 
         unset branch status modified added clean init added mixed untracked op detached
+
+        # work around for VTE bug (hang on printf)
+        unset VTE_VERSION
 
 	# info not in porcelain status
         eval " $(
