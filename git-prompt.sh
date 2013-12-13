@@ -970,9 +970,9 @@ parse_git_status() {
                         s/^\(# \)*On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
                         s/^\(# \)*Initial commi.*/init=init/p
-                        s/^\(# \)*Your branch is ahead of \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${WHITE}${git_up_char}/p
-                        s/^\(# \)*Your branch is behind \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${YELLOW}${git_dn_char}/p
-                        s/^\(# \)*Your branch and \(.\).\+\1 have diverged.*/freshness=${YELLOW}${git_updn_char}/p
+                        s/^\(# \)*Your branch is ahead of \(.\).\+\2 by [[:digit:]]\+ commit.*/freshness=${WHITE}${git_up_char}/p
+                        s/^\(# \)*Your branch is behind \(.\).\+\2 by [[:digit:]]\+ commit.*/freshness=${YELLOW}${git_dn_char}/p
+                        s/^\(# \)*Your branch and \(.\).\+\2 have diverged.*/freshness=${YELLOW}${git_updn_char}/p
                     '
         )"
 
