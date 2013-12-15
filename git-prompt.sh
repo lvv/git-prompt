@@ -1,6 +1,12 @@
         # don't set prompt if this is not interactive shell
         [[ $- != *i* ]]  &&  return
 
+        # bash version check
+        if [[ -z ${BASH_VERSION}  ||  "${BASH_VERSINFO[0]}" -lt  4 ]]; then
+                echo "git-prompt requires bash-v4 or newer,  git-prompt is not enabled."
+                return
+        fi
+
         # clear vars from previous invocation
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
@@ -171,31 +177,26 @@ cwd_truncate() {
         # arg1: max path lenght
         # returns abbrivated $PWD  in public "cwd" var
 
-        cwd=${PWD/$HOME/\~}             # substitute  "~"
+        cwd="${PWD/$HOME/~}"             # substitute  "~"
 
         case $1 in
                 full)
                         return
                         ;;
                 last)
-                        cwd=${PWD##/*/}
-                        [[ $PWD == $HOME ]]  &&  cwd="~"
+                        cwd="${PWD##/*/}"
+                        [[ "$PWD" == "$HOME" ]]  &&  cwd="~"
                         return
                         ;;
                 *)
-                        # if bash < v3.2  then don't truncate
-			if [[  ${BASH_VERSINFO[0]} -eq 3   &&   ${BASH_VERSINFO[1]} -le 1  || ${BASH_VERSINFO[0]} -lt 3 ]] ;  then
-				return
-			fi
                         ;;
         esac
 
         # split path into:  head='~/',  truncateble middle,  last_dir
 
         local cwd_max_length=$1
-        # expression which bash-3.1 or older can not understand, so we wrap it in eval
-        exp31='[[ "$cwd" =~ (~?/)(.*/)([^/]*)$ ]]'
-        if  eval $exp31 ;  then  # only valid if path have more then 1 dir
+        
+        if  [[ "$cwd" =~ '(~?/)(.*/)([^/]*)$' ]] ;  then  # only valid if path have more than 1 dir
                 local path_head=${BASH_REMATCH[1]}
                 local path_middle=${BASH_REMATCH[2]}
                 local path_last_dir=${BASH_REMATCH[3]}
@@ -211,8 +212,7 @@ cwd_truncate() {
 			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
 
 			# trunc on dir boundary (trunc 1st, probably tuncated dir)
-			exp31='[[ $middle_tail =~ [^/]*/(.*)$ ]]'
-			eval $exp31
+			[[ $middle_tail =~ '[^/]*/(.*)$' ]]
 			middle_tail=${BASH_REMATCH[1]}
 
 			# use truncated only if we cut at least 4 chars
