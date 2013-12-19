@@ -5,7 +5,7 @@
 * Repo: httpx://github.com/lvv/scc[GitHub],  httpx://bitbucket.org/lvv/scc[BitBucket] +
 * License:  httpx://www.gnu.org/licenses/gpl-3.0.html[GPL3]
 
-:v-p:		http://volnitsky.com/project
+:v-p:           http://volnitsky.com/project
 :compact-option: compact
 
 
@@ -20,7 +20,7 @@ terminal bell use `setterm`).
 
 == GIT
 
-Branch and files are colored according to state. "M" stands for master. 
+Branch and files are colored according to state. "M" stands for master.
 
 image:screenshot-prompt-git.png[git module screenshot]
 
@@ -33,16 +33,16 @@ image:screenshot-prompt-git.png[git module screenshot]
 | [darkred]#dark red#      |  [darkred]#dark red#     | Modified and tracked by repo, but modifications not added to index yet.
 | [lightblue]#light blue#  |  [lightblue]#light blue#      | Untracked file.
 | [red]#light red#         |                          | Detached Head
-| [magenta]#magenta#       |                          | In middle of doing something 
+| [magenta]#magenta#       |                          | In middle of doing something
 |================================================================
 
 
-==  Subversion/SVN 
+==  Subversion/SVN
 image:screenshot-svn.png[svn module screenshot]
 
 SVN module disabled by default because even on moderate sized working
 directories there is noticeable delay for prompt display.  SVN is slower than
-GIT.  Enable if needed in <<config,config>> 
+GIT.  Enable if needed in <<config,config>>
 
 ==  Mercurial/HG
 HG module was developed by Lee Nussbaum `<wln AT scrunch.org>`.
@@ -78,12 +78,12 @@ session. It selects not most frequent dir, but last visited. Matches are done
 from beginning of of dir name (not path name).
 
 -----------------
-cd /tmp                                                                                                                                      
+cd /tmp
 cd "~/long dir mp3"
 cd "~/long dir mp4"
 cd /tmp
 cd /var/tmp
-cd /etc 
+cd /etc
 cd
 j t     # same as  cd /var/tmp
 j .*3   # same as  cd "~/long dir mp3"
@@ -97,19 +97,19 @@ Download  link:git-prompt.sh[] or get it with GIT:
   git clone git://github.com/lvv/git-prompt.git
 ---------------
 
-Put following command at the end of your profile (`~/.bash_profile` or `~/.profile`) 
+Put following command at the end of your profile (`~/.bash_profile` or `~/.profile`)
 
 --------------------
   [[ $- == *i* ]]   &&   . /path/to/git-prompt.sh
 ---------------------
 
-There might be your old prompt defined too.  You can comment it out. 
+There might be your old prompt defined too.  You can comment it out.
 Some distros also have `/etc/bashrc` or `/etc/bash/bashrc` with distro default
 prompt.
 
 
 
-== GIT config 
+== GIT config
 
 GIT-PROMPT requires following GIT's option to be set:
 
@@ -120,17 +120,17 @@ git config [--global] --unset i18n.logoutputencoding
 -----------------------------
 
 
-== GIT-PROMPT config 
+== GIT-PROMPT config
 [[config]]
 
-Is optional.  If config file is not found then git-prompt uses defaults. 
+Is optional.  If config file is not found then git-prompt uses defaults.
 Defaults are listed in example `git-prompt.conf`.  Git-prompt looks (in listed order)
 for config file in following locations:
 
 * `/etc/git-prompt.conf`
 * `~/.git-prompt.conf`
 
-Copy example config `git-prompt.conf` 
+Copy example config `git-prompt.conf`
 to any of above locations and customize as needed.
 
 
@@ -143,11 +143,11 @@ to any of above locations and customize as needed.
   you will maintain `.gitignore` and commit more often.
 * This prompt is most useful if your screen have enough width.
   If this is not the case, you might want to disable file list display (`max_file_list_length=0`).
-* When prompt is longer than screen-width it wraps to second line. This is always undesirable. 
-  Because of bug in `gnome-terminal` (or `readline` ?) some color escape codes can be visible on second line. 
+* When prompt is longer than screen-width it wraps to second line. This is always undesirable.
+  Because of bug in `gnome-terminal` (or `readline` ?) some color escape codes can be visible on second line.
   I've reported gnome-terminal bug.  Again, you can disable file list display or limit length (`max_file_list_length`).
 * By default some terminals display ascii color with maximum color saturation
-  which makes colored text of different perceptual brightness.  This makes it hard to read. 
+  which makes colored text of different perceptual brightness.  This makes it hard to read.
   If your terminal colors are configurable, try change it to softer (pastel)
   colors.
 
@@ -155,9 +155,9 @@ to any of above locations and customize as needed.
 == Dependencies
 
 Most probably you don't need to install anything because not optional
-dependencies are standard unix utils. 
+dependencies are standard unix utils.
 
-* bash  (tested with v3.2.33) 
+* bash  (tested with v3.2.33)
 * sed
 * tput  (terminfo)
 * tty  (core utils)
@@ -183,14 +183,14 @@ include::../volnitsky.com/project/howto-submit-patch.txt[]
 Nobody will use git-prompt if there will be delay in prompt display.
 Try to avoid use of external commands and
 subshells (backticks) in prompt_command_function.  It is ok to use
-time consuming ops in postconfig which is executed only once. 
+time consuming ops in postconfig which is executed only once.
 
 == Authors
 - Leonid Volnitsky (original author) <leonid@volnitsky.com>,  http://volnitsky.com
 - Niklas Hofer (CWD truncation) <niklas+dev AT lanpartei.de>, httpx://github.com/niklas/[]
 - Lee Nussbaum  (HG support) <lee.nussbaum AT gmail.com>, httpx://github.com/wln[]
 - Albert Vernon http://xenoclub.wordpress.com[]
-- Amir Yalon httpx://github.com/amiryal[]  
+- Amir Yalon httpx://github.com/amiryal[]
 - Martin httpx://github.com/jerrywho[]  <JerryWho AT gmx.de>
 - Alexander Goldstein (emacs-shell, prompt chars) httpx://github.com/alexg0[]
 - Dmitry <uok AT gmx.net> (bash completion)
