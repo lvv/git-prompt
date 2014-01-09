@@ -999,6 +999,8 @@ parse_git_status() {
                                 s,^.U \"\([^/]\+/\?\).*\"$,        conflicted_files+=(\"\1\"),p
                                 s,^D. \([^\"][^/]*/\?\).*,            deleted_files+=(\"\1\"),p
                                 s,^D. \"\([^/]\+/\?\).*\"$,           deleted_files+=(\"\1\"),p
+                                s,^.D \([^\"][^/]*/\?\).*,            deleted_files+=(\"\1\"),p
+                                s,^.D \"\([^/]\+/\?\).*\"$,           deleted_files+=(\"\1\"),p
                                 s,^[MARC]. \([^\"][^/]*/\?\).*,         added_files+=(\"\1\"),p
                                 s,^[MARC]. \"\([^/]\+/\?\).*\"$,        added_files+=(\"\1\"),p
                                 s,^.[MA] \([^\"][^/]*/\?\).*,        modified_files+=(\"\1\"),p
