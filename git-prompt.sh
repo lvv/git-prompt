@@ -577,11 +577,14 @@ _gp_set_who_where() {
             else
                 PS1="\w$prompt_char "
             fi
-            return 0
+            return 1
         fi
 }
 
 _gp_set_who_where
+
+# exit if in mc (see above)
+[[ $? -ne 0 ]] && return 1
 
 create_battery_indicator () {
         # if not a laptop: :
