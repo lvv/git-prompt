@@ -568,9 +568,7 @@ parse_vcs_status() {
         [[ $vcs_ignore_dir_list =~ $PWD ]] && return
 
         # make sure we're not in an AFS directory
-        if [ -n "$vcs_ignore_afs" ] && which fs >/dev/null 2>&1; then
-                fs examine >/dev/null 2>&1 || return
-        fi
+        [[ $vcs_ignore_afs = "on" ]] && (which fs && fs examine) >/dev/null 2>&1 && return
 
         eval   $PARSE_VCS_STATUS
 
