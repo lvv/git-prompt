@@ -895,7 +895,7 @@ parse_hg_status() {
 
         if [[ $hg_multiple_heads_display == "on" ]]; then
             local hg_heads
-            hg_heads=$(hg heads --template '{rev}\n' $branch | wc -l)
+            hg_heads=$(hg heads --template '{rev}\n' $branch 2> /dev/null | wc -l)
 
             if [[ $hg_heads -gt 1 ]]; then
                 detached=detached
