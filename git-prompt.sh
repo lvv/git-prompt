@@ -512,10 +512,10 @@ parse_git_status() {
                 #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
         fi
 		if [[ $branch == "master" ]]; then
-			# Only work with master branch 
+			# Only work with master branch
 	        # TODO : make this a module on/off
 	        # hourly checks new commits in remotes
-	        fetchUpdate=3600 
+	        fetchUpdate=3600
 	        remotes=()
 	        for remote in $(git remote)
 	        do
@@ -525,7 +525,7 @@ parse_git_status() {
 	                        fetchDate=$(date --utc --reference=$git_dir/FETCH_HEAD +%s)
 	                        now=$(date --utc +%s)
 	                        delta=$(( $now - $fetchDate ))
-	                        # if last update to .git/FETCH_HEAD file 
+	                        # if last update to .git/FETCH_HEAD file
 	                        if [[ $delta -gt $fetchUpdate  ]]; then
 	                                ( git fetch $remote >& /dev/null &)
 	                        fi
