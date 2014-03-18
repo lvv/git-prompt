@@ -1,13 +1,24 @@
         # don't set prompt if this is not interactive shell
         [[ $- != *i* ]]  &&  return
 
+        # bash version check
+        if [[ -z ${BASH_VERSION}  ||  "${BASH_VERSINFO[0]}" -lt  4 ]]; then
+                echo "git-prompt requires bash-v4 or newer,  git-prompt is not enabled."
+                return
+        fi
+
+        # clear vars from previous invocation
+        unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
+        unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
+        unset rawhex_len
+
+        # work around for conflict with vte.sh
+        unset VTE_VERSION
+
 ###################################################################   CONFIG
 
         #####  read config file if any.
 
-        unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
-        unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
-        unset rawhex_len
 
         conf=git-prompt.conf;                   [[ -r $conf ]]  && . $conf
         conf=/etc/git-prompt.conf;              [[ -r $conf ]]  && . $conf
@@ -166,31 +177,26 @@ cwd_truncate() {
         # arg1: max path lenght
         # returns abbrivated $PWD  in public "cwd" var
 
-        cwd=${PWD/$HOME/\~}             # substitute  "~"
+        cwd="${PWD/$HOME/~}"             # substitute  "~"
 
         case $1 in
                 full)
                         return
                         ;;
                 last)
-                        cwd=${PWD##/*/}
-                        [[ $PWD == $HOME ]]  &&  cwd="~"
+                        cwd="${PWD##/*/}"
+                        [[ "$PWD" == "$HOME" ]]  &&  cwd="~"
                         return
                         ;;
                 *)
-                        # if bash < v3.2  then don't truncate
-			if [[  ${BASH_VERSINFO[0]} -eq 3   &&   ${BASH_VERSINFO[1]} -le 1  || ${BASH_VERSINFO[0]} -lt 3 ]] ;  then
-				return
-			fi
                         ;;
         esac
 
         # split path into:  head='~/',  truncateble middle,  last_dir
 
         local cwd_max_length=$1
-        # expression which bash-3.1 or older can not understand, so we wrap it in eval
-        exp31='[[ "$cwd" =~ (~?/)(.*/)([^/]*)$ ]]'
-        if  eval $exp31 ;  then  # only valid if path have more then 1 dir
+        
+        if  [[ "$cwd" =~ '(~?/)(.*/)([^/]*)$' ]] ;  then  # only valid if path have more than 1 dir
                 local path_head=${BASH_REMATCH[1]}
                 local path_middle=${BASH_REMATCH[2]}
                 local path_last_dir=${BASH_REMATCH[3]}
@@ -206,8 +212,7 @@ cwd_truncate() {
 			middle_tail=${path_middle:${#path_middle}-${cwd_middle_max}}
 
 			# trunc on dir boundary (trunc 1st, probably tuncated dir)
-			exp31='[[ $middle_tail =~ [^/]*/(.*)$ ]]'
-			eval $exp31
+			[[ $middle_tail =~ '[^/]*/(.*)$' ]]
 			middle_tail=${BASH_REMATCH[1]}
 
 			# use truncated only if we cut at least 4 chars
@@ -431,16 +436,19 @@ parse_git_status() {
 
         unset branch status modified added clean init added mixed untracked op detached
 
+        # work around for VTE bug (hang on printf)
+        unset VTE_VERSION
+
 	# info not in porcelain status
         eval " $(
-                git status 2>/dev/null |
+                LANG=C git status 2>/dev/null |
                     sed -n '
-                        s/^# On branch /branch=/p
+                        s/^\(# \)*On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
-                        s/^# Initial commi.*/init=init/p
-                        s/^# Your branch is ahead of \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
-                        s/^# Your branch is behind \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
-                        s/^# Your branch and \(.\).\+\1 have diverged.*/freshness=${YELLOW}↕/p
+                        s/^\(# \)*Initial commi.*/init=init/p
+                        s/^\(# \)*Your branch is ahead of \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
+                        s/^\(# \)*Your branch is behind \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
+                        s/^\(# \)*Your branch and \(.\).\+\1 have diverged.*/freshness=${YELLOW}↕/p
                     '
         )"
 
@@ -456,7 +464,7 @@ parse_git_status() {
                                         # A  "with space"                 <------------- WITH QOUTES
 
         eval " $(
-                git status --porcelain 2>/dev/null |
+                LANG=C git status --porcelain 2>/dev/null |
                         sed -n '
                                 s,^[MARC]. \([^\"][^/]*/\?\).*,         added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
                                 s,^[MARC]. \"\([^/]\+/\?\).*\"$,        added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
