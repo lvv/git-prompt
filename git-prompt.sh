@@ -60,7 +60,7 @@
 
         aj_max=20
         timer_starts_at=10                      # min seconds for timer
-        timer_blacklist="less*|vi*|man*|emacs*" # prefix-match on the command line
+        timer_blacklist="less*|vi*|man*|emacs*|fg*" # prefix-match on the command line
 
 
 #####################################################################  post config
