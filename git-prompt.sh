@@ -54,10 +54,13 @@
 
         max_file_list_length=${max_file_list_length:-100}
         upcase_hostname=${upcase_hostname:-on}
+        count_only=${count_only:-off}
+        rawhex_len=${rawhex_len:-5}
+
 
         aj_max=20
         timer_starts_at=10                      # min seconds for timer
-        timer_blacklist="less*|vi*|man*|emacs*" # prefix-match on the command line
+        timer_blacklist="less*|vi*|man*|emacs*|fg*" # prefix-match on the command line
 
 
 #####################################################################  post config
@@ -416,46 +419,55 @@ parse_git_status() {
         [[  -n ${git_dir/./} ]]   ||   return  1
 
         vcs=git
-        parse_git_complete
 
         ##########################################################   GIT STATUS
-	file_regex='\([^/]*\/\{0,1\}\).*'
-	added_files=()
-	modified_files=()
-	untracked_files=()
+        added_files=()
+        modified_files=()
+        untracked_files=()
+        [[ $rawhex_len -gt 0 ]]  && freshness="$dim="
+
         unset branch status modified added clean init added mixed untracked op detached
 
-	# quoting hell
+        # work around for VTE bug (hang on printf)
+        unset VTE_VERSION
+
+        # info not in porcelain status
         eval " $(
-                git status 2>/dev/null |
+                LANG=C git status 2>/dev/null |
                     sed -n '
-                        s/^# On branch /branch=/p
-                        s/^nothing to commit\(,\) \(working directory clean\)/clean=clean/p
-                        s/^# Initial commit/init=init/p
-
-                        /^# Changes to be committed:/,/^# [A-Z]/ {
-                            s/^# Changes to be committed:/added=added;/p
-
-                            s/^#	modified:   '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
-                            s/^#	new file:   '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
-                            s/^#	renamed:[^>]*> '"$file_regex"'/	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
-                            s/^#	copied:[^>]*> '"$file_regex"'/ 	[[ \" ${added_files[*]} \" =~ \" \1 \" ]] || added_files[${#added_files[@]}]=\"\1\"/p
-                        }
-
-                        /^# \(Changed but not updated\|Changes not staged for commit\):/,/^# [A-Z]/ {
-                            s/^# \(Changed but not updated\|Changes not staged for commit\):/modified=modified;/p
-                            s/^#	modified:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
-                            s/^#	unmerged:   '"$file_regex"'/	[[ \" ${modified_files[*]} \" =~ \" \1 \" ]] || modified_files[${#modified_files[@]}]=\"\1\"/p
-                        }
-
-                        /^# Untracked files:/,/^[^#]/{
-                            s/^# Untracked files:/untracked=untracked;/p
-                            s/^#	'"$file_regex"'/		[[ \" ${untracked_files[*]} ${modified_files[*]} ${added_files[*]} \" =~ \" \1 \" ]] || untracked_files[${#untracked_files[@]}]=\"\1\"/p
-                        }
+                        s/^\(# \)*On branch /branch=/p
+                        s/^nothing to commi.*/clean=clean/p
+                        s/^\(# \)*Initial commi.*/init=init/p
+                        s/^\(# \)*Your branch is ahead of \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
+                        s/^\(# \)*Your branch is behind \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
+                        s/^\(# \)*Your branch and \(.\).\+\1 have diverged.*/freshness=${YELLOW}↕/p
                     '
         )"
 
-        if  ! grep -q "^ref:" $git_dir/HEAD  2>/dev/null;   then
+        # porcelain file list
+                                        # TODO:  sed-less -- http://tldp.org/LDP/abs/html/arrays.html  -- Example 27-5
+
+                                        # git bug:  (was reported to git@vger.kernel.org )
+                                        # echo 1 > "with space"
+                                        # git status --porcelain
+                                        # ?? with space                   <------------ NO QOUTES
+                                        # git add with\ space
+                                        # git status --porcelain
+                                        # A  "with space"                 <------------- WITH QOUTES
+
+        eval " $(
+                LANG=C git status --porcelain 2>/dev/null |
+                        sed -n '
+                                s,^[MARC]. \([^\"][^/]*/\?\).*,         added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
+                                s,^[MARC]. \"\([^/]\+/\?\).*\"$,        added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
+                                s,^.[MAU] \([^\"][^/]*/\?\).*,          modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
+                                s,^.[MAU] \"\([^/]\+/\?\).*\"$,         modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
+                                s,^?? \([^\"][^/]*/\?\).*,              untracked=untracked;   [[ \" ${untracked_files[@]} \"  =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\",p
+                                s,^?? \"\([^/]\+/\?\).*\"$,             untracked=untracked;   [[ \" ${untracked_files[@]} \"  =~ \" \1 \" ]]   || untracked_files[${#untracked_files[@]}]=\"\1\",p
+                        '   # |tee /dev/tty
+        )"
+
+        if  ! grep -q "^ref:" "$git_dir/HEAD"  2>/dev/null;   then
                 detached=detached
         fi
 
@@ -502,12 +514,16 @@ parse_git_status() {
 
 
         ####  GET GIT HEX-REVISION
-        rawhex=`git rev-parse HEAD 2>/dev/null`
-        rawhex=${rawhex/HEAD/}
-        rawhex=${rawhex:0:6}
+        if  [[ $rawhex_len -gt 0 ]] ;  then
+                rawhex=`git rev-parse HEAD 2>/dev/null`
+                rawhex=${rawhex/HEAD/}
+                rawhex="$hex_vcs_color${rawhex:0:$rawhex_len}"
+        else
+                rawhex=""
+        fi
 
         #### branch
-        branch=${branch/master/M}
+        branch=${branch/#master/M}
 
                         # another method of above:
                         # branch=$(git symbolic-ref -q HEAD || { echo -n "detached:" ; git name-rev --name-only HEAD 2>/dev/null; } )
@@ -530,7 +546,7 @@ parse_git_status() {
                         fi
                         #branch="<$branch>"
                 fi
-                vcs_info="$branch$white=$rawhex"
+                vcs_info="$branch$freshness$rawhex"
 
         fi
  }
@@ -586,9 +602,15 @@ parse_vcs_status() {
 
         ### file list
         unset file_list
-        [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
-        [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
-        [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
+        if [[ $count_only = "on" ]] ; then
+                [[ ${added_files[0]}     ]]  &&  file_list+=" "${added_vcs_color}+${#added_files[@]}
+                [[ ${modified_files[0]}  ]]  &&  file_list+=" "${modified_vcs_color}*${#modified_files[@]}
+                [[ ${untracked_files[0]} ]]  &&  file_list+=" "${untracked_vcs_color}?${#untracked_files[@]}
+        else
+                [[ ${added_files[0]}     ]]  &&  file_list+=" "$added_vcs_color${added_files[@]}
+                [[ ${modified_files[0]}  ]]  &&  file_list+=" "$modified_vcs_color${modified_files[@]}
+                [[ ${untracked_files[0]} ]]  &&  file_list+=" "$untracked_vcs_color${untracked_files[@]}
+        fi
         [[ ${vim_files}          ]]  &&  file_list+=" "${RED}vim:${vim_files}
         file_list=${file_list:+:$file_list}
 
