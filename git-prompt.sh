@@ -54,6 +54,8 @@
 
         max_file_list_length=${max_file_list_length:-100}
         upcase_hostname=${upcase_hostname:-on}
+        rawhex_len=${rawhex_len:-5}
+
 
         aj_max=20
         timer_starts_at=10                      # min seconds for timer
