@@ -831,7 +831,7 @@ parse_hg_status() {
         # if we're not in a hg directory, this takes exactly the same time as 'hg root' would do,
         # and if we're in a hg dir, we don't have to call 'hg branch' and 'hg id' separately.
         local id_str
-        id_str=$(hg log --follow -l 1 --template '{rev}\x1f{node}\x1f{tags}\x1f{branch}\x1f{bookmarks}' 2> /dev/null) || return 1
+        id_str=$(hg log --follow -l 1 --template '{rev}\x1f{node}\x1f{tags}\x1f{branches}\x1f{bookmarks}' 2> /dev/null) || return 1
 
         # This contrived way is necessary because branch names and tags can contain spaces.
         # The ASCII "Unit separator" \x1f was chosen as a "safe" separator character
