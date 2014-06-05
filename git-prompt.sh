@@ -444,9 +444,9 @@ parse_git_status() {
                         s/^\(# \)*On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
                         s/^\(# \)*Initial commi.*/init=init/p
-                        s/^\(# \)*Your branch is ahead of \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
-                        s/^\(# \)*Your branch is behind \(.\).\+\1 by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
-                        s/^\(# \)*Your branch and \(.\).\+\1 have diverged.*/freshness=${YELLOW}↕/p
+                        s/^\(# \)*Your branch is ahead of ..\+. by [[:digit:]]\+ commit.*/freshness=${WHITE}↑/p
+                        s/^\(# \)*Your branch is behind ..\+. by [[:digit:]]\+ commit.*/freshness=${YELLOW}↓/p
+                        s/^\(# \)*Your branch and ..\+. have diverged.*/freshness=${YELLOW}↕/p
                     '
         )"
 
