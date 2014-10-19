@@ -794,7 +794,7 @@ parse_svn_status() {
         ### get status
 
         unset status modified added clean init deleted untracked conflicted op detached
-        eval `svn status 2>/dev/null |
+        eval `svn status 2>/dev/null | sed 's/\\\\/x/g' |
                 sed -n '
                     s/^A...    \([^.].*\)/        added_files+=(\"\1\");/p
                     s/^M...    \([^.].*\)/     modified_files+=(\"\1\");/p
@@ -856,7 +856,7 @@ parse_hg_status() {
         ### get status
         unset status modified added clean init deleted untracked op detached
 
-        eval `hg status 2>/dev/null |
+        eval `hg status 2>/dev/null | sed 's/\\\\/x/g' |
                 sed -n '
                         s/^M \([^.].*\)/     modified_files+=(\"\1\");/p
                         s/^A \([^.].*\)/        added_files+=(\"\1\");/p
@@ -968,7 +968,7 @@ parse_git_status() {
 
 	# info not in porcelain status
         eval " $(
-                LANG=C git status 2>/dev/null |
+                LANG=C git status 2>/dev/null | sed 's/\\\\/x/g' |
                     sed -n '
                         s/^\(# \)*On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
@@ -991,7 +991,7 @@ parse_git_status() {
                                         # A  "with space"                 <------------- WITH QOUTES
 
         eval " $(
-                LANG=C git status --porcelain 2>/dev/null |
+                LANG=C git status --porcelain 2>/dev/null | sed 's/\\\\/x/g' |
                         sed -n '
                                 s,^U. \([^\"][^/]*/\?\).*,         conflicted_files+=(\"\1\"),p
                                 s,^U. \"\([^/]\+/\?\).*\"$,        conflicted_files+=(\"\1\"),p
