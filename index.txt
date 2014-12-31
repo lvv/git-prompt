@@ -200,7 +200,7 @@ time consuming ops in postconfig which is executed only once.
 - Dan Bravender <dan.bravender AT gmail.com>
 - Thomas Geffert <thomas.geffert AT arcutronix.com>
 - Tibor Simko <tibor.simko AT cern.ch>
-
+- Lev Givon <lev AT columbia.edu>
 
 [bibliography]
 .References
