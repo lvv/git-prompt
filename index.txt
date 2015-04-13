@@ -47,6 +47,8 @@ GIT.  Enable if needed in <<config,config>>
 ==  Mercurial/HG
 HG module was developed by Lee Nussbaum `<wln AT scrunch.org>`.
 
+== Conda
+The Conda module was developed by Lev Givon `<lev AT columbia.edu>`.
 
 == Labels
 
