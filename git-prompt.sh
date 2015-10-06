@@ -342,9 +342,15 @@ set_shell_label() {
         full="$plain_who_where $@"
         short="$*"
 
+        # hack to replace garbled bash command under mc on some systems
+        if [[ "$short" == ". /usr/libexec/mc/mc-wrapper.sh" ]]; then
+             short="mc"
+             full="$plain_who_where $short"
+        fi
+
         xterm_label() {
              local args="$*"
-             printf "\033]0;%s\033\\" "${args:0:200}"
+             printf "\033]0;%s\007" "${args:0:200}"
         }
 
         screen_label() {
@@ -357,7 +363,7 @@ set_shell_label() {
             fi
 
             if [[ "$TMUX" ]]; then
-                full="$plain_who_where${_gp_tmux_session:+|${_gp_tmux_session}} $@"
+                full="$plain_who_where${_gp_tmux_session:+|${_gp_tmux_session}} $short"
             fi
 
             # FIXME: run this only if screen is in xterm (how to test for this?)
