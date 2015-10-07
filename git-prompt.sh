@@ -837,7 +837,7 @@ parse_hg_status() {
         # if we're not in a hg directory, this takes exactly the same time as 'hg root' would do,
         # and if we're in a hg dir, we don't have to call 'hg branch' and 'hg id' separately.
         local id_str
-        id_str=$(hg log --follow -l 1 --template '{rev}\x1f{node}\x1f{tags}\x1f{branches}\x1f{bookmarks}' 2> /dev/null) || return 1
+        id_str=$(hg log --follow -l 1 --template '{rev}\x1f{node}\x1f{tags}\x1f{branches}\x1f{bookmarks}\x1f{phase}' 2> /dev/null) || return 1
 
         # This contrived way is necessary because branch names and tags can contain spaces.
         # The ASCII "Unit separator" \x1f was chosen as a "safe" separator character
@@ -850,12 +850,13 @@ parse_hg_status() {
         id_array=($id_str)
         IFS="$oldIFS"
 
-        local branch bookmark num rev tags tip_regex not_uptodate
+        local branch bookmark num rev tags tip_regex not_uptodate phase
              num="${id_array[0]}"
              rev="${id_array[1]}"
             tags="${id_array[2]}"
           branch="${id_array[3]}"
         bookmark="${id_array[4]}"
+           phase="${id_array[5]}"
 
         vcs=hg
 
@@ -914,9 +915,23 @@ parse_hg_status() {
         if [[ $utf8_prompt ]]; then
             hg_vcs_char="☿"
             hg_up_char="⬆"
+            case $phase in
+                public)  phase="${green}⚌";; # ☻
+                draft)   phase="${yellow}⚍";; # ☺
+                secret)  phase="${red}⚏";; # ☹
+                *)       phase="" ;;
+            esac
         else
             hg_vcs_char=":"
             hg_up_char="^"
+            phase=${phase:0:3}
+            case $phase in
+                public)  phase="${green}pub";;
+                draft)   phase="${yellow}dra";;
+                secret)  phase="${red}sec";;
+                *)       phase="";;
+            esac
+
         fi
 
         tip_regex=\\btip\\b
@@ -936,7 +951,7 @@ parse_hg_status() {
             *)     hg_revision="" ;;
         esac
 
-        vcs_info+=$hg_revision$not_uptodate
+        vcs_info+=$hg_revision$phase$not_uptodate
  }
 
 
