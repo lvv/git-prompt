@@ -28,10 +28,11 @@ rc_module=on
 command_time_module=on
 load_module=on
 clock_module=on
+sudo_module=on
 
 
 ### order of modules
-prompt_modules_order="RC LOAD CLOCK CTIME VIRTUALENV WHO_WHERE JOBS BATTERY CWD VCS MAKE"
+prompt_modules_order="RC LOAD CLOCK CTIME VIRTUALENV SUDO WHO_WHERE JOBS BATTERY CWD VCS MAKE"
 
 ###########################################################   DEFAULT OBJECTS
 ###  Default user and hostname can be abbreviated or suppressed.
@@ -126,6 +127,7 @@ clock_alert_interval=30
                at_color=green
                at_color_remote=RED
                clock_color=WHITE
+               sudo_color=RED
 
 # else                                          #  B/W terminal
         #       dir_color=bw_bold

@@ -32,13 +32,14 @@
         command_time_module=${command_time_module:-on}
         load_module=${load_module:-on}
         clock_module=${clock_module:-off}
+        sudo_module=${sudo_module:-off}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
         default_host_abbrev_mode=${default_host_abbrev_mode:-delete}
         default_id_abbrev_mode=${default_id_abbrev_mode:-delete}
 
-        prompt_modules_order=${prompt_modules_order:-RC LOAD CTIME VIRTUALENV VCS WHO_WHERE JOBS BATTERY CWD MAKE}
+        prompt_modules_order=${prompt_modules_order:-RC LOAD CTIME VIRTUALENV VCS SUDO WHO_WHERE JOBS BATTERY CWD MAKE}
 
         #### check for acpi, make, disable corresponding module if not installed
         if [[ -z $(which acpi 2> /dev/null) || -z $(acpi -b) ]]; then
@@ -67,6 +68,7 @@
                 make_color_dirty=${make_color_dirty:-RED}
                 command_time_color=${command_time_color:-YELLOW}
                 clock_color=${clock_color:-BLACK}
+                sudo_color=${sudo_color:-RED}
 
         else                                            #  only B/W
                 dir_color=${dir_color:-bw_bold}
@@ -246,6 +248,7 @@
                 s/BATTERY/\$battery_indicator/;
                 s/CWD/\$dir_color\$cwd/;
                 s/MAKE/\$make_indicator/;
+                s/SUDO/\$sudo_marker/;
                 s/ //g;
                 s/\$space\$space/\$space/g;
                 s/^\$space//;
@@ -766,6 +769,15 @@ create_load_indicator () {
         if [[ $load_display_style == "markonly" ]]; then load_str= ; fi
 
         load_indicator="$load_color$load_mark$load_str$colors_reset"
+}
+
+create_sudo_marker() {
+         sudo_marker=
+         if [[ $utf8_prompt ]]; then
+             sudo -nl &> /dev/null && sudo_marker="${!sudo_color}⚷$colors_reset"
+         else
+             sudo -nl &> /dev/null && sudo_marker="${!sudo_color}!$colors_reset"
+         fi
 }
 
 parse_svn_status() {
@@ -1322,6 +1334,12 @@ prompt_command_function() {
              clock_indicator=""
         fi
 
+        if [[ $sudo_module == "on" ]]; then
+             create_sudo_marker
+        else
+             sudo_marker=""
+        fi
+
         # autojump
         if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
               aj_dir_list[++aj_idx%aj_max]="$PWD"
@@ -1346,7 +1364,7 @@ prompt_command_function() {
         # old static string with default order left here for reference
         ###PS1="$colors_reset$rc$virtualenv_string$head_local$color_who_where$colors_reset$jobs_indicator$battery_indicator$dir_color$cwd$make_indicator$prompt_color$prompt_char $colors_reset"
 
-        unset head_local raw_rc jobs_indicator virtualenv_string make_indicator battery_indicator command_time load_indicator clock_indicator
+        unset head_local raw_rc jobs_indicator virtualenv_string make_indicator battery_indicator command_time load_indicator clock_indicator sudo_marker
  }
 
 # provide functions to turn the fancy prompt functions on and off
