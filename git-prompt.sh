@@ -177,15 +177,7 @@ cwd_truncate() {
         # arg1: max path lenght
         # returns abbrivated $PWD  in public "cwd" var
 
-        if [[ $PWD == $HOME ]];  then
-                cwd="~"
-                return
-        else
-                cwd=$PWD
-        fi
-
-        cwd="${PWD/$HOME/~}"             # substitute  "~"
-        return
+        cwd="${PWD/$HOME/\~}"             # substitute  "~"
 
         case $1 in
                 full)
