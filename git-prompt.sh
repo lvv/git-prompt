@@ -34,6 +34,7 @@
         hg_module=${hg_module:-on}
         vim_module=${vim_module:-on}
         virtualenv_module=${virtualenv_module:-on}
+        conda_module=${conda_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
 
@@ -44,6 +45,7 @@
                 dir_color=${dir_color:-CYAN}
                 rc_color=${rc_color:-red}
                 virtualenv_color=${virtualenv_color:-green}
+                conda_color=${conda_color:-yellow}
                 user_id_color=${user_id_color:-blue}
                 root_id_color=${root_id_color:-magenta}
         else                                            #  only B/W
@@ -290,6 +292,7 @@ set_shell_label() {
         dir_color=${!dir_color}
         rc_color=${!rc_color}
         virtualenv_color=${!virtualenv_color}
+        conda_color=${!conda_color}
         user_id_color=${!user_id_color}
         root_id_color=${!root_id_color}
 
@@ -648,9 +651,17 @@ parse_virtualenv_status() {
 
     if [[ -n "$VIRTUAL_ENV" ]] ; then
 	virtualenv=`basename $VIRTUAL_ENV`
-	rc="$rc $virtualenv_color<$virtualenv> "
+	rc="$rc$virtualenv_color<$virtualenv> "
     fi
  }
+
+parse_conda_status() {
+    [[ $virtualenv_module = "on" ]] || return 1
+
+    if [[ -n "$CONDA_DEFAULT_ENV" ]] ; then
+	rc="$rc$conda_color[$CONDA_DEFAULT_ENV] "
+    fi
+}
 
 disable_set_shell_label() {
         trap - DEBUG  >& /dev/null
@@ -703,6 +714,7 @@ prompt_command_function() {
         set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
 
 	parse_virtualenv_status
+	parse_conda_status
         parse_vcs_status
 
         # autojump
