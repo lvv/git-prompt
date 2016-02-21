@@ -66,14 +66,14 @@
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
 
-                  hex_vcs_color=${hex_vcs_color:-BLACK}         # gray
+                  hex_vcs_color=${hex_vcs_color:-white}
 
 
         max_file_list_length=${max_file_list_length:-100}
         short_hostname=${short_hostname:-off}
         upcase_hostname=${upcase_hostname:-on}
         count_only=${count_only:-off}
-        rawhex_len=${rawhex_len:-5}
+        rawhex_len=${rawhex_len:-6}
 
         aj_max=20
 
@@ -323,6 +323,8 @@ set_shell_label() {
                 color_index=(green yellow blue magenta cyan white)              # FIXME:  bw,  color-256
                 host_color=${color_index[cksum_color_no]}
         fi
+        #host_color fix in white
+        host_color=white
 
         host_color=${!host_color}
 
@@ -518,7 +520,35 @@ parse_git_status() {
                 #    branch="$(git describe --exact-match HEAD 2>/dev/null)" || \
                 #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
         fi
-
+		if [[ $branch == "master" ]]; then
+			# Only work with master branch
+	        # TODO : make this a module on/off
+	        # hourly checks new commits in remotes
+	        fetchUpdate=3600
+	        remotes=()
+	        for remote in $(git remote)
+	        do
+	                if [[ ! -e $git_dir/FETCH_HEAD ]]; then
+	                        ( git fetch $remote >& /dev/null &)
+	                else
+	                        fetchDate=$(date --utc --reference=$git_dir/FETCH_HEAD +%s)
+	                        now=$(date --utc +%s)
+	                        delta=$(( $now - $fetchDate ))
+	                        # if last update to .git/FETCH_HEAD file
+	                        if [[ $delta -gt $fetchUpdate  ]]; then
+	                                ( git fetch $remote >& /dev/null &)
+	                        fi
+	                fi
+	                if [[ $(git branch -a | grep $remote) != "" ]]; then
+	                        nRemoteCommit=$(git log --oneline HEAD..$remote/master | wc -l)
+	                        if [[ -f $git_dir/FETCH_HEAD && $nRemoteCommit != "0" ]]; then
+	                                remotes+=" "${remote/origin/o}:$nRemoteCommit
+	                        fi
+	                else
+	                        (git fetch $remote >& /dev/null &)
+	                fi
+	        done
+		fi
 
         ####  GET GIT HEX-REVISION
         if  [[ $rawhex_len -gt 0 ]] ;  then
@@ -565,6 +595,7 @@ parse_vcs_status() {
         unset   vcs vcs_info
         unset   status modified untracked added init detached
         unset   file_list modified_files untracked_files added_files
+        unset   remotes
 
         [[ $vcs_ignore_dir_list =~ $PWD ]] && return
 
@@ -633,7 +664,7 @@ parse_vcs_status() {
         fi
 
 
-        head_local="$vcs_color(${vcs_info}$vcs_color${file_list}$vcs_color)"
+        head_local="$vcs_color(${vcs_info}$vcs_color${file_list}$vcs_color$remotes)"
 
         ### fringes
         head_local="${head_local+$vcs_color$head_local }"
@@ -655,7 +686,6 @@ parse_virtualenv_status() {
 disable_set_shell_label() {
         trap - DEBUG  >& /dev/null
  }
-
 # show currently executed command in label
 enable_set_shell_label() {
         disable_set_shell_label
@@ -685,11 +715,8 @@ j (){
         done
         echo '?'
  }
-
 alias jumpstart='echo ${aj_dir_list[@]}'
-
 ###################################################################### PROMPT_COMMAND
-
 prompt_command_function() {
         rc="$?"
 
@@ -718,11 +745,7 @@ prompt_command_function() {
 
         unset head_local tail_local pwd
  }
-
         PROMPT_COMMAND=prompt_command_function
-
         enable_set_shell_label
-
         unset rc id tty modified_files file_list
-
 # vim: set ft=sh ts=8 sw=8 et:

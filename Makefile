@@ -1,21 +1,10 @@
-ifeq ($(USER),lvv)
-        HOMEDIR := /home/lvv/p/volnitsky.com/
-        INCLUDE := $(HOMEDIR)/include.mk
-else
-        INCLUDE := /dev/null
-endif
-
-include $(INCLUDE)
-
-
-COPY_LIST = git-prompt.sh
-
-
 install:
-	cp -v git-prompt.sh 	/etc/
-	[ -f /etc/git-prompt.conf ]  || cp -v git-prompt.conf /etc/
-	
-tgit:
-	xclip -i git-demo
-	echo "ready to paste ..."
-
+	[ -f $(HOME)/.git-prompt.conf ] || ln -vfn -s $(shell pwd)/git-prompt.conf $(HOME)/.git-prompt.conf 
+	@echo 
+	@echo 'add to ~/.bashrc'
+	@echo '[[ $$- == *i* ]] && . $(PWD)/git-prompt.sh'
+clean: 
+	[ -f $(HOME)/.git-prompt.conf ] &&  unlink $(HOME)/.git-prompt.conf
+	@echo 
+	@echo 'remove in ~/.bashrc'
+	@echo '[[ $$- == *i* ]] && . $(PWD)/git-prompt.sh'
