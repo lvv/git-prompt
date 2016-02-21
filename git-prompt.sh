@@ -36,6 +36,7 @@
         virtualenv_module=${virtualenv_module:-on}
         error_bell=${error_bell:-off}
         cwd_cmd=${cwd_cmd:-\\w}
+        sed_cmd=${sed_cmd:-sed}
 
 
         #### dir, rc, root color
@@ -195,7 +196,7 @@ cwd_truncate() {
         # split path into:  head='~/',  truncateble middle,  last_dir
 
         local cwd_max_length=$1
-        
+
         if  [[ "$cwd" =~ '(~?/)(.*/)([^/]*)$' ]] ;  then  # only valid if path have more than 1 dir
                 local path_head=${BASH_REMATCH[1]}
                 local path_middle=${BASH_REMATCH[2]}
@@ -268,8 +269,8 @@ set_shell_label() {
 
 ########################################################### TTY
         tty=`tty`
-        tty=`echo $tty | sed "s:/dev/pts/:p:; s:/dev/tty::" `           # RH tty devs
-        tty=`echo $tty | sed "s:/dev/vc/:vc:" `                         # gentoo tty devs
+        tty=`echo $tty | $sed_cmd "s:/dev/pts/:p:; s:/dev/tty::" `           # RH tty devs
+        tty=`echo $tty | $sed_cmd "s:/dev/vc/:vc:" `                         # gentoo tty devs
 
         if [[ "$TERM" = "screen" ]] ;  then
 
@@ -361,7 +362,7 @@ parse_svn_status() {
         ### get rev
         eval `
             svn info |
-                sed -n "
+                $sed_cmd -n "
                     s@^URL[^/]*//@repo_dir=@p
                     s/^Revision: /rev=/p
                 "
@@ -370,7 +371,7 @@ parse_svn_status() {
 
         unset status modified added clean init added mixed untracked op detached
         eval `svn status 2>/dev/null |
-                sed -n '
+                $sed_cmd -n '
                     s/^A...    \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}]=\"\1\";/p
                     s/^M...    \([^.].*\)/modified=modified;             modified_files[${#modified_files[@]}]=\"\1\";/p
                     s/^\?...    \([^.].*\)/untracked=untracked;  untracked_files[${#untracked_files[@]}]=\"\1\";/p
@@ -393,7 +394,7 @@ parse_hg_status() {
         unset status modified added clean init added mixed untracked op detached
 
         eval `hg status 2>/dev/null |
-                sed -n '
+                $sed_cmd -n '
                         s/^M \([^.].*\)/modified=modified; modified_files[${#modified_files[@]}]=\"\1\";/p
                         s/^A \([^.].*\)/added=added; added_files[${#added_files[@]}]=\"\1\";/p
                         s/^R \([^.].*\)/added=added;/p
@@ -441,7 +442,7 @@ parse_git_status() {
 	# info not in porcelain status
         eval " $(
                 LANG=C git status 2>/dev/null |
-                    sed -n '
+                    $sed_cmd -n '
                         s/^\(# \)*On branch /branch=/p
                         s/^nothing to commi.*/clean=clean/p
                         s/^\(# \)*Initial commi.*/init=init/p
@@ -464,7 +465,7 @@ parse_git_status() {
 
         eval " $(
                 LANG=C git status --porcelain 2>/dev/null |
-                        sed -n '
+                        $sed_cmd -n '
                                 s,^[MARC]. \([^\"][^/]*/\?\).*,         added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
                                 s,^[MARC]. \"\([^/]\+/\?\).*\"$,        added=added;           [[ \" ${added_files[@]} \"      =~ \" \1 \" ]]   || added_files[${#added_files[@]}]=\"\1\",p
                                 s,^.[MAU] \([^\"][^/]*/\?\).*,          modified=modified;     [[ \" ${modified_files[@]} \"   =~ \" \1 \" ]]   || modified_files[${#modified_files[@]}]=\"\1\",p
