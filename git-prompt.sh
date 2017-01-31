@@ -75,7 +75,9 @@
         count_only=${count_only:-off}
         rawhex_len=${rawhex_len:-5}
 
-        aj_max=20
+        autojump_exists=`declare -F _autojump`
+
+        [ -n "$autojump_exists" ] || aj_max=20
 
 
 #####################################################################  post config
@@ -674,7 +676,7 @@ declare -ft enable_set_shell_label
 #      END  { for (i=NR;i>0;i--)
 #             print line[i] }' listlogs
 
-j (){
+[ -n "$autojump_exists" ] || j (){
         : ${1? usage: j dir-beginning}
         # go in ring buffer starting from current index.  cd to first matching dir
         for (( i=(aj_idx-1)%aj_max;   i != aj_idx%aj_max;  i=(--i+aj_max)%aj_max )) ; do
@@ -686,7 +688,7 @@ j (){
         echo '?'
  }
 
-alias jumpstart='echo ${aj_dir_list[@]}'
+[ -n "$fname" ] || alias jumpstart='echo ${aj_dir_list[@]}'
 
 ###################################################################### PROMPT_COMMAND
 
@@ -706,8 +708,10 @@ prompt_command_function() {
         parse_vcs_status
 
         # autojump
-        if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
-              aj_dir_list[++aj_idx%aj_max]="$PWD"
+        if [ -n "$aj_max" ] ; then
+            if [[ ${aj_dir_list[aj_idx%aj_max]} != $PWD ]] ; then
+                  aj_dir_list[++aj_idx%aj_max]="$PWD"
+            fi
         fi
 
         # if cwd_cmd have back-slash, then assign it value to cwd
@@ -723,6 +727,8 @@ prompt_command_function() {
 
         enable_set_shell_label
 
-        unset rc id tty modified_files file_list
+        [ -n "$autojump_exists" ] && unset aj_dir_list aj_idx aj_max
+
+        unset rc id tty modified_files file_list autojump_exists
 
 # vim: set ft=sh ts=8 sw=8 et:
