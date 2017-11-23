@@ -8,7 +8,7 @@
         unset make_color_ok make_color_dirty jobs_color_bkg jobs_color_stop slash_color slash_color_readonly at_color at_color_remote
         unset command_time_color clock_color
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
-        unset modified_vcs_color added_vcs_color untracked_vcs_color deleted_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
+        unset modified_vcs_color added_vcs_color untracked_vcs_color deleted_vcs_color op_vcs_color detached_vcs_color hex_vcs_color conflicted_vcs_color
         unset rawhex_len
 
         conf=git-prompt.conf;                   [[ -r $conf ]]  && . $conf
