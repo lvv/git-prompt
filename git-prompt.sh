@@ -607,9 +607,9 @@ create_battery_indicator () {
         battery_string=$(acpi -b)
 
         if [[ $battery_string ]]; then
-            tmp=${battery_string%\%*}
+            tmp=${battery_string%%\%*}
             battery_percent=${tmp##* }
-            if [[ "$battery_string" =~ "Discharging" ]]; then
+            if [[ "$tmp" =~ "Discharging" ]]; then
                 if [[ $utf8_prompt ]]; then
                     battery_diagrams=( ▕▁▏ ▕▂▏ ▕▃▏ ▕▄▏ ▕▅▏ ▕▆▏ ▕▇▏ ▕█▏ )
                     battery_pwr_index=$(($battery_percent/13))
@@ -617,7 +617,7 @@ create_battery_indicator () {
                 else
                     battery_indicator="|$battery_percent|"
                 fi
-            elif [[ "$battery_string" =~ "Charging" ]]; then
+            elif [[ "$tmp" =~ "Charging" ]]; then
                 if [[ $utf8_prompt ]]; then
                     battery_indicator="▕⚡▏"
                 else
