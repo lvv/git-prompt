@@ -41,8 +41,9 @@
 
         prompt_modules_order=${prompt_modules_order:-RC LOAD CTIME VIRTUALENV VCS SUDO WHO_WHERE JOBS BATTERY CWD MAKE}
 
-        #### check for acpi, make, disable corresponding module if not installed
-        if [[ -z $(which acpi 2> /dev/null) || -z $(acpi -b) ]]; then
+        #### check for battery files, make, disable corresponding module if not installed
+        # FIXME check other possible locations (BAT1, /proc ?)
+        if [[ ! -f /sys/class/power_supply/BAT0/present || ! $(< /sys/class/power_supply/BAT0/present) ]]; then
             battery_module=off
         fi
         if [[ -z $(which make 2> /dev/null) ]]; then
@@ -602,14 +603,14 @@ create_battery_indicator () {
         # if laptop on battery: one of ▕▁▏▕▂▏▕▃▏▕▄▏▕▅▏▕▆▏▕▇▏▕█▏
         # color: red if power < 30 %, else normal
 
-        local battery_string battery_percent battery_color battery_pwr_index tmp
+        local battery_present battery_status battery_percent battery_color battery_pwr_index tmp
         local -a battery_diagrams
-        battery_string=$(acpi -b)
+        battery_present=$(< /sys/class/power_supply/BAT0/present)
 
-        if [[ $battery_string ]]; then
-            tmp=${battery_string%%\%*}
-            battery_percent=${tmp##* }
-            if [[ "$tmp" =~ "Discharging" ]]; then
+        if [[ $battery_present ]]; then
+            battery_status=$(< /sys/class/power_supply/BAT0/status)
+            battery_percent=$(< /sys/class/power_supply/BAT0/capacity)
+            if [[ "$battery_status" =~ "Discharging" ]]; then
                 if [[ $utf8_prompt ]]; then
                     battery_diagrams=( ▕▁▏ ▕▂▏ ▕▃▏ ▕▄▏ ▕▅▏ ▕▆▏ ▕▇▏ ▕█▏ )
                     battery_pwr_index=$(($battery_percent/13))
@@ -617,7 +618,7 @@ create_battery_indicator () {
                 else
                     battery_indicator="|$battery_percent|"
                 fi
-            elif [[ "$tmp" =~ "Charging" ]]; then
+            elif [[ "$battery_status" =~ "Charging" ]]; then
                 if [[ $utf8_prompt ]]; then
                     battery_indicator="▕⚡▏"
                 else
