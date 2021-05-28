@@ -189,16 +189,15 @@ cwd_truncate() {
                         return
                         ;;
                 relative)
-                        local git_dir=$(git rev-parse --git-dir 2>/dev/null)
-                        local absolute_path=$(readlink -e $git_dir 2>/dev/null)
-                        local parent_path=${absolute_path%%/.git}
-                        local repo_name=${parent_path##/*/}
-                        if [[ "$repo_name" == "" ]]
-                        then
-                            # default to "full"
-                            return
+                        if [[ $git_module = "on" && -d ${git_dir} ]]; then
+                                local absolute_path=$(readlink -e $git_dir 2>/dev/null)
+                                local parent_path=${absolute_path%%/.git}
+                                local repo_name=${parent_path##/*/}
+                                if [[ -n "$repo_name" ]]
+                                then
+                                        cwd="$repo_name${PWD##$parent_path}"
+                                fi
                         fi
-                        cwd="$repo_name${PWD##$parent_path}"
                         return
                         ;;
                 *)
