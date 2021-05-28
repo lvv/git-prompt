@@ -11,6 +11,7 @@
         unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
+        unset show_who_where
 
         # work around for conflict with vte.sh
         unset VTE_VERSION
@@ -74,6 +75,7 @@
         upcase_hostname=${upcase_hostname:-on}
         count_only=${count_only:-off}
         rawhex_len=${rawhex_len:-5}
+        show_who_where=${show_who_where:-on}
 
         aj_max=20
 
@@ -332,7 +334,7 @@ set_shell_label() {
 #################################################################### WHO_WHERE
         #  [[user@]host[-tty]]
 
-        if [[ -n $id  || -n $host ]] ;   then
+        if [[ "$show_who_where" == "on" && ( -n $id  || -n $host ) ]] ;   then
                 [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
                 color_who_where="${id}${host:+$host_color$at$host}${tty:+ $tty}"
                 plain_who_where="${id}$at$host"
