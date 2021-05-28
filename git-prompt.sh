@@ -188,6 +188,18 @@ cwd_truncate() {
                         [[ "$PWD" == "$HOME" ]]  &&  cwd="~"
                         return
                         ;;
+                relative)
+                        if [[ $git_module = "on" && -d ${git_dir} ]]; then
+                                local absolute_path=$(readlink -e $git_dir 2>/dev/null)
+                                local parent_path=${absolute_path%%/.git}
+                                local repo_name=${parent_path##/*/}
+                                if [[ -n "$repo_name" ]]
+                                then
+                                        cwd="$repo_name${PWD##$parent_path}"
+                                fi
+                        fi
+                        return
+                        ;;
                 *)
                         ;;
         esac
@@ -700,7 +712,6 @@ prompt_command_function() {
         fi
 
         cwd=${PWD/$HOME/\~}                     # substitute  "~"
-        set_shell_label "${cwd##[/~]*/}/"       # default label - path last dir
 
 	parse_virtualenv_status
         parse_vcs_status
@@ -713,6 +724,7 @@ prompt_command_function() {
         # if cwd_cmd have back-slash, then assign it value to cwd
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
+        set_shell_label "${cwd}"
 
         PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
