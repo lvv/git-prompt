@@ -445,16 +445,11 @@ _gp_get_tty() {
                 # and window number, to display it in the prompt
                 # TODO configurable prompt marker
                 # we have to do it like this, because session name may contain spaces
-                local sep tmux_info oldIFS
-                sep=$'\x1f'
+                local sep tmux_info
+                sep="~@~"  # used to be \x1f, bug tmux escapes arguments now
                 tmux_info=$(tmux display-message -t $TMUX_PANE -p "#S${sep}#I" 2> /dev/null)
-                oldIFS="$IFS"
-                IFS="$sep"
-                local -a tmux_array
-                tmux_array=($tmux_info)
-                IFS="$oldIFS"
-                _gp_tmux_session=${tmux_array[0]}
-                tty=${tmux_array[1]}
+                _gp_tmux_session=${tmux_info/$sep*/}
+                tty=${tmux_info/*$sep/}
             else
                 tty=
             fi
