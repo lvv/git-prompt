@@ -92,7 +92,7 @@
                    op_vcs_color=${op_vcs_color:-MAGENTA}
              detached_vcs_color=${detached_vcs_color:-RED}
 
-                  hex_vcs_color=${hex_vcs_color:-BLACK}         # gray
+                  hex_vcs_color=${hex_vcs_color:-dim}         # gray
 
 
         max_file_list_length=${max_file_list_length:-100}
@@ -194,7 +194,7 @@
 
          whiteonred='\['`tput setaf 7; tput setab 1; tput bold`'\]'
 
-                dim='\['`tput sgr0; tput setaf p1`'\]'  # half-bright
+                dim='\['`tput sgr0; tput dim`'\]'  # half-bright
 
             bw_bold='\['`tput bold`'\]'
 
